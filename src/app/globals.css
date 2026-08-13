@@ -1,0 +1,220 @@
+
+@import "tailwindcss";
+
+/* @theme {
+  --font-inter: 'Inter', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-lato: 'Lato', sans-serif;
+  
+  --animate-marquee-normal: marquee 15s linear infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+} */
+
+@theme {
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+  --font-lato: var(--font-lato);
+  --font-syne: var(--font-syne);
+  --font-montserrat: var(--font-montserrat);
+
+  --animate-marquee-normal: marquee 15s linear infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+}
+
+
+/* price range css  */
+.font-lato{
+  font-family: 'Lato', sans-serif;
+}
+
+/* Slider wrapper */
+.slider-wrapper {
+  position: relative;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+/* Background track */
+.slider-track-bg {
+  position: absolute;
+  left: 0; right: 0;
+  height: 5px;
+  background: #f0f0f0;
+  border-radius: 999px;
+  border: 1px solid #FF7050;
+}
+
+/* Filled portion */
+.slider-track-fill {
+  position: absolute;
+  left: 0;
+  height: 5px;
+  background: #FF7050;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* Range input */
+input[type=range].price-slider {
+  position: absolute;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  z-index: 2;
+  cursor: pointer;
+}
+
+input[type=range].price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #FF7050;
+  border: 4px solid white;
+  box-shadow: 0 0 0 2px #FF7050;
+}
+
+
+/* product gallary */
+
+.productgallery .swiper-slide-thumb-active{
+  border: 2px solid #FF7050;
+}
+
+
+
+/* rech text  */
+.blog-rich-text ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding-left: 0.5rem;
+}
+
+.blog-rich-text ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding-left: 0.5rem;
+}
+
+.blog-rich-text li {
+  margin-bottom: 0.5rem;
+  display: list-item;
+}
+
+.blog-rich-text h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 800;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #000;
+}
+
+.blog-rich-text h2 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: #000;
+}
+
+.blog-rich-text h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  margin-bottom: 0.6rem;
+}
+
+.blog-rich-text p {
+  margin-bottom: 1.2rem;
+  line-height: 1.8;
+}
+
+.blog-rich-text img {
+  border-radius: 12px;
+  margin: 2rem auto;
+  display: block;
+}
+
+.blog-rich-text a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+
+.reviewSwiper {
+  padding-bottom: 55px;
+}
+
+.reviewSwiper .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #d1d5db;
+  opacity: 1;
+}
+
+.reviewSwiper .swiper-pagination-bullet-active {
+  background: #111827;
+}
+
+.reviewSwiper .swiper-button-next,
+.reviewSwiper .swiper-button-prev {
+  display: none;
+}
+
+
+
+/* product reich test */
+/* Tiptap / ProseMirror list fix — Tailwind Preflight overrides these by default */
+.ProseMirror ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror li {
+  display: list-item;
+  margin: 0.25rem 0;
+}
+
+.ProseMirror li p {
+  margin: 0; /* tiptap wraps li text in <p>, remove extra spacing */
+  display: inline;
+}
+
+/* Nested lists */
+.ProseMirror ul ul,
+.ProseMirror ol ol,
+.ProseMirror ul ol,
+.ProseMirror ol ul {
+  margin: 0.25rem 0 0.25rem 1rem;
+}
