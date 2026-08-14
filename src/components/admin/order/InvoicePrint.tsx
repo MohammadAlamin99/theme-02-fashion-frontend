@@ -45,7 +45,7 @@ interface InvoiceProps {
   baseStorageUrl: string;
 }
 
-export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoiceProps>(
+export const InvoicePrint = React.forwardRef<HTMLDivElement, any>(
   ({ order, baseStorageUrl }, ref) => {
     const { data: settingResponse } = useQuery({
       queryKey: ["global-settings"],

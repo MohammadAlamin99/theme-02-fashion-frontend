@@ -1,7 +1,5 @@
-// "use client";
+import AddUnitMain from "@/components/admin/catalog/unit/add/AddUnitMain";
 
-// import AddUnitMain from "@/components/admin/catalog/unit/add/AddUnitMain";
-
-// export default function Page() {
-//   return <AddUnitMain />;
-// }
+export default function Page() {
+  return <AddUnitMain />;
+}
