@@ -1377,16 +1377,51 @@ export default function AddOrderMain() {
     !shippingSettings ||
     itemProductQueries.some((q) => q.isLoading || q.isFetching);
 
+  // useEffect(() => {
+  //   if (dynamicShippingOptions.length === 0 || isShippingDataLoading) return;
+
+  //   const exists = dynamicShippingOptions.some(
+  //     (opt) => opt.key === shipping.shippingArea,
+  //   );
+
+  //   // Only auto-pick a default when there's no selection yet, or when the
+  //   // user hasn't manually chosen one themselves and the key has genuinely
+  //   // become invalid.
+  //   if (
+  //     !shipping.shippingArea ||
+  //     (!exists && !userSelectedShippingRef.current)
+  //   ) {
+  //     setShipping((prev) => ({
+  //       ...prev,
+  //       shippingArea: dynamicShippingOptions[0].key,
+  //     }));
+  //   }
+  // }, [dynamicShippingOptions, isShippingDataLoading, shipping.shippingArea]);
+
+  // auto-select effect
   useEffect(() => {
     if (dynamicShippingOptions.length === 0 || isShippingDataLoading) return;
+    if (
+      isEditMode &&
+      !hasMatchedEditShippingRef.current &&
+      shipping.actualShippingFee !== null
+    ) {
+      hasMatchedEditShippingRef.current = true;
+      const matched = dynamicShippingOptions.find(
+        (opt) => Number(opt.fee) === Number(shipping.actualShippingFee),
+      );
+      if (matched) {
+        userSelectedShippingRef.current = true;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setShipping((prev) => ({ ...prev, shippingArea: matched.key }));
+        return;
+      }
+    }
 
     const exists = dynamicShippingOptions.some(
       (opt) => opt.key === shipping.shippingArea,
     );
 
-    // Only auto-pick a default when there's no selection yet, or when the
-    // user hasn't manually chosen one themselves and the key has genuinely
-    // become invalid.
     if (
       !shipping.shippingArea ||
       (!exists && !userSelectedShippingRef.current)
@@ -1396,12 +1431,23 @@ export default function AddOrderMain() {
         shippingArea: dynamicShippingOptions[0].key,
       }));
     }
-  }, [dynamicShippingOptions, isShippingDataLoading, shipping.shippingArea]);
+  }, [
+    dynamicShippingOptions,
+    isShippingDataLoading,
+    shipping.shippingArea,
+    shipping.actualShippingFee,
+    isEditMode,
+  ]);
 
   // --- 2. POPULATE FORM (Render-time hydration when existingOrder is loaded) ---
+  const hasMatchedEditShippingRef = useRef(false);
   const [loadedOrderId, setLoadedOrderId] = useState<string | null>(null);
   if (isEditMode && existingOrder && loadedOrderId !== existingOrder.id) {
     setLoadedOrderId(existingOrder.id);
+    // eslint-disable-next-line react-hooks/immutability, react-hooks/refs
+    hasMatchedEditShippingRef.current = false;
+    // eslint-disable-next-line react-hooks/refs
+    userSelectedShippingRef.current = false;
     setCustomer({
       customerName: existingOrder.customer_name || "",
       customerPhone: existingOrder.customer_phone || "",
@@ -1411,7 +1457,7 @@ export default function AddOrderMain() {
 
     const realShippingFee = Number(existingOrder.shipping_fee) || 0;
     setShipping({
-      shippingArea: realShippingFee > 60 ? "outside" : "inside",
+      shippingArea: "",
       paymentMethod: existingOrder.payment_method || "COD",
       source: existingOrder.source || "admin_panel",
       status: existingOrder.status || "PENDING",

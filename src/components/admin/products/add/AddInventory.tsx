@@ -39,7 +39,6 @@ export default function InventorySection({
           <input
             type="number"
             {...register("quantity")}
-            disabled={isVariantMandatory}
             className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none placeholder:text-gray-400 disabled:opacity-50"
             placeholder={isVariantMandatory ? "Derived from attributes" : "50"}
           />
@@ -73,19 +72,23 @@ export default function InventorySection({
         </div>
         <div>
           <Label>Warranty</Label>
-          <Input placeholder="12 months" />
+          <Input {...register("warranty")} placeholder="12 months" />
         </div>
         <div>
           <Label>SKU / Code</Label>
-          <Input placeholder="SAM-REF-525" />
+          <Input {...register("sku")} placeholder="SAM-REF-525" />
         </div>
         <div>
           <Label>Barcode</Label>
-          <Input placeholder="88091..." icon={Barcode} />
+          <Input
+            {...register("barcode")}
+            placeholder="88091..."
+            icon={Barcode}
+          />
         </div>
         <div>
           <Label>Priority Rank</Label>
-          <Input type="number" placeholder="100" />
+          <Input type="number" {...register("priority")} placeholder="100" />
         </div>
       </div>
     </SectionWrapper>
