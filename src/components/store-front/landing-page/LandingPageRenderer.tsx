@@ -1,16 +1,16 @@
-
 "use client";
 
 import React, { useRef, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import { Star, Sparkles, Play } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
+import { Product } from "@/@types/product.type";
 
 // ==========================================
 // 1. TYPES & INTERFACES
@@ -71,7 +71,7 @@ export interface LandingPageData {
 
 interface LandingPageRendererProps {
   liveData: LandingPageData;
-  productList?: any[];
+  productList?: Product[];
 }
 
 // ==========================================
@@ -90,7 +90,7 @@ export const getImageUrl = (path?: string | null): string | null => {
   const rawApiUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8082/api/v1";
+    "http://localhost:8083/api/v1";
 
   const baseUrl = rawApiUrl.replace(/\/api(\/v1)?\/?$/, "");
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
@@ -232,7 +232,10 @@ export default function LandingPageRenderer({
       </header>
 
       {/* 🚀 1. HERO SECTION */}
-      <section id="about" className="min-h-[80vh] flex items-center px-6 md:px-12 py-10 scroll-mt-28">
+      <section
+        id="about"
+        className="min-h-[80vh] flex items-center px-6 md:px-12 py-10 scroll-mt-28"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center max-w-6xl mx-auto w-full">
           <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
             <h1 className="text-4xl md:text-6xl font-syne font-bold tracking-tight leading-[1.1]">
@@ -243,8 +246,7 @@ export default function LandingPageRenderer({
                 : t.landingPage.defaultHeadline}
             </h1>
             <p className="text-sm md:text-base text-zinc-500 font-montserrat leading-relaxed max-w-md">
-              {liveData.subHeadline ||
-                t.landingPage.defaultSubHeadline}
+              {liveData.subHeadline || t.landingPage.defaultSubHeadline}
             </p>
             <button
               style={{
@@ -308,7 +310,10 @@ export default function LandingPageRenderer({
       )}
 
       {/* 🚀 3. PRODUCT GALLERY SHOWCASE (2x2 GRID TO FIT SCREEN) */}
-      <section id="gallery" className="min-h-[80vh] flex items-center px-6 py-12 scroll-mt-28">
+      <section
+        id="gallery"
+        className="min-h-[80vh] flex items-center px-6 py-12 scroll-mt-28"
+      >
         <div className="text-center space-y-8 max-w-5xl mx-auto w-full">
           <div className="space-y-2">
             <h2 className="text-2xl md:text-4xl font-syne font-bold tracking-tight">
@@ -343,7 +348,10 @@ export default function LandingPageRenderer({
       </section>
 
       {/* 🚀 4. FEATURES SECTION */}
-      <section id="features" className="min-h-[70vh] flex items-center py-16 scroll-mt-28">
+      <section
+        id="features"
+        className="min-h-[70vh] flex items-center py-16 scroll-mt-28"
+      >
         <div className="text-center space-y-14 max-w-6xl mx-auto w-full">
           <div className="space-y-3">
             <h2 className="text-3xl md:text-4xl font-syne font-bold tracking-tight">
@@ -441,7 +449,10 @@ export default function LandingPageRenderer({
       </section>
 
       {/* 🚀 5. CUSTOMER REVIEWS SECTION */}
-      <section id="reviews" className="min-h-[70vh] flex items-center px-6 py-12 scroll-mt-28">
+      <section
+        id="reviews"
+        className="min-h-[70vh] flex items-center px-6 py-12 scroll-mt-28"
+      >
         <div className="text-center space-y-10 max-w-5xl mx-auto w-full">
           <h2 className="text-2xl md:text-4xl font-syne font-bold tracking-tight">
             {t.landingPage.customerReviews}
@@ -530,7 +541,10 @@ export default function LandingPageRenderer({
       </section>
 
       {/* 🚀 6. FAQS SECTION */}
-      <section id="faqs" className="min-h-[70vh] flex items-center px-6 py-12 scroll-mt-28">
+      <section
+        id="faqs"
+        className="min-h-[70vh] flex items-center px-6 py-12 scroll-mt-28"
+      >
         <div className="max-w-5xl mx-auto w-full text-center space-y-8">
           <div className="space-y-1">
             <h2 className="text-2xl md:text-4xl font-syne font-bold tracking-tight">
@@ -538,7 +552,7 @@ export default function LandingPageRenderer({
             </h2>
 
             <p className="text-xs text-slate-500">
-             {t.landingPage.faqSubtitle}
+              {t.landingPage.faqSubtitle}
             </p>
           </div>
 
@@ -599,7 +613,10 @@ export default function LandingPageRenderer({
       </section>
 
       {/* 🚀 7. VIDEO BANNER */}
-      <section id="video" className="min-h-[60vh] flex items-center py-4 max-w-5xl mx-auto w-full scroll-mt-28">
+      <section
+        id="video"
+        className="min-h-[60vh] flex items-center py-4 max-w-5xl mx-auto w-full scroll-mt-28"
+      >
         <div className="aspect-video w-full rounded-[2.5rem] overflow-hidden shadow-2xl relative border border-slate-200">
           {!playVideo ? (
             <>
@@ -642,7 +659,10 @@ export default function LandingPageRenderer({
       </section>
 
       {/* 🚀 8. "ORDER OUR PRODUCT" SECTION */}
-      <section id="order" className="min-h-screen flex items-center px-6 py-12 scroll-mt-28">
+      <section
+        id="order"
+        className="min-h-screen flex items-center px-6 py-12 scroll-mt-28"
+      >
         <div className="max-w-6xl mx-auto w-full text-center space-y-10">
           <div className="space-y-2">
             <h2 className="text-2xl md:text-4xl font-syne font-bold tracking-tight">
@@ -706,7 +726,9 @@ export default function LandingPageRenderer({
 
               {/* Product Name */}
               <h3 className="text-2xl md:text-3xl font-syne font-bold tracking-tight leading-tight">
-                {selectedProduct?.name || liveData.title || t.landingPage.productName}
+                {selectedProduct?.name ||
+                  liveData.title ||
+                  t.landingPage.productName}
               </h3>
 
               {/* Price */}
@@ -758,12 +780,14 @@ export default function LandingPageRenderer({
                   </span>
 
                   <span className="text-slate-400">
-                    {t.landingPage.productReviews} ({selectedProduct?.total_reviews || 0})
+                    {t.landingPage.productReviews} (
+                    {selectedProduct?.total_reviews || 0})
                   </span>
                 </div>
 
                 <p className="text-sm text-slate-500 leading-7 font-montserrat">
-                  {selectedProduct?.description || t.landingPage.detailedDescription}
+                  {selectedProduct?.description ||
+                    t.landingPage.detailedDescription}
                 </p>
               </div>
             </div>

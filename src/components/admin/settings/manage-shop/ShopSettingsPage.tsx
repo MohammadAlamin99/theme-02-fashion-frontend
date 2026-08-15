@@ -54,7 +54,7 @@ export default function ShopSettingsPage() {
           ))}
         </div>
       </div>
-      <div className="mt-2">
+      <div className="mt-3">
         <ShopManagementGrid />
       </div>
     </>

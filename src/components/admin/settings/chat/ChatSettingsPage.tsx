@@ -39,7 +39,13 @@ interface InputFieldProps {
   subLabel?: string;
 }
 
-const InputField = ({ label, placeholder, value, onChange, subLabel }: InputFieldProps) => (
+const InputField = ({
+  label,
+  placeholder,
+  value,
+  onChange,
+  subLabel,
+}: InputFieldProps) => (
   <div className="flex flex-col gap-2 w-full">
     <label className="text-[14px] font-bold text-[#003032] font-lato">
       {label}
@@ -56,7 +62,9 @@ const InputField = ({ label, placeholder, value, onChange, subLabel }: InputFiel
 );
 
 export default function ChatSettingsPage() {
-  const [activeSupport, setActiveSupport] = useState<"Phone" | "WhatsApp" | "Messenger">("Phone");
+  const [activeSupport, setActiveSupport] = useState<
+    "Phone" | "WhatsApp" | "Messenger"
+  >("Phone");
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -106,7 +114,8 @@ export default function ChatSettingsPage() {
     },
   });
 
-  const handleSave = () => mutation.mutate(formData as unknown as Record<string, unknown>);
+  const handleSave = () =>
+    mutation.mutate(formData as unknown as Record<string, unknown>);
 
   const getPlatformValue = () => {
     if (activeSupport === "Phone") return formData.phone;
@@ -116,7 +125,8 @@ export default function ChatSettingsPage() {
 
   const getPlatformPlaceholder = () => {
     if (activeSupport === "Phone") return "+8801712345678 or 01712345678";
-    if (activeSupport === "WhatsApp") return "https://wa.me/8801712345678 or 01712345678";
+    if (activeSupport === "WhatsApp")
+      return "https://wa.me/8801712345678 or 01712345678";
     return "https://m.me/yourpage or www.facebook.com/messages/t/yourpage";
   };
 
@@ -144,12 +154,12 @@ export default function ChatSettingsPage() {
       icon: ChatInterfaceIcon,
       path: "/admin/dashboard/settings/chat",
     },
-    // {
-    //   id: "shop",
-    //   label: "Manage Shop",
-    //   icon: ShopSettingsIcon,
-    //   path: "/admin/dashboard/settings/manage-shop",
-    // },
+    {
+      id: "shop",
+      label: "Manage Shop",
+      icon: ShopSettingsIcon,
+      path: "/admin/dashboard/settings/manage-shop",
+    },
     {
       id: "profile",
       label: "Profile Details",
@@ -313,4 +323,3 @@ export default function ChatSettingsPage() {
     </div>
   );
 }
-

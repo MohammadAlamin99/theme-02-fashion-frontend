@@ -426,24 +426,6 @@ export default function ProductUploadMain() {
               uploading={uploadingMedia}
               setUploading={setUploadingMedia}
             />
-            {/* 
-            <SectionWrapper title="Pricing">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div>
-                  <Label required>Sell Price (৳)</Label>
-                  <Input type="number" placeholder="0" />
-                </div>
-                <div>
-                  <Label required>Regular Price (৳)</Label>
-                  <Input type="number" placeholder="0" />
-                </div>
-                <div>
-                  <Label>Cost Price (Optional) (৳)</Label>
-                  <Input type="number" placeholder="0" />
-                </div>
-              </div>
-              
-            </SectionWrapper> */}
 
             <SectionWrapper title="Pricing">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

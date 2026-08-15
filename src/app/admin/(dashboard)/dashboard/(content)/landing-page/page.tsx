@@ -174,7 +174,7 @@ export default function LandingPagePage() {
 
   const onImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    fieldPath: any,
+    fieldPath: keyof CreateLandingPageDto,
   ) => {
     e.preventDefault();
     const files = e.target.files;
@@ -203,7 +203,7 @@ export default function LandingPagePage() {
     }
     savePage(formData, {
       onSuccess: () => toast.success("Landing Page Published!"),
-      onError: (err: any) => toast.error(err.message),
+      onError: (err: Error) => toast.error(err.message),
     });
   };
 
@@ -222,7 +222,7 @@ export default function LandingPagePage() {
   const embedVideoUrl = getEmbedVideoUrl(liveData.videoLink);
 
   return (
-    <div className="bg-[#f4f6f9] min-h-screen text-slate-800">
+    <div className="bg-white min-h-screen text-slate-800 font-poppins">
       <ContentHead />
       <ContentNavigation />
 
@@ -232,18 +232,18 @@ export default function LandingPagePage() {
         {/* ========================================================= */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-[58%] overflow-y-auto p-8 scrollbar-hide space-y-6 pb-40"
+          className="w-[58%] overflow-y-auto scrollbar-hide space-y-6 pb-40"
         >
           {/* PRODUCT & URL CONFIGURATION */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+          <div className="bg-white p-6 rounded-lg space-y-4 transition-all">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
               <Search size={14} /> Product & Page Setup
             </div>
-            <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-2.5 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20">
+            <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-2.5 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20">
               <Search size={18} className="text-slate-400 ml-2" />
               <select
                 {...register("productId", { required: true })}
-                className="flex-1 bg-transparent outline-none text-sm font-semibold text-slate-700"
+                className="flex-1 bg-transparent outline-none text-sm font-normal text-slate-700"
               >
                 <option value="">Select Target Product...</option>
                 {(Array.isArray(productList)
@@ -257,27 +257,27 @@ export default function LandingPagePage() {
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center bg-slate-50 rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20">
-                <span className="px-3 py-2.5 bg-slate-100 text-slate-500 text-xs font-bold border-r border-slate-200">
+              <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20">
+                <span className="px-3 py-2.5 bg-slate-100 text-slate-500 text-xs font-normal border-r border-slate-200">
                   /lp/
                 </span>
                 <input
                   {...register("slug", { required: true })}
                   placeholder="custom-landing-slug"
-                  className="flex-1 p-2.5 bg-transparent outline-none text-xs font-semibold"
+                  className="flex-1 p-2.5 bg-transparent outline-none text-sm font-normal"
                 />
               </div>
               <input
                 {...register("title")}
                 placeholder="SEO Meta Title"
-                className="bg-slate-50 rounded-xl border border-slate-200 p-2.5 outline-none text-xs font-semibold focus:ring-2 focus:ring-blue-500/20"
+                className="bg-slate-50 rounded-lg border border-slate-200 p-2.5 outline-none text-xs font-noraml focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
 
           {/* HERO SECTION */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+          <div className="bg-white p-6 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
               <Layout size={14} /> Hero Section
             </div>
             <div className="grid grid-cols-[1.2fr_1.8fr] gap-6 items-start">
@@ -307,12 +307,12 @@ export default function LandingPagePage() {
               <div className="space-y-3">
                 <textarea
                   {...register("headline", { required: true })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
                   placeholder="Main Headline (e.g., Transform Your Daily Routine)*"
                 />
                 <textarea
                   {...register("subHeadline")}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
                   placeholder="Sub-headline / Short catchy summary..."
                 />
               </div>
@@ -320,9 +320,9 @@ export default function LandingPagePage() {
           </div>
 
           {/* OFFERS / TRUST BAR */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
+          <div className="bg-white p-6 rounded-lg space-y-4 transition-all">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
                 <Sparkles size={14} /> Offers & Trust Highlights
               </div>
               <button
@@ -339,7 +339,7 @@ export default function LandingPagePage() {
               {offerFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100"
+                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg flex-wrap"
                 >
                   <label className="h-10 w-10 border border-dashed border-slate-300 rounded-lg bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-blue-400 transition">
                     {watch(`offers.${index}.icon`) ? (
@@ -358,12 +358,12 @@ export default function LandingPagePage() {
                   </label>
                   <input
                     {...register(`offers.${index}.title`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Offer Title (e.g. Free Delivery)"
                   />
                   <input
                     {...register(`offers.${index}.subTitle`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Sub-text (e.g. On orders over $50)"
                   />
                   <button
@@ -379,9 +379,9 @@ export default function LandingPagePage() {
           </div>
 
           {/* KEY FEATURES */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
+          <div className="bg-white p-6 rounded-lg space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
                 <CheckCircle2 size={14} /> Key Features
               </div>
               <button
@@ -398,7 +398,7 @@ export default function LandingPagePage() {
               {featFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100"
+                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex-wrap"
                 >
                   <label className="h-10 w-10 border border-dashed border-slate-300 rounded-lg bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-blue-400 transition">
                     {watch(`features.${index}.icon`) ? (
@@ -419,12 +419,12 @@ export default function LandingPagePage() {
                   </label>
                   <input
                     {...register(`features.${index}.title`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-noraml outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Feature Name"
                   />
                   <input
                     {...register(`features.${index}.subTitle`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-noraml outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Short feature explanation"
                   />
                   <button
@@ -440,8 +440,8 @@ export default function LandingPagePage() {
           </div>
 
           {/* SHOWCASE GALLERY */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+          <div className="bg-white p-6 rounded-lg space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
               <ImageIcon size={14} /> Showcase Gallery (4 Slots)
             </div>
             <div className="grid grid-cols-4 gap-4">
@@ -472,8 +472,8 @@ export default function LandingPagePage() {
           </div>
 
           {/* VIDEO SECTION WITH THUMBNAIL PREVIEW */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+          <div className="bg-white p-6 rounded-lg  space-y-4 ">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
               <Video size={14} /> Product Video Section
             </div>
             <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20">
@@ -515,9 +515,9 @@ export default function LandingPagePage() {
           </div>
 
           {/* CUSTOMER REVIEWS (FIXED COLLISION) */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
+          <div className="bg-white p-6 rounded-lg  space-y-4 ">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
                 <Star size={14} /> Customer Reviews
               </div>
               <button
@@ -584,9 +584,9 @@ export default function LandingPagePage() {
           </div>
 
           {/* FAQS (FIXED COLLISION) */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
+          <div className="bg-white p-6 rounded-lg  space-y-4 ">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
                 <HelpCircle size={14} /> Frequently Asked Questions
               </div>
               <button
@@ -630,8 +630,8 @@ export default function LandingPagePage() {
           </div>
 
           {/* THEME BRANDING */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm space-y-4 transition-all hover:shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
+          <div className="bg-white p-6 rounded-lg  space-y-4 ">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
               <Palette size={14} /> Color Theme Configuration
             </div>
             <div className="grid grid-cols-3 gap-6">
@@ -686,17 +686,17 @@ export default function LandingPagePage() {
           </div>
 
           {/* SUBMIT FOOTER */}
-          <div className="flex justify-between items-center py-6 border-t border-slate-200">
+          <div className="flex justify-between items-center py-6 border-t border-slate-200 px-6">
             <button
               type="button"
-              className="font-bold text-slate-600 flex items-center gap-2 text-xs hover:text-slate-900 transition"
+              className="font-medium text-slate-600 flex items-center gap-2 text-sm hover:text-slate-900 transition bg-gray-200 p-4 rounded-lg cursor-pointer"
             >
               <FileText size={18} /> Save as Draft
             </button>
             <button
               type="submit"
               disabled={isSaving || !liveData.productId}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-8 py-3.5 rounded-lg font-medium text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving ? (
                 <Loader2 className="animate-spin" size={18} />
@@ -712,14 +712,14 @@ export default function LandingPagePage() {
         {/* --- RIGHT PREVIEW: LIVE VISUAL DEVICE --- */}
         {/* ========================================================= */}
 
-        <div className="w-[42%] bg-slate-200 p-6 overflow-y-auto scrollbar-hide flex flex-col items-center">
+        <div className="w-[42%] bg-gray-100 rounded-lg p-6 overflow-y-auto scrollbar-hide flex flex-col items-center">
           <div className="flex justify-between items-center w-full max-w-md mb-4 font-bold text-slate-700 text-sm shrink-0">
             Live Visual Preview <Monitor size={20} />
           </div>
 
           {/* 🚀 EXACT LAYOUT CONTAINER MATCHING STOREFRONT DESIGN */}
           <div
-            className="w-full max-w-md h-[780px] bg-white shadow-2xl rounded-[2rem] border-[8px] border-slate-900 overflow-y-auto scrollbar-hide flex flex-col transition-all shrink-0"
+            className="w-full max-w-md h-[780px] bg-white rounded-xl border-2 border-slate-900 overflow-y-auto scrollbar-hide flex flex-col transition-all shrink-0"
             style={{
               backgroundColor: liveData.backgroundColor || "#ffffff",
               color: liveData.textColor || "#111827",

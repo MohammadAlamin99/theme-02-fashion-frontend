@@ -1,5 +1,6 @@
 import { apiFetch } from "@/utils/api";
 import { CartItem } from "@/@types/order.type";
+import Cookies from 'js-cookie';
 
 export interface CourierConfig {
   inside: number;
@@ -149,4 +150,28 @@ export const calculateCartShippingDetails = (
     totalShippingFee,
     itemShippingFees,
   };
+};
+
+// update shipping charge
+export const updateShippingSettings = async (
+  payload: Partial<ShippingSettingsData>,
+): Promise<ShippingSettingsData> => {
+  const token = Cookies.get("accessToken");
+
+  const response = await apiFetch("/shipping-settings", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update shipping settings");
+  }
+
+  const result: ShippingSettingsResponse = await response.json();
+  return result.data;
 };

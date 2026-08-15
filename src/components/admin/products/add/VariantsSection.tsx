@@ -27,7 +27,7 @@ export default function VariantsSection({
 
   const baseStorageUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
+    "http://localhost:8083";
   const variantFileRef = useRef<HTMLInputElement>(null);
 
   // draft attribute builder (Color: Black / type: color) etc.

@@ -21,6 +21,7 @@ import ContentIcon from "@/components/store-front/svg/svg/ContentIcon";
 import ChatInterfaceIcon from "@/components/store-front/svg/svg/ChatInterfaceIcon";
 import PrimaryButton from "../common/PrimaryButton";
 import toast from "react-hot-toast";
+import ShopSettingsIcon from "@/components/store-front/svg/svg/ShopSettingsIcon";
 
 const InputGroup = ({
   label,
@@ -43,7 +44,7 @@ const InputGroup = ({
         {...register(name)}
         type={type}
         placeholder={placeholder}
-        className="bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-base outline-none placeholder:text-[#A2A2A2] border-none font-poppins"
+        className="bg-[#F9F9F9] rounded-lg px-4 py-3 text-base outline-none placeholder:text-[#A2A2A2] border-none font-poppins"
       />
     </div>
   );
@@ -137,12 +138,12 @@ export default function SettingsPage() {
               icon: ChatInterfaceIcon,
               path: "/admin/dashboard/settings/chat",
             },
-            // {
-            //   id: "shop",
-            //   label: "Manage Shop",
-            //   icon: ShopSettingsIcon,
-            //   path: "/admin/dashboard/settings/shop",
-            // },
+            {
+              id: "shop",
+              label: "Manage Shop",
+              icon: ShopSettingsIcon,
+              path: "/admin/dashboard/settings/manage-shop",
+            },
             {
               id: "profile",
               label: "Profile Details",
