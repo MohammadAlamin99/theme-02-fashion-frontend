@@ -60,7 +60,7 @@ const fetchChatSettings = async (): Promise<ChatSettings> => {
       method: "GET",
       cache: "no-store",
     });
-    
+
     const json = await res.json();
     return json?.data ?? json ?? {};
   } catch (err) {
@@ -68,7 +68,6 @@ const fetchChatSettings = async (): Promise<ChatSettings> => {
     return {};
   }
 };
-
 
 const ChatWidget = () => {
   const { language } = useLanguage();
@@ -256,7 +255,7 @@ const ChatWidget = () => {
       >
         <FiFileText
           size={16}
-          className={isMe ? "text-white" : "text-[#FF7050]"}
+          className={isMe ? "text-white" : "text-[#7CB640]"}
         />
         <div className="overflow-hidden flex-1">
           <p className="truncate font-semibold text-[11px]">
@@ -269,18 +268,20 @@ const ChatWidget = () => {
 
   if (!isStoreReady || !user) return null;
 
-  const whatsappHref = formatWhatsappUrl(settings?.whatsappUrl || settings?.phone);
+  const whatsappHref = formatWhatsappUrl(
+    settings?.whatsappUrl || settings?.phone,
+  );
   const messengerHref = formatMessengerUrl(settings?.messengerUrl);
   const enableLiveChat = settings?.enableLiveChat ?? true;
 
   return (
-    <div className="fixed bottom-[85px] right-4 lg:bottom-6 lg:right-6 z-[210] font-sans flex flex-col items-end antialiased selection:bg-orange-100">
+    <div className="fixed bottom-[85px] right-4 lg:bottom-6 lg:right-6 z-[210] font-sans flex flex-col items-end">
       {/* 🚀 1. THE MULTI-CHANNEL OPTIONS MENU */}
       {showOptions && !isOpen && (
         <div className="flex flex-col gap-3 mb-4 animate-in fade-in slide-in-from-bottom-5 duration-300 relative items-end">
           {/* 📞 PHONE POPUP */}
           {showPhoneInfo && (
-            <div className="absolute right-14 bottom-0 w-64 bg-white border border-gray-100 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-5 animate-in fade-in slide-in-from-right-4 duration-300 z-50">
+            <div className="absolute right-14 bottom-0 w-64 bg-white border border-gray-100 rounded-2xl p-5 animate-in fade-in slide-in-from-right-4 duration-300 z-50">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   Contact Help Desk
@@ -302,7 +303,7 @@ const ChatWidget = () => {
                 {settings?.phone && (
                   <button
                     onClick={copyToClipboard}
-                    className="text-[#FF7050] hover:text-[#e65c3c] border-none bg-transparent cursor-pointer p-1"
+                    className="text-[#7CB640] hover:text-[#7CB640] border-none bg-transparent cursor-pointer p-1"
                   >
                     {copied ? (
                       <FiCheck size={16} className="text-emerald-500" />
@@ -320,7 +321,9 @@ const ChatWidget = () => {
                   <FiPhone size={14} /> Call Now
                 </a>
               ) : (
-                <p className="text-xs text-center text-gray-400">Phone number not configured</p>
+                <p className="text-xs text-center text-gray-400">
+                  Phone number not configured
+                </p>
               )}
             </div>
           )}
@@ -372,31 +375,30 @@ const ChatWidget = () => {
                 setShowOptions(false);
                 setShowPhoneInfo(false);
               }}
-              className="flex items-center justify-center w-12 h-12 bg-[#FF7050] text-white rounded-full shadow-lg hover:scale-110 transition-all border-none cursor-pointer"
+              className="flex items-center justify-center w-12 h-12 bg-[#7CB640] text-white rounded-full shadow-lg hover:scale-110 transition-all border-none cursor-pointer"
               title="Live Chat"
             >
               <FiMessageSquare size={22} />
             </button>
           )}
-
         </div>
       )}
 
       {/* 🚀 2. THE INTERNAL MESSAGE WINDOW */}
       {isOpen && (
-        <div className="w-[calc(100vw-32px)] sm:w-[400px] h-[480px] sm:h-[520px] bg-white border border-gray-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 transform origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-[calc(100vw-32px)] sm:w-[400px] h-[480px] sm:h-[520px] bg-white border font-poppins border-gray-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 transform origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-[#FF7050] to-[#ff846b] text-white flex items-center justify-between shrink-0 shadow-sm">
+          <div className="p-4 bg-gradient-to-r from-[#7CB640] to-[#7CB640] text-white flex items-center justify-between shrink-0 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center font-bold text-sm relative border border-white/10 shadow-inner">
-                CM
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#FF7050] rounded-full shadow-sm animate-pulse" />
+                OP
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#7CB640] rounded-full shadow-sm animate-pulse" />
               </div>
               <div>
-                <h4 className="text-xs font-bold tracking-wide uppercase">
+                <h4 className="text-sm font-medium tracking-wide font-poppins">
                   {t.chat.helpDesk}
                 </h4>
-                <p className="text-[10px] text-orange-50/80 font-medium">
+                <p className="text-[12px] text-orange-50/80 font-medium">
                   {t.chat.instantReply}
                 </p>
               </div>
@@ -420,7 +422,7 @@ const ChatWidget = () => {
           <div className="flex-1 overflow-y-auto p-4 bg-[#F8FAFC] space-y-3.5 custom-scrollbar">
             {loadingHistory ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                <FiLoader className="animate-spin text-[#FF7050]" size={20} />
+                <FiLoader className="animate-spin text-[#7CB640]" size={20} />
                 <p className="text-xs font-medium">Synchronizing...</p>
               </div>
             ) : Array.isArray(messages) && messages.length === 0 ? (
@@ -445,7 +447,7 @@ const ChatWidget = () => {
                     >
                       {msg.text && (
                         <div
-                          className={`p-3 text-[13px] leading-relaxed shadow-3xs border ${isMe ? "bg-[#FF7050] text-white rounded-2xl rounded-tr-none border-transparent font-medium" : "bg-white text-gray-800 rounded-2xl rounded-tl-none border-gray-200/60 font-normal"}`}
+                          className={`p-3 text-[13px] leading-relaxed shadow-3xs border ${isMe ? "bg-[#7CB640] text-white rounded-2xl rounded-tr-none border-transparent font-medium" : "bg-white text-gray-800 rounded-2xl rounded-tl-none border-gray-200/60 font-normal"}`}
                         >
                           {msg.text}
                         </div>
@@ -507,7 +509,7 @@ const ChatWidget = () => {
                           alt=""
                         />
                       ) : (
-                        <FiFileText size={16} className="text-[#FF7050] ml-1" />
+                        <FiFileText size={16} className="text-[#7CB640] ml-1" />
                       )}
                       <span className="text-[10px] text-gray-600 truncate max-w-[80px] font-semibold">
                         {att.name}
@@ -527,7 +529,7 @@ const ChatWidget = () => {
 
             <form
               onSubmit={handleSendMessage}
-              className="flex items-center gap-2.5 bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:bg-white focus-within:border-[#FF7050] transition-all relative"
+              className="flex items-center gap-2.5 bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:bg-white focus-within:border-[#7CB640] transition-all relative"
             >
               <input
                 type="file"
@@ -539,10 +541,10 @@ const ChatWidget = () => {
                 type="button"
                 disabled={uploading}
                 onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-[#FF7050] transition-colors cursor-pointer border-none bg-transparent p-0 flex items-center"
+                className="text-gray-400 hover:text-[#7CB640] transition-colors cursor-pointer border-none bg-transparent p-0 flex items-center"
               >
                 {uploading ? (
-                  <FiLoader className="animate-spin text-[#FF7050]" size={18} />
+                  <FiLoader className="animate-spin text-[#7CB640]" size={18} />
                 ) : (
                   <FiPaperclip size={18} />
                 )}
@@ -565,7 +567,7 @@ const ChatWidget = () => {
                   uploading ||
                   (!inputText.trim() && pendingAttachments.length === 0)
                 }
-                className="text-[#FF7050] bg-transparent border-none cursor-pointer flex items-center disabled:opacity-30"
+                className="text-[#7CB640] bg-transparent border-none cursor-pointer flex items-center disabled:opacity-30"
               >
                 <FiSend size={18} />
               </button>
@@ -585,7 +587,7 @@ const ChatWidget = () => {
           }
         }}
         type="button"
-        className="bg-[#FF7050] text-white w-14 h-14 rounded-full shadow-[0_8px_24px_rgba(255,112,80,0.35)] hover:bg-[#e66345] transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center z-[100] border-none outline-none"
+        className="bg-[#7CB640] text-white w-14 h-14 rounded-full shadow-[0_8px_24px_rgba(124,182,64,0.35)] hover:bg-[#7CB640] transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center z-[100] border-none outline-none"
       >
         {isOpen || showOptions ? (
           <FiX size={28} />

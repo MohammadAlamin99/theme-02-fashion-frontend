@@ -59,7 +59,7 @@ const OrderCompletedModal: React.FC<OrderCompletedModalProps> = ({
             <h3 className="text-[#FF5C24] text-base font-medium mb-4 font-poppins">
               Contact us for help.
             </h3>
-            <button className="bg-[#FF7050] text-white mx-auto px-[42px] py-4 rounded-[39px] flex items-center justify-center gap-3 text-base font-medium font-poppins">
+            <button className="bg-[#7CB640] text-white mx-auto px-[42px] py-4 rounded-[39px] flex items-center justify-center gap-3 text-base font-medium font-poppins">
               <IoCall size={24} className="md:size-7" />
               01904-300117
             </button>

@@ -411,7 +411,7 @@ export default {
   },
 
   chat: {
-    helpDesk: "Creass Mart Help Desk",
+    helpDesk: "Overseas Products Help Desk",
     instantReply: "We typically reply instantly",
   },
 

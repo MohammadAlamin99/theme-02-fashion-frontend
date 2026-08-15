@@ -1,43 +1,5 @@
 import { apiFetch } from "@/utils/api";
-import { getMohasagorProductBySlug } from "./mohasagorService";
 import { CartItem } from "@/@types/order.type";
-
-const getLocalMohasagorItems = (): {
-  id: string;
-  productId: string;
-  variantId?: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  variantInfo: { label: string; value: string; type?: string }[];
-}[] => {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("mohasagor_cart_items");
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveLocalMohasagorItems = (
-  items: {
-    id: string;
-    productId: string;
-    variantId?: string;
-    name: string;
-    price: number;
-    image: string;
-    quantity: number;
-    variantInfo: { label: string; value: string; type?: string }[];
-  }[],
-) => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem("mohasagor_cart_items", JSON.stringify(items));
-  } catch {}
-};
 
 // create cart
 export const createCart = async (
@@ -46,91 +8,6 @@ export const createCart = async (
   variantId?: string | null,
   guestId?: string | null,
 ) => {
-  if (productId.startsWith("mohasagor-")) {
-    const localItems = getLocalMohasagorItems();
-    const productObj = (await getMohasagorProductBySlug(productId)) ?? {
-      id: productId,
-      name: "Mohasagor Product",
-      sell_price: "0",
-      regular_price: "0",
-      images: ["/images/placeholder.svg"],
-      variants: [],
-    };
-
-    const safeName = productObj.name || "Mohasagor Product";
-    const safePrice = Number(productObj.sell_price) || 0;
-    const safeImage =
-      Array.isArray(productObj.images) && productObj.images.length > 0
-        ? productObj.images[0]
-        : "/images/placeholder.svg";
-
-    const matchingVariant =
-      variantId && Array.isArray(productObj.variants)
-        ? productObj.variants.find(
-            (variant: { id: string }) =>
-              String(variant.id) === String(variantId),
-          )
-        : null;
-
-    const variantImage = matchingVariant?.images?.[0];
-    const itemImage = variantImage || safeImage;
-
-    const variantInfo = Array.isArray(matchingVariant?.attributes)
-      ? matchingVariant.attributes.map(
-          (attr: {
-            label?: string;
-            name?: string;
-            type?: string;
-            key?: string;
-            value?: string;
-            val?: string;
-          }) => ({
-            label:
-              attr.label || attr.name || attr.type || attr.key || "Variant",
-            value: attr.value || attr.val || attr.name || "",
-            type: attr.type || undefined,
-          }),
-        )
-      : [];
-
-    const newItemId = variantId ? `${productId}:${variantId}` : productId;
-
-    const existingIndex = localItems.findIndex(
-      (i) =>
-        i.productId === productId &&
-        String(i.variantId || "") === String(variantId || ""),
-    );
-
-    if (existingIndex > -1) {
-      localItems[existingIndex].quantity += quantity;
-      localItems[existingIndex].image = itemImage;
-      localItems[existingIndex].variantId = variantId || undefined;
-      localItems[existingIndex].variantInfo = variantInfo;
-      localItems[existingIndex].variant = matchingVariant || undefined;
-    } else {
-      localItems.push({
-        id: newItemId,
-        productId,
-        variantId: variantId || undefined,
-        name: safeName,
-        price: safePrice,
-        image: itemImage,
-        quantity,
-        variantInfo,
-        product: productObj,
-        variant: matchingVariant
-          ? {
-              id: matchingVariant.id,
-              images: matchingVariant.images,
-            }
-          : undefined,
-      });
-    }
-
-    saveLocalMohasagorItems(localItems);
-    return { success: true, message: "Added to cart" };
-  }
-
   const response = await apiFetch(`cart/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -159,21 +36,6 @@ export const mergeCart = async (guestId: string) => {
 
 // update cart
 export const updateCartItem = async (cartItemId: string, quantity: number) => {
-  if (cartItemId.startsWith("mohasagor-")) {
-    const items = getLocalMohasagorItems();
-    const idx = items.findIndex(
-      (i) =>
-        i.id === cartItemId ||
-        i.productId === cartItemId ||
-        `${i.productId}:${i.variantId || ""}` === cartItemId,
-    );
-    if (idx > -1) {
-      items[idx].quantity = quantity;
-      saveLocalMohasagorItems(items);
-    }
-    return { success: true };
-  }
-
   const response = await apiFetch(`cart/update/${cartItemId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -203,20 +65,6 @@ export const fetchCart = async (guestId?: string | null) => {
     console.error("Server cart fetch error:", err);
   }
 
-  const localMohasagorItems = getLocalMohasagorItems();
-  if (localMohasagorItems.length > 0) {
-    const combinedItems = [...serverItems, ...localMohasagorItems];
-    const mohasagorSubTotal = localMohasagorItems.reduce(
-      (sum, item) =>
-        sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
-      0,
-    );
-    return {
-      items: combinedItems,
-      sub_total: serverSubTotal + mohasagorSubTotal,
-    };
-  }
-
   return {
     items: serverItems,
     sub_total: serverSubTotal,
@@ -225,18 +73,6 @@ export const fetchCart = async (guestId?: string | null) => {
 
 // delete cart item
 export const deleteCartItem = async (cartItemId: string) => {
-  if (cartItemId.startsWith("mohasagor-")) {
-    const items = getLocalMohasagorItems();
-    const filtered = items.filter(
-      (i) =>
-        i.id !== cartItemId &&
-        i.productId !== cartItemId &&
-        `${i.productId}:${i.variantId || ""}` !== cartItemId,
-    );
-    saveLocalMohasagorItems(filtered);
-    return { success: true };
-  }
-
   const response = await apiFetch(`cart/remove/${cartItemId}`, {
     method: "DELETE",
   });

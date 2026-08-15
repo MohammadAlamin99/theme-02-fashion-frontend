@@ -406,7 +406,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       {/* Price Section */}
       <div className="flex justify-between md:flex-row flex-col md:items-center items-start gap-3 border-b-2 border-[#D2D2D2] py-4">
         <div className="flex items-center gap-3">
-          <span className="text-[#FF7050] text-2xl sm:text-[32px] font-bold">
+          <span className="text-[#7CB640] text-2xl sm:text-[32px] font-bold">
             {t.product.bdt} {currentPrice.toLocaleString()}
           </span>
           {discount > 0 && regularPrice > currentPrice && (
@@ -475,7 +475,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                     {category}:
                   </span>
                   {currentSelectedVal && (
-                    <span className="text-[#FF7050] text-sm font-medium">
+                    <span className="text-[#7CB640] text-sm font-medium">
                       {currentSelectedVal}
                     </span>
                   )}
@@ -523,9 +523,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                         className={`flex items-center gap-2 px-4 py-2 border rounded-[8px] text-sm font-medium transition-all 
                     ${
                       isSelected
-                        ? "border-[#FF7050] bg-[#FF7050] text-white shadow-sm font-semibold cursor-pointer"
+                        ? "border-[#7CB640] bg-[#7CB640] text-white shadow-sm font-semibold cursor-pointer"
                         : isAvailable
-                          ? "border-[#E2E2E2] text-[#4D4D4D] hover:border-[#FF7050] bg-white cursor-pointer"
+                          ? "border-[#E2E2E2] text-[#4D4D4D] hover:border-[#7CB640] bg-white cursor-pointer"
                           : "border-[#F2F2F2] text-[#D2D2D2] bg-[#FAFAFA] cursor-not-allowed opacity-50"
                     }`}
                       >
@@ -561,8 +561,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                   onClick={() => setSelectedVariant(variant)}
                   className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium transition-all cursor-pointer ${
                     isSelected
-                      ? "border-[#FF7050] bg-[#FF7050] text-white shadow-md"
-                      : "border-gray-300 text-gray-700 hover:border-[#FF7050]"
+                      ? "border-[#7CB640] bg-[#7CB640] text-white shadow-md"
+                      : "border-gray-300 text-gray-700 hover:border-[#7CB640]"
                   }`}
                 >
                   {colorAttr?.hex && (
@@ -585,7 +585,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         <div className="flex items-center justify-between border border-[#E2E2E2] rounded-lg h-[52px] w-full sm:w-auto">
           <button
             onClick={() => setQty(Math.max(1, qty - 1))}
-            className="cursor-pointer px-5 h-full hover:text-[#FF7050] transition-colors"
+            className="cursor-pointer px-5 h-full hover:text-[#7CB640] transition-colors"
           >
             <AiOutlineMinus />
           </button>
@@ -594,7 +594,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           </span>
           <button
             onClick={() => setQty(qty + 1)}
-            className="cursor-pointer px-5 h-full hover:text-[#FF7050] transition-colors"
+            className="cursor-pointer px-5 h-full hover:text-[#7CB640] transition-colors"
           >
             <AiOutlinePlus />
           </button>
@@ -604,12 +604,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         <div className="flex items-center gap-3 w-full sm:flex-1">
           {!isThirdPartyProduct && (
             <button
-              className="cursor-pointer w-[52px] h-[52px] border border-[#FF7050] rounded-lg text-[#FF7050] text-2xl flex items-center justify-center hover:bg-[#FF7050]/5 transition-all"
+              className="cursor-pointer w-[52px] h-[52px] border border-[#7CB640] rounded-lg text-[#7CB640] text-2xl flex items-center justify-center hover:bg-[#7CB640]/5 transition-all"
               onClick={handleWishlistToggle}
               disabled={isAdding || isRemoving}
             >
               {isWishlisted ? (
-                <FaHeart className="w-5 h-5 md:w-6 md:h-6 text-[#FF7050]" />
+                <FaHeart className="w-5 h-5 md:w-6 md:h-6 text-[#7CB640]" />
               ) : (
                 <AiOutlineHeart />
               )}
@@ -618,7 +618,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 
           <button
             disabled={currentStock <= 0}
-            className="cursor-pointer flex-1 h-[52px] border-[1.5px] border-[#FF7050] text-[#FF7050] font-semibold rounded-[8px] hover:bg-[#FF7050]/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="cursor-pointer flex-1 h-[52px] border-[1.5px] border-[#7CB640] text-[#7CB640] font-semibold rounded-[8px] hover:bg-[#7CB640]/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             onClick={(e) => {
               e.preventDefault();
               handleAddToCart();

@@ -2,7 +2,7 @@ import { translations } from "@/locales";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 interface DescriptionProps {
-  content: string | null;
+  content?: string | null;
 }
 
 const DescriptionSection = ({ content }: DescriptionProps) => {

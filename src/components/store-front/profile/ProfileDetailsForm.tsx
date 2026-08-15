@@ -56,7 +56,7 @@ const ProfileDetailsForm = () => {
       // Calculate active base paths matching backend upload static server configuration assets
       const backendBaseUrl =
         process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-        "http://localhost:8082";
+        "http://localhost:8083";
       if (rawUser.avatar) {
         setAvatarPreview(
           rawUser.avatar.startsWith("data:") ||
@@ -194,7 +194,7 @@ const ProfileDetailsForm = () => {
   if (isLoading) {
     return (
       <div className="w-full h-64 flex flex-col items-center justify-center text-gray-500 font-poppins gap-3">
-        <FaSpinner className="animate-spin text-[#FF7050]" size={32} />
+        <FaSpinner className="animate-spin text-[#7CB640]" size={32} />
         <p className="text-sm">{t.profileDetails.loading}</p>
       </div>
     );
@@ -240,7 +240,7 @@ const ProfileDetailsForm = () => {
         {/* 🚀 FIXED: Dynamic Interactive Profile Picture Widget Section */}
         <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#FAFAFA] p-4 rounded-[10px] border border-dashed border-gray-200">
           <div className="relative group w-16 h-16 shrink-0">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6A00] to-[#FF9F1C] flex items-center justify-center text-white text-xl font-bold overflow-hidden border-2 border-white shadow-xs relative">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7CB640] to-[#7CB640] flex items-center justify-center text-white text-xl font-bold overflow-hidden border-2 border-white shadow-xs relative">
               {avatarPreview ? (
                 <Image
                   width={64}

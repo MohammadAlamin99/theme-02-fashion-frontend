@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { SectionHeader } from "../common/SectionHeader";
-import { getBrands, Brand, BrandResponse } from "@/services-api/brandService";
+import { getBrands, BrandResponse } from "@/services-api/brandService";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
 
@@ -19,18 +19,17 @@ const Brands = () => {
   const backendBaseUrl = useMemo(
     () =>
       process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-      "http://localhost:8082",
+      "http://localhost:8083",
     [],
   );
 
   const brandsList = useMemo(() => {
-    // FIX: Accessing nested data (brandResponse.data.data)
     const brandArray = brandResponse?.data?.data;
 
     if (!Array.isArray(brandArray) || brandArray.length === 0) return [];
 
     const processed = brandArray.map((brand) => {
-      const rowImage = brand.logo_url || ""; // Use logo_url from your JSON
+      const rowImage = brand.logo_url || ""; 
       const usableImage = rowImage.startsWith("http")
         ? rowImage
         : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;

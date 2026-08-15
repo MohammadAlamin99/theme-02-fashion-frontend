@@ -7,7 +7,7 @@ interface SpecItem {
 }
 
 interface SpecificationProps {
-  specs: SpecItem[] | null;
+  specs?: SpecItem[] | null;
 }
 
 const SpecificationSection = ({ specs }: SpecificationProps) => {

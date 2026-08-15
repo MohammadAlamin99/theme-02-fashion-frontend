@@ -176,7 +176,7 @@ export const ProductGallery: React.FC<GalleryProps> = ({ items }) => {
           >
             <button
               onClick={() => setVideoOpen(false)}
-              className="absolute -top-10 right-0 text-white hover:text-[#FF7050]"
+              className="absolute -top-10 right-0 text-white hover:text-[#7CB640]"
             >
               <IoClose size={32} />
             </button>
@@ -199,7 +199,7 @@ export const ProductGallery: React.FC<GalleryProps> = ({ items }) => {
           }
         }
         .product-thumbs-slider .swiper-slide-thumb-active {
-          border: 2px solid #ff7050 !important;
+          border: 2px solid #7CB640 !important;
         }
       `}</style>
     </div>

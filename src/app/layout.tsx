@@ -77,7 +77,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <NextTopLoader
-          color="#3b82f6"
+          color="#7CB640"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}

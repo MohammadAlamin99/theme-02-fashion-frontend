@@ -36,22 +36,22 @@ export default function BrandSection({
               <IoCheckmarkCircleSharp
                 className={
                   activeBrandId === brand.id
-                    ? "text-[#FF7050] text-[24px]"
+                    ? "text-[#7CB640] text-[24px]"
                     : "text-[#D9D9D9] text-[24px]"
                 }
               />
               <span
                 className={`text-[20px] font-normal transition-colors ${
                   activeBrandId === brand.id
-                    ? "text-[#FF7050]"
-                    : "text-black group-hover:text-[#FF7050]"
+                    ? "text-[#7CB640]"
+                    : "text-black group-hover:text-[#7CB640]"
                 }`}
               >
                 {brand.name}
               </span>
             </div>
             <span
-              className={`text-[20px] font-normal ${activeBrandId === brand.id ? "text-[#FF7050]" : "text-black"}`}
+              className={`text-[20px] font-normal ${activeBrandId === brand.id ? "text-[#7CB640]" : "text-black"}`}
             >
               {brand._count?.products || 0}
             </span>

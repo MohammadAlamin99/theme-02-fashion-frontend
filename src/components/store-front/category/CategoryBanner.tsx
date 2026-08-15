@@ -11,7 +11,7 @@ export default function CategoryBanner({
 }: CategoryBannerProps) {
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
+    "http://localhost:8083";
   const rowImage = bannerImage || "";
   const Banner = rowImage.startsWith("http")
     ? rowImage
@@ -22,7 +22,7 @@ export default function CategoryBanner({
   return (
     <div
       className="w-full h-[180px] md:h-[220px] rounded-2xl relative overflow-hidden
-    flex items-center px-8 md:px-16 bg-cover bg-center bg-[#FF7050]"
+    flex items-center px-8 md:px-16 bg-cover bg-center bg-[#7CB640]"
       style={{
         backgroundImage: Banner
           ? `url(${Banner})`

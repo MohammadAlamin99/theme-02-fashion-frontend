@@ -14,7 +14,7 @@ import { translations } from "@/locales";
 interface Product {
   _id: string;
   name: string;
-  price: number;
+  sell_price: number;
   images: string | string[];
   total_reviews: number;
   slug?: string;
@@ -34,6 +34,7 @@ const RecentlyViewed = () => {
     queryKey: ["recentlyViewed"],
     queryFn: () => recentViewProduct(1, 12),
   });
+  console.log(products);
 
   if (isLoading)
     return (
@@ -46,7 +47,7 @@ const RecentlyViewed = () => {
 
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
+    "http://localhost:8083";
 
   if (!productdata || productdata.length === 0) return null;
 
@@ -117,8 +118,8 @@ const RecentlyViewed = () => {
                         {product?.name}
                       </h3>
 
-                      <p className="text-[#FF7050] font-poppins text-[12px] font-bold mb-1">
-                        {t.product.bdt} {product?.price}
+                      <p className="text-[#7CB640] font-poppins text-[12px] font-bold mb-1">
+                        {t.product.bdt} {product?.sell_price}
                       </p>
                       <div className="flex items-center gap-1">
                         <div className="flex text-[#FFB800] text-xs gap-[1px]">

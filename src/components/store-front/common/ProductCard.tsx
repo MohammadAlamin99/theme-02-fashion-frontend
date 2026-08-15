@@ -143,7 +143,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
   // Use first image from array or a placeholder
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
+    "http://localhost:8083";
   const firstImage =
     product.images && product.images.length > 0 ? product.images[0] : null;
   const cleanImg = typeof firstImage === "string" ? firstImage.trim() : "";
@@ -163,7 +163,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
         <div className="relative rounded-[12px] aspect-square mb-2 md:mb-3 overflow-hidden">
           {/* Dynamic Discount Badge */}
           {(product.discount_tag || hasDiscount) && (
-            <div className="absolute top-2 left-2 bg-[#FF7050] text-white text-[10px] md:text-[12px] font-medium px-[6px] py-[2px] rounded-[8px] z-10">
+            <div className="absolute top-2 left-2 bg-[#7CB640] text-white text-[10px] md:text-[12px] font-medium px-[6px] py-[2px] rounded-[8px] z-10">
               {product.discount_tag
                 ? product.discount_tag
                 : `${discountPercentage}% OFF`}
@@ -178,7 +178,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
               className="cursor-pointer absolute top-2 right-2 z-20 hover:scale-110 transition-transform bg-white/90 p-1.5 rounded-full shadow-md"
             >
               {isWishlisted ? (
-                <FaHeart className="w-5 h-5 md:w-6 md:h-6 text-[#FF7050]" />
+                <FaHeart className="w-5 h-5 md:w-6 md:h-6 text-[#7CB640]" />
               ) : (
                 <WishIcon className="w-6 md:w-7 text-gray-500" />
               )}
@@ -204,7 +204,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
         <div className="flex flex-col gap-1 md:gap-2">
           {/* Dynamic Title */}
           <Link href={`/product/${product.slug}`}>
-            <h3 className="text-black font-poppins md:text-[18px] text-[14px] font-medium leading-tight line-clamp-2 min-h-[36px] hover:text-[#FF7050] transition-colors">
+            <h3 className="text-black font-poppins md:text-[18px] text-[14px] font-medium leading-tight line-clamp-2 min-h-[36px] hover:text-[#7CB640] transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -227,7 +227,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
             <span className="text-[#727272] text-[10px] md:text-[12px] font-medium font-poppins">
               ({ratingValue.toFixed(1)})
             </span>
-            <span className="text-[#FF7050] text-[10px] md:text-[12px] font-medium font-poppins md:ml-auto ml-0">
+            <span className="text-[#7CB640] text-[10px] md:text-[12px] font-medium font-poppins md:ml-auto ml-0">
               ({product.total_reviews}{" "}
               {product.total_reviews > 1 ? "Reviews" : "Review"})
             </span>
@@ -236,7 +236,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
           {/* Pricing & Stock Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between md:mt-1 mt-0 gap-1">
             <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-[#FF7050] font-poppins text-[16px] md:text-[20px] font-semibold">
+              <span className="text-[#7CB640] font-poppins text-[16px] md:text-[20px] font-semibold">
                 TK {product.sell_price}
               </span>
               {hasDiscount && (
@@ -261,25 +261,27 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-1.5 mt-3 w-full md:flex-row flex-col">
+      <div className="flex gap-1.5 mt-3 w-full lg:flex-row sm:flex-col flex-col">
         <button
-          className="w-full cursor-pointer bg-[#FF7050] text-white font-poppins md:text-[16px] text-xs font-medium py-1.5 md:py-2 rounded-[8px] transition-all border border-[#E2E2E2] disabled:opacity-50"
+          className="w-full cursor-pointer bg-[#7CB640] text-white font-poppins md:text-[16px] text-xs font-medium py-1.5 md:py-2 rounded-[8px] transition-all border border-[#E2E2E2] disabled:opacity-50"
           onClick={handleOrderNow}
           disabled={!inStock || isAddingToCart}
         >
           {inStock ? "Order Now" : "Out of Stock"}
         </button>
 
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            handleAddToCart();
-          }}
-          disabled={isAddingToCart}
-          className="w-full bg-white border border-[#E2E2E2] md:py-2 py-1.5 rounded-lg cursor-pointer md:text-[16px] text-xs "
-        >
-          {isAddingToCart ? "Adding..." : "Add To Cart"}
-        </button>
+        {inStock && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              handleAddToCart();
+            }}
+            disabled={isAddingToCart}
+            className="w-full bg-white border border-[#E2E2E2] md:py-2 py-1.5 rounded-lg cursor-pointer md:text-[16px] text-xs"
+          >
+            {isAddingToCart ? "Adding..." : "Add To Cart"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export const Breadcrumbs: React.FC<BreadcrumbProps> = ({
           <MdChevronRight className="text-[#727272] text-base flex-shrink-0" />
         </React.Fragment>
       ))}
-      <span className="text-[#FF7050] text-base font-medium break-words min-w-0">
+      <span className="text-[#7CB640] text-base font-medium break-words min-w-0">
         {activePath}
       </span>
     </nav>

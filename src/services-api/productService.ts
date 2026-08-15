@@ -235,11 +235,6 @@ export const filterProducts = async (
   if (!res.ok) throw new Error("Failed to fetch filtered products.");
 
   const json = await res.json();
-
-  // Support multiple response shapes from backend:
-  // Shape A: { data: { data: [...], meta: {...} } }
-  // Shape B: { data: [...], pagination: {...} }
-  // Shape C: { data: [...], meta: {...} }
   const data =
     json?.data?.data || (Array.isArray(json?.data) ? json.data : null) || [];
   const meta = json?.data?.meta || json?.pagination || json?.meta || {};
@@ -276,25 +271,16 @@ export const searchProducts = async (query: string) => {
   return productsList;
 };
 
-import { getMohasagorProductBySlug } from "./mohasagorService";
-
 // get product by id
 export const getProductBySlug = async (
   slug: string,
 ): Promise<Product | null> => {
   if (!slug) return null;
 
-  if (slug.startsWith("mohasagor-")) {
-    return getMohasagorProductBySlug(slug);
-  }
-
   const res = await apiFetch(`/products/${slug}`, {
     method: "GET",
   });
 
-  if (!res.ok) {
-    return getMohasagorProductBySlug(slug);
-  }
   const result = await res.json();
 
   return result?.data || null;

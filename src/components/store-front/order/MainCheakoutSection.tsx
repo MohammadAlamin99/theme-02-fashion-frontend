@@ -525,7 +525,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.deliveryCharge}{" "}
-                <span className="text-[#FF7050]">*</span>
+                <span className="text-[#7CB640]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -549,7 +549,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.paymentMethod}{" "}
-                <span className="text-[#FF7050]">*</span>
+                <span className="text-[#7CB640]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -601,7 +601,7 @@ const MainCheckoutSection: React.FC = () => {
           <button
             onClick={handlePlaceOrder}
             disabled={placeOrderMutation.isPending}
-            className="bg-[#FF7050] text-white py-4 rounded-[12px] text-lg md:text-xl font-bold hover:bg-[#ff6b48] transition-all cursor-pointer"
+            className="bg-[#7CB640] text-white py-4 rounded-[12px] text-lg md:text-xl font-bold hover:bg-[#ff6b48] transition-all cursor-pointer"
           >
             {placeOrderMutation.isPending
               ? "Placing Order..."

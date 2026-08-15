@@ -54,7 +54,7 @@ const RelatedProductCard = ({ product }: { product: ProductData }) => {
             {product.name}
           </h4>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-bold text-[#FF7050]">
+            <span className="text-sm font-bold text-[#7CB640]">
               {t.product.bdt} {product.sell_price}
             </span>
 

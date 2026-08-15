@@ -51,13 +51,13 @@ const ProductDetailsTabs = ({ product }: Props) => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`relative pb-[16px] text-sm md:text-[20px] mr-8 whitespace-nowrap cursor-pointer ${
                     activeTab === tab.id
-                      ? "text-[#FF7050] font-semibold"
+                      ? "text-[#7CB640] font-semibold"
                       : "text-[#848484]"
                   }`}
                 >
                   {tab.label} {tab.count !== undefined && ` (${tab.count})`}
                   {activeTab === tab.id && (
-                    <span className="absolute bottom-0 left-0 w-full h-[4px] bg-[#FF7050]" />
+                    <span className="absolute bottom-0 left-0 w-full h-[4px] bg-[#7CB640]" />
                   )}
                 </button>
               ))}

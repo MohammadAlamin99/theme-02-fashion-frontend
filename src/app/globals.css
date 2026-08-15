@@ -50,7 +50,7 @@
   height: 5px;
   background: #f0f0f0;
   border-radius: 999px;
-  border: 1px solid #FF7050;
+  border: 1px solid #7CB640;
 }
 
 /* Filled portion */
@@ -58,7 +58,7 @@
   position: absolute;
   left: 0;
   height: 5px;
-  background: #FF7050;
+  background: #7CB640;
   border-radius: 999px;
   pointer-events: none;
 }
@@ -79,16 +79,16 @@ input[type=range].price-slider::-webkit-slider-thumb {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #FF7050;
+  background: #7CB640;
   border: 4px solid white;
-  box-shadow: 0 0 0 2px #FF7050;
+  box-shadow: 0 0 0 2px #7CB640;
 }
 
 
 /* product gallary */
 
 .productgallery .swiper-slide-thumb-active{
-  border: 2px solid #FF7050;
+  border: 2px solid #7CB640;
 }
 
 

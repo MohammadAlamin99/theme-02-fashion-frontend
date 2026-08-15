@@ -437,7 +437,7 @@ export default {
   },
 
   chat: {
-    helpDesk: "Creass Mart হেল্প ডেস্ক",
+    helpDesk: "Overseas Products হেল্প ডেস্ক",
     instantReply: "আমরা সাধারণত দ্রুত উত্তর দিই",
   },
 

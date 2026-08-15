@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
 import { getWishlist } from "@/services-api/wishlistService";
+import { House } from "lucide-react";
 
 interface SearchResponse {
   data: {
@@ -272,7 +273,7 @@ const Navbar = () => {
               type="submit"
               className="bg-white p-2.5 rounded-[8px] cursor-pointer hover:bg-gray-50 transition-colors"
             >
-              <FiSearch size={22} className="text-[#FF7050]" />
+              <FiSearch size={22} className="text-[#7CB640]" />
             </button>
 
             {showPredictions && searchQuery.length >= 2 && (
@@ -310,7 +311,7 @@ const Navbar = () => {
                           <h4 className="text-sm font-medium text-gray-800 line-clamp-1">
                             {product.name}
                           </h4>
-                          <p className="text-[#FF7050] font-bold text-xs">
+                          <p className="text-[#7CB640] font-bold text-xs">
                             BDT {product.sell_price}
                           </p>
                         </div>
@@ -332,11 +333,11 @@ const Navbar = () => {
                 onClick={handleWishlistClick}
                 className="relative cursor-pointer group active:scale-95 transition-transform"
               >
-                <WishIcon className="w-7 md:w-9" />
+                <WishIcon className="w-7 md:w-9" color="#7CB640" />
 
                 {/* 🚀 WISHLIST COUNT BADGE */}
                 {wishlistData.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#FF7050] text-white text-[10px] md:text-[11px] font-bold h-4 w-4 md:h-5 md:w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                  <span className="absolute -top-1 -right-1 bg-[#7CB640] text-white text-[10px] md:text-[11px] font-bold h-4 w-4 md:h-5 md:w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                     {wishlistData.length > 9 ? "9+" : wishlistData.length}
                   </span>
                 )}
@@ -373,7 +374,7 @@ const Navbar = () => {
                 </button>
                 <button
                   onClick={() => router.push("/signup")}
-                  className="bg-[#FF7050] text-white rounded-[8px] px-8 py-4 cursor-pointer"
+                  className="bg-[#7CB640] text-white rounded-[8px] px-8 py-4 cursor-pointer"
                 >
                   {t.navbar.signUp}
                 </button>
@@ -401,7 +402,7 @@ const Navbar = () => {
               >
                 <span
                   onClick={() => router.push(`/category/${item.slug}`)}
-                  className={`text-[18px] xl:text-[20px] cursor-pointer transition-colors font-medium ${activeDropdown === idx ? "text-[#FF7050]" : "text-[#5E5E5E]"}`}
+                  className={`text-[18px] xl:text-[20px] cursor-pointer transition-colors font-medium ${activeDropdown === idx ? "text-[#7CB640]" : "text-[#5E5E5E]"}`}
                 >
                   {item.name}
                 </span>
@@ -409,7 +410,7 @@ const Navbar = () => {
                   <FiChevronDown
                     className={
                       activeDropdown === idx
-                        ? "text-[#FF7050]"
+                        ? "text-[#7CB640]"
                         : "text-[#5E5E5E]"
                     }
                   />
@@ -421,10 +422,10 @@ const Navbar = () => {
                   )}
               </li>
             ))}
-            <li className="flex items-center gap-2 cursor-pointer font-bold text-[#FF7050]">
+            {/* <li className="flex items-center gap-2 cursor-pointer font-bold text-[#7CB640]">
               <FireIcon />
               <span>{t.search.hotDeals}</span>
-            </li>
+            </li> */}
           </ul>
         </nav>
       </header>
@@ -435,7 +436,13 @@ const Navbar = () => {
       >
         <div className="p-6 h-full flex flex-col font-poppins">
           <div className="flex justify-between items-center mb-8">
-            <Image src="/images/logo.png" alt="logo" width={140} height={40} />
+            <Image
+              src={usableImageUrl}
+              alt="overases product"
+              width={140}
+              height={40}
+              unoptimized
+            />
             <button
               onClick={() => setIsDrawerOpen(false)}
               className="text-2xl cursor-pointer"
@@ -486,7 +493,7 @@ const Navbar = () => {
       {/* Floating Cart */}
       <div
         onClick={() => setIsCartOpen(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-90 flex flex-col items-center justify-center cursor-pointer bg-[#ff7050] rounded-l-xl w-[75px] md:w-[97px] h-[75px] md:h-[97px] shadow-2xl"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-90 flex flex-col items-center justify-center cursor-pointer bg-[#7CB640] rounded-l-xl w-[75px] md:w-[97px] h-[75px] md:h-[97px] shadow-2xl"
       >
         <CartIcon className="w-8 md:w-10 text-white" />
         <span className="text-white text-xs md:text-base font-semibold mt-1">
@@ -569,7 +576,7 @@ const Navbar = () => {
                               </div>
                             )}
 
-                          <p className="text-[#FF7050] font-bold text-sm mt-1">
+                          <p className="text-[#7CB640] font-bold text-sm mt-1">
                             TK {item.price}
                           </p>
                         </div>
@@ -625,7 +632,7 @@ const Navbar = () => {
                 <p className="text-lg">{t.navbar.yourCartEmpty}</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-4 bg-[#FF7050] text-white px-8 py-3 rounded-[8px] font-medium hover:bg-[#e56548]"
+                  className="mt-4 bg-[#7CB640] text-white px-8 py-3 rounded-[8px] font-medium hover:bg-[#7CB640]"
                 >
                   {t.navbar.continueShopping}
                 </button>
@@ -647,7 +654,7 @@ const Navbar = () => {
                   setIsCartOpen(false);
                   router.push("/order");
                 }}
-                className="w-full bg-[#FF7050] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                className="w-full bg-[#7CB640] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               >
                 Checkout Now
               </button>
@@ -668,58 +675,52 @@ const Navbar = () => {
 
       {/* --- RESTORED ORIGINAL MOBILE BOTTOM NAV --- */}
       {isStoreReady && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-[70px] z-[190] flex justify-around items-center px-2 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] text-[#FF7050] font-poppins">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-[70px] z-[190] grid grid-cols-5 items-center px-2 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] text-[#7CB640] font-poppins">
           {/* Home Button */}
           <Link
             href="/"
-            className={`flex flex-col items-center justify-center w-16 text-center active:scale-95 transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center text-center active:scale-95 transition-all duration-200 ${
               pathname === "/" ? "font-bold scale-110" : "font-normal"
             }`}
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
-            <span className="text-[12px] mt-1 font-inter">{t.navbar.home}</span>
+            <House size={20} />
+            <span className="text-[10px] sm:text-[12px] mt-1 font-inter">
+              {t.navbar.home}
+            </span>
           </Link>
 
           {/* Category Button */}
           <button
             onClick={() => setIsDrawerOpen(true)}
-            className="flex flex-col items-center"
+            className="flex flex-col items-center justify-center active:scale-95"
           >
             <FiMenu size={22} />
             <span className="text-[10px] mt-1">{t.navbar.categories}</span>
           </button>
 
-          {/* Central Custom Floating Logo */}
-          <div className="relative -top-5 z-[200]">
-            <button className="bg-white rounded-full p-2.5 shadow-[0_4px_15px_rgba(0,0,0,0.15)] w-[65px] h-[65px] flex items-center justify-center active:scale-95 transition-transform cursor-pointer">
-              <div className="relative w-full h-full flex items-center justify-center">
-                <Image
-                  src="/images/minilogo.png"
-                  alt="Brand"
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
-              </div>
-            </button>
+          {/* Central Custom Floating Logo - Perfect Center */}
+          <div className="relative flex justify-center items-center">
+            <div className="absolute -top-10">
+              {" "}
+              {/* -top-5 এর বদলে -top-10 ট্রাই করতে পারেন সুন্দর দেখানোর জন্য */}
+              <button className="bg-white rounded-full p-2.5 shadow-[0_4px_15px_rgba(0,0,0,0.15)] w-[65px] h-[65px] flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-gray-100">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <Image
+                    src={usableImageUrl}
+                    alt="Brand"
+                    fill
+                    className="object-contain p-1"
+                    unoptimized
+                  />
+                </div>
+              </button>
+            </div>
           </div>
 
-          {/* Chat Button (uses CartIcon per original design) */}
+          {/* Chat Button */}
           <button
             onClick={() => useAuthStore.getState().setIsChatOpen?.(true)}
-            className="flex flex-col items-center"
+            className="flex flex-col items-center justify-center active:scale-95"
           >
             <ChatIcon className="w-6" />
             <span className="text-[10px] mt-1">Chat</span>
@@ -729,7 +730,7 @@ const Navbar = () => {
           <a
             href="#"
             onClick={handleProfileNav}
-            className={`flex flex-col items-center justify-center w-16 text-center active:scale-95 transition-all duration-200 cursor-pointer ${
+            className={`flex flex-col items-center justify-center text-center active:scale-95 transition-all duration-200 cursor-pointer ${
               pathname === "/profile" ||
               pathname === "/signin" ||
               pathname === "/signup"
@@ -758,7 +759,7 @@ const NavDropdown = ({ items, isRoot }: NavDropdownProps) => {
           <li key={subItem.id} className="relative group/sub">
             <Link
               href={`/category/${subItem.slug}`}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-[#FF7050] hover:bg-gray-50 flex items-center justify-between transition-colors"
+              className="px-4 py-2 text-sm text-gray-600 hover:text-[#7CB640] hover:bg-gray-50 flex items-center justify-between transition-colors"
             >
               {subItem.name}
               {subItem.children && subItem.children.length > 0 && (

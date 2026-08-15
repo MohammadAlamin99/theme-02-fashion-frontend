@@ -73,13 +73,13 @@ function CategoryItem({
           {isRoot ? (
             <IoCheckmarkCircleSharp
               size={24}
-              className={isActive ? "text-[#FF7050]" : "text-[#D9D9D9]"}
+              className={isActive ? "text-[#7CB640]" : "text-[#D9D9D9]"}
             />
           ) : (
             <MdChevronRight
               size={24}
               className={
-                isActive || isBranchOpen ? "text-[#FF7050]" : "text-gray-400"
+                isActive || isBranchOpen ? "text-[#7CB640]" : "text-gray-400"
               }
             />
           )}
@@ -87,10 +87,10 @@ function CategoryItem({
             className={`transition-colors md:text-[20px] text-base font-normal group-hover:text-black ${
               isRoot
                 ? isActive
-                  ? "text-[#FF7050] font-medium"
+                  ? "text-[#7CB640] font-medium"
                   : "text-black font-medium"
                 : isActive
-                  ? "text-[#FF7050]"
+                  ? "text-[#7CB640]"
                   : "text-[#727272]"
             }`}
           >
@@ -98,7 +98,7 @@ function CategoryItem({
           </span>
         </div>
         <span
-          className={`${isActive ? "text-[#FF7050]" : "text-[#727272]"} md:text-[20px] text-base font-normal`}
+          className={`${isActive ? "text-[#7CB640]" : "text-[#727272]"} md:text-[20px] text-base font-normal`}
         >
           {node._count?.products || 0}
         </span>

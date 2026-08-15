@@ -38,7 +38,7 @@ export default function ProductDetailContent({ slug }: Props) {
         </p>
         <Link
           href="/"
-          className="px-6 py-2.5 bg-[#FF7050] text-white rounded-xl font-medium transition-all hover:bg-[#e05b3d] shadow-sm"
+          className="px-6 py-2.5 bg-[#7CB640] text-white rounded-xl font-medium transition-all hover:bg-[#e05b3d] shadow-sm"
         >
           Return to Home
         </Link>

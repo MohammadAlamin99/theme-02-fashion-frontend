@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import WishlistItem from "./WishlistItem";
 import { getWishlist } from "@/services-api/wishlistService";
-import { Loader2 } from "lucide-react";
+import { HeartOff, Loader2 } from "lucide-react";
 import { WishlistProduct } from "@/@types/wishlist.type";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
@@ -17,7 +17,7 @@ const WishlistPage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin text-[#FF7050]" size={40} />
+        <Loader2 className="animate-spin text-[#7CB640]" size={40} />
       </div>
     );
   }
@@ -29,11 +29,18 @@ const WishlistPage = () => {
       </div>
 
       {/* Grid Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {wishlistItems?.map((item: WishlistProduct) => (
-          <WishlistItem key={item.id} item={item} />
-        ))}
-      </div>
+      {wishlistItems?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+          <HeartOff size={48} className="mb-4 opacity-20" />
+          <p className="text-lg">No items in your wishlist</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {wishlistItems?.map((item: WishlistProduct) => (
+            <WishlistItem key={item.id} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

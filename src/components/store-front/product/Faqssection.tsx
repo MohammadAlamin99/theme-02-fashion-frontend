@@ -11,7 +11,7 @@ interface RawFAQ {
 }
 
 interface FAQProps {
-  faqs: RawFAQ[] | null;
+  faqs?: RawFAQ[] | null;
 }
 
 const Faqssection = ({ faqs }: FAQProps) => {

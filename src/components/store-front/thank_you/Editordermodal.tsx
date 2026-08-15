@@ -112,7 +112,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               value={form.name}
               onChange={handleChange("name")}
               placeholder="e.g. Rahim Uddin"
-              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none transition-colors focus:border-[#FF7050] ${
+              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none transition-colors focus:border-[#7CB640] ${
                 errors.name ? "border-red-400" : "border-[#E5E5E5]"
               }`}
             />
@@ -141,7 +141,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               value={form.phone}
               onChange={handleChange("phone")}
               placeholder="e.g. 01904300117"
-              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none transition-colors focus:border-[#FF7050] ${
+              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none transition-colors focus:border-[#7CB640] ${
                 errors.phone ? "border-red-400" : "border-[#E5E5E5]"
               }`}
             />
@@ -170,7 +170,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
               onChange={handleChange("address")}
               placeholder="House, Road, Area, City"
               rows={3}
-              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none resize-none transition-colors focus:border-[#FF7050] ${
+              className={`w-full rounded-[12px] border px-4 py-3 text-sm outline-none resize-none transition-colors focus:border-[#7CB640] ${
                 errors.address ? "border-red-400" : "border-[#E5E5E5]"
               }`}
             />
@@ -192,7 +192,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-[#FF7050] text-white py-3.5 rounded-[39px] text-sm font-medium hover:bg-[#FF5C24] transition-colors cursor-pointer"
+            className="flex-1 bg-[#7CB640] text-white py-3.5 rounded-[39px] text-sm font-medium hover:bg-[#FF5C24] transition-colors cursor-pointer"
           >
             Save Changes
           </button>
