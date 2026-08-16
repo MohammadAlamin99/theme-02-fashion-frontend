@@ -561,7 +561,7 @@ const MainCheckoutSection: React.FC = () => {
                   className="w-full bg-[#F7F7F7] pl-4 md:pl-6 pr-12 py-3.5 md:py-4 rounded-xl outline-none text-base appearance-none cursor-pointer"
                 >
                   <option value="COD">{t.checkout.cashOnDelivery}</option>
-                  <option value="Online">{t.checkout.onlinePayment}</option>
+                  {/* <option value="Online">{t.checkout.onlinePayment}</option> */}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                   <FaCaretDown />
@@ -595,15 +595,15 @@ const MainCheckoutSection: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-[#FFFF00] p-4 rounded-[12px] flex items-center gap-2 text-sm md:text-base font-normal justify-center">
+          {/* <div className="bg-[#FFFF00] p-4 rounded-[12px] flex items-center gap-2 text-sm md:text-base font-normal justify-center">
             <span>⚠️</span>
             <span>{t.checkout.deliveryWarning}</span>
-          </div>
+          </div> */}
 
           <button
             onClick={handlePlaceOrder}
             disabled={placeOrderMutation.isPending}
-            className="bg-[#7CB640] text-white py-4 rounded-[12px] text-lg md:text-xl font-bold hover:bg-[#ff6b48] transition-all cursor-pointer"
+            className="bg-[#7CB640] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
           >
             {placeOrderMutation.isPending
               ? "Placing Order..."

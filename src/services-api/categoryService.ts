@@ -222,7 +222,7 @@ export const getCategory = async (slug: string): Promise<CategoryDetail> => {
 export const getAllcategoryFlatList = async (): Promise<{
   data: Category[];
 }> => {
-  const res = await apiFetch("/categories?limit=200");
+  const res = await apiFetch("/categories?limit=200&status=active");
   if (!res.ok) throw new Error("Failed to fetch category list");
   const json = await res.json();
   const records = json?.data?.data || json?.data || json || [];
