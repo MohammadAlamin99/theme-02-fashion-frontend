@@ -7,7 +7,6 @@ import Features from "@/components/store-front/home/Features";
 import FlashSale from "@/components/store-front/home/FlashSale";
 import PromotionDiscountProduct from "@/components/store-front/home/CampaignSection";
 import NewArrivals from "@/components/store-front/home/NewArrivals";
-import Suppliers from "@/components/store-front/home/Suppliers";
 import Testimonials from "@/components/store-front/home/Testimonials";
 import WeeklyBestSellerProduct from "@/components/store-front/home/WeeklyBestSellerProduct";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
@@ -33,7 +32,6 @@ export default async function Page() {
       <Testimonials />
       <WeeklyBestSellerProduct tags={tags} />
       <Brands />
-      <Suppliers />
       <Blog />
     </>
   );

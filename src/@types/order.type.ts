@@ -54,7 +54,7 @@ export interface CartItemProduct {
   price: number;
   discountPrice?: number;
   shipping_type?: "DEFAULT" | "CUSTOM" | "FREE" | string;
-  shipping_config?: Array<{ zone: string; charge: number }> | null;
+  shipping_config?: Array<{ zone: string; charge: number }> | string;
 }
 
 export interface CartItem {
@@ -156,4 +156,5 @@ export interface OrderItem {
   image: string;
   variantInfo: string;
   unit_price: number;
+  item_shipping_fee: number;
 }

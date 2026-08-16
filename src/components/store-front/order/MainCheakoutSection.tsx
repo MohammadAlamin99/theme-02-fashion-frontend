@@ -67,7 +67,7 @@ const MainCheckoutSection: React.FC = () => {
     phone: "",
     address: "",
     note: "",
-    shippingArea: "outside" as "inside" | "outside" | "sub_city",
+    shippingArea: "outside" as string,
     paymentMethod: "COD",
   });
 
@@ -118,7 +118,9 @@ const MainCheckoutSection: React.FC = () => {
           shipping_type:
             existingProduct.shipping_type || pData?.shipping_type || "DEFAULT",
           shipping_config:
-            existingProduct.shipping_config || pData?.shipping_config || null,
+            existingProduct.shipping_config ||
+            pData?.shipping_config ||
+            undefined,
         },
       };
     });
@@ -201,13 +203,13 @@ const MainCheckoutSection: React.FC = () => {
     const options = [
       {
         key: "inside",
-        label: t.checkout.insideDhakaLabel || "Inside Dhaka",
+        label: "Inside Dhaka",
         fee: calculateCartShippingDetails(cartItems, "inside", shippingSettings)
           .totalShippingFee,
       },
       {
         key: "outside",
-        label: t.checkout.outsideDhakaLabel || "Outside Dhaka",
+        label: "Outside Dhaka",
         fee: calculateCartShippingDetails(
           cartItems,
           "outside",
@@ -219,7 +221,7 @@ const MainCheckoutSection: React.FC = () => {
     if (isSubCityAvailable) {
       options.push({
         key: "sub_city",
-        label: t.checkout.subCityLabel || "Sub City",
+        label: "Sub City",
         fee: calculateCartShippingDetails(
           cartItems,
           "sub_city",

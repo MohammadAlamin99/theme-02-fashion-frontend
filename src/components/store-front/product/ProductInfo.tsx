@@ -359,14 +359,16 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       <div className="flex items-center gap-x-3 gap-y-2 flex-wrap text-sm sm:text-[16px]">
         <div className="flex items-center">
           <span className="text-[#FDCC0D] font-medium mr-1">
-            ({product.avg_rating ? product.avg_rating.toFixed(1) : "0.0"})
+            (
+            {product.avg_rating ? Number(product.avg_rating).toFixed(1) : "0.0"}
+            )
           </span>
           {[...Array(5)].map((_, i) => (
             <AiFillStar
               key={i}
               size={16}
               className={
-                i < Math.floor(product.avg_rating || 0)
+                i < Math.floor(Number(product.avg_rating) || 0)
                   ? "text-[#FDCC0D]"
                   : "text-gray-300"
               }
@@ -419,26 +421,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
               </span>
             </>
           )}
-        </div>
-
-        <div className="flex gap-4 flex-wrap">
-          {product.suppliers.map((supplier) => {
-            const rowImage = supplier.image_url || "";
-            const iconUrl = rowImage.startsWith("http")
-              ? rowImage
-              : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
-            return (
-              <div key={supplier.id} className="relative w-14 h-14 rounded-md">
-                <Image
-                  src={iconUrl}
-                  alt={supplier.name}
-                  unoptimized
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            );
-          })}
         </div>
       </div>
 
