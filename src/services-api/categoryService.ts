@@ -187,7 +187,7 @@ export const updateCategory = async (
   return res.json();
 };
 
-// ======= Store Front Service ==============
+// Store Front Service
 
 export interface Category {
   id: string;

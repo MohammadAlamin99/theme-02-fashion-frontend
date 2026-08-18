@@ -27,6 +27,7 @@
     "@tiptap/pm": "^3.29.2",
     "@tiptap/react": "^3.29.2",
     "@tiptap/starter-kit": "^3.29.2",
+    "cookies-next": "^6.1.1",
     "date-fns": "^4.4.0",
     "dayjs": "^1.11.21",
     "html-to-image": "^1.11.13",

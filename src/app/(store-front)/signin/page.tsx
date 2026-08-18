@@ -95,7 +95,7 @@ const SignInPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#F9F9F9] flex items-center justify-center p-4 font-poppins">
-      <div className="w-full max-w-[460px] bg-white rounded-[12px] border border-[#D2D2D2] p-8 shadow-sm">
+      <div className="w-full max-w-[460px] bg-white rounded-[12px] border border-gray-200 p-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-black">{t.signIn.title}</h2>
           <p className="text-sm text-gray-400 mt-1">{t.signIn.subtitle}</p>
@@ -112,9 +112,9 @@ const SignInPage = () => {
             <label className="text-sm font-semibold text-[#727272]">
               {t.fields.phone}
             </label>
-            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#FF7050] bg-white transition-all">
+            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#7CB640] bg-white transition-all">
               <div className="bg-[#F9F9F9] px-4 flex items-center justify-center border-r border-[#D2D2D2] w-[55px]">
-                <FaPhone className="text-[#FF7050] rotate-[90deg]" size={16} />
+                <FaPhone className="text-[#7CB640] rotate-[90deg]" size={16} />
               </div>
               <input
                 name="phone"
@@ -133,14 +133,14 @@ const SignInPage = () => {
               </label>
               <a
                 href="#"
-                className="text-xs text-[#FF7050] font-medium hover:underline"
+                className="text-xs text-[#7CB640] font-medium hover:underline"
               >
                 {t.signIn.forgotPassword}
               </a>
             </div>
-            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#FF7050] bg-white relative transition-all">
+            <div className="flex rounded-[10px] overflow-hidden focus-within:border-[#7CB640] bg-white relative transition-all">
               <div className="bg-[#F9F9F9] px-4 flex items-center justify-center border-r border-[#D2D2D2] w-[55px]">
-                <FaLock className="text-[#FF7050]" size={16} />
+                <FaLock className="text-[#7CB640]" size={16} />
               </div>
               <input
                 name="password"
@@ -162,7 +162,7 @@ const SignInPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#FF7050] text-white py-3.5 rounded-[10px] text-base font-semibold transition-all hover:bg-[#e66345] cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full bg-[#7CB640] text-white py-3.5 rounded-[10px] text-base font-semibold cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t.signIn.loading : t.signIn.button}
           </button>
@@ -171,7 +171,7 @@ const SignInPage = () => {
             {t.signIn.noAccount}{" "}
             <a
               href="/signup"
-              className="text-[#FF7050] font-semibold hover:underline"
+              className="text-[#7CB640] font-semibold hover:underline"
             >
               {t.signIn.createOne}
             </a>

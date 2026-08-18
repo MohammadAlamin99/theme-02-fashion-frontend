@@ -91,8 +91,8 @@ const SignInPage = () => {
       router.push("/admin/dashboard/home");
 
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      setError((err as Error).message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -100,15 +100,15 @@ const SignInPage = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#F9F9F9] flex items-center justify-center p-4 font-poppins">
-      <div className="w-full max-w-[460px] bg-white rounded-[12px] border border-[#D2D2D2] p-8 shadow-sm">
+      <div className="w-full max-w-[460px] bg-white rounded-[12px] border border-gray-200 p-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-black">Admin Sign In</h2>
 
           <p className="text-sm text-gray-400 mt-1">
             Access your profile metrics
             {process.env.NEXT_PUBLIC_ENABLE_ADMIN_BYPASS === "true" && (
-              <span className="block text-xs text-[#FF7050] font-semibold mt-1">
-                ⚠️ Dev Bypass Active: Use "admin" / "admin"
+              <span className="block text-xs text-[#1E98FE] font-semibold mt-1">
+                {/* ⚠️ Dev Bypass Active: Use "+8801746295185" / "admin" */}
               </span>
             )}
           </p>
@@ -126,9 +126,9 @@ const SignInPage = () => {
               Phone Number
             </label>
 
-            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#FF7050] bg-white transition-all">
+            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#1E98FE] bg-white transition-all">
               <div className="bg-[#F9F9F9] px-4 flex items-center justify-center border-r border-[#D2D2D2] w-[55px]">
-                <FaPhone className="text-[#FF7050] rotate-[90deg]" size={16} />
+                <FaPhone className="text-[#1E98FE] rotate-[90deg]" size={16} />
               </div>
 
               <input
@@ -148,9 +148,9 @@ const SignInPage = () => {
               </label>
             </div>
 
-            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#FF7050] bg-white relative transition-all">
+            <div className="flex border border-[#D2D2D2] rounded-[10px] overflow-hidden focus-within:border-[#1E98FE] bg-white relative transition-all">
               <div className="bg-[#F9F9F9] px-4 flex items-center justify-center border-r border-[#D2D2D2] w-[55px]">
-                <FaLock className="text-[#FF7050]" size={16} />
+                <FaLock className="text-[#1E98FE]" size={16} />
               </div>
 
               <input
@@ -174,7 +174,7 @@ const SignInPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#FF7050] text-white py-3.5 rounded-[10px] text-base font-semibold transition-all hover:bg-[#e66345] cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full bg-[#1E98FE] text-white py-3.5 rounded-[10px] text-base font-semibold transition-all hover:bg-[#1474c8] cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
