@@ -245,6 +245,7 @@ import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { apiFetch } from "@/utils/api";
 import { useAuthStore } from "@/store/useAuthStore";
+import { getCookie } from "cookies-next";
 
 interface Message {
   id: string;
@@ -310,19 +311,27 @@ export function useChatEngine(isOpen: boolean) {
   useEffect(() => {
     if (!roomId || !isOpen) return;
 
+    // 1. Get the token (similar to how your apiFetch does it)
+    // Assuming you are using 'auth_token' for customers
+    const token =
+      typeof window !== "undefined"
+        ? getCookie("auth_token") || localStorage.getItem("token")
+        : null;
+
     const backendUrl =
       process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
       "http://localhost:8082";
 
     if (!sharedSocketInstance || !sharedSocketInstance.connected) {
       sharedSocketInstance = io(`${backendUrl}/chat`, {
-        path: "/socket.io", // 🚀 Crucial for Traefik / Coolify proxy routing
-        transports: ["websocket"], // 🚀 Force WebSocket only
+        path: "/socket.io",
+        transports: ["websocket"],
         withCredentials: true,
         autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
+        // 🚀 ADD THIS: Pass the token in the auth object
+        auth: {
+          token: token,
+        },
         query: { isCustomerRequest: "true" },
       });
     }
