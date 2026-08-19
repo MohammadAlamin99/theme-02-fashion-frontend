@@ -10,6 +10,7 @@ import NewArrivals from "@/components/store-front/home/NewArrivals";
 import WeeklyBestSellerProduct from "@/components/store-front/home/WeeklyBestSellerProduct";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
 
+export const revalidate = 60;
 export default async function Page() {
   const tags = await getHomeTags();
 
