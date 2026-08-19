@@ -13,7 +13,6 @@ export default function RatingBarRow({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {/* উপরের অংশ: স্টার এবং রেটিং সংখ্যা */}
       <div className="flex justify-between items-center px-1">
         <div className="flex text-[#FDCC0D] text-[12px] gap-[3px]">
           {[...Array(5)].map((_, i) => (
@@ -25,8 +24,6 @@ export default function RatingBarRow({
         </div>
         <span className="text-[12px] font-medium text-[#FF7050]">{count}</span>
       </div>
-
-      {/* নিচের অংশ: কাস্টম আউটলাইনড প্রোগ্রেস বার */}
       <div className="w-full h-[8px] bg-white border border-[#FF7050] rounded-full p-[1px] flex items-center">
         <div
           className="h-full bg-[#FF7050] rounded-full transition-all duration-700 ease-out"

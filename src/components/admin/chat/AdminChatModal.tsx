@@ -103,20 +103,25 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
         const dynamicRooms = Array.isArray(roomData)
           ? roomData
           : roomData?.rooms || roomData?.data || [];
-
-        setRooms(dynamicRooms);
-        syncGlobalStoreCount(dynamicRooms);
+        // Return rooms instead of updating state directly
+        return dynamicRooms;
       }
     } catch (err) {
       console.error("Failed to load chat conversations:", err);
     }
+    return [];
   }, [syncGlobalStoreCount]);
 
   useEffect(() => {
     if (!isOpen) return;
-    fetchChatRooms();
-    const interval = setInterval(fetchChatRooms, 10000);
-    return () => clearInterval(interval);
+    // Fetch rooms and update state asynchronously to avoid synchronous setState within effect
+    (async () => {
+      const roomsData = await fetchChatRooms();
+      setRooms(roomsData);
+      syncGlobalStoreCount(roomsData);
+    })();
+    // const interval = setInterval(fetchChatRooms, 10000);
+    // return () => clearInterval(interval);
   }, [isOpen, fetchChatRooms]);
 
   useEffect(() => {
@@ -133,7 +138,9 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
       // Narrow auth: it may be a function in some socket typings, so ensure it's not a function
       if (
         adminSocketInstance &&
-        (typeof adminSocketInstance.auth === "function" ? false : !adminSocketInstance.auth?.token)
+        (typeof adminSocketInstance.auth === "function"
+          ? false
+          : !adminSocketInstance.auth?.token)
       ) {
         adminSocketInstance.disconnect();
         adminSocketInstance = null;
@@ -179,9 +186,7 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
                 return {
                   ...room,
                   lastMessage: message.text || "[Attachment]",
-                  unreadCount: isViewing
-                    ? 0
-                    : (room.unreadCount || 0) + 1,
+                  unreadCount: isViewing ? 0 : (room.unreadCount || 0) + 1,
                 };
               }
               return room;
@@ -238,9 +243,15 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
         );
         if (res.ok) {
           const cleanMsgs = await res.json();
-          console.log("AdminChatModal Fetched Messages API response:", cleanMsgs);
-          const rawData = cleanMsgs?.data !== undefined ? cleanMsgs.data : cleanMsgs;
-          const messageArray = Array.isArray(rawData) ? rawData : rawData?.messages || [];
+          console.log(
+            "AdminChatModal Fetched Messages API response:",
+            cleanMsgs,
+          );
+          const rawData =
+            cleanMsgs?.data !== undefined ? cleanMsgs.data : cleanMsgs;
+          const messageArray = Array.isArray(rawData)
+            ? rawData
+            : rawData?.messages || [];
           setMessages(messageArray);
         }
       } catch (err) {
@@ -294,8 +305,11 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
           size: file.size,
         },
       ]);
-    } catch (err: any) {
-      setErrorText(err.message || "Failed to process attachment staging.");
+    } catch (err: unknown) {
+      setErrorText(
+        (err as { message: string }).message ||
+          "Failed to process attachment staging.",
+      );
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -312,7 +326,8 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
     if (!activeRoom || !adminSocketInstance) return;
 
     const currentText = replyText.trim();
-    const currentAttachments = pendingAttachments.length > 0 ? [...pendingAttachments] : null;
+    const currentAttachments =
+      pendingAttachments.length > 0 ? [...pendingAttachments] : null;
 
     setReplyText("");
     setPendingAttachments([]);
@@ -341,7 +356,6 @@ const AdminChatModal = ({ isOpen, onClose }: AdminChatModalProps) => {
       attachments: currentAttachments || [],
     });
   };
-
 
   const renderAttachmentFile = (att: Attachment, isAdminMsg: boolean) => {
     const absoluteAssetUrl = `${baseStorageUrl}${att.url}`;

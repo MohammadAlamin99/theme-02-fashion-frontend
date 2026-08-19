@@ -53,7 +53,7 @@ export default function ReviewItem({
           </h4>
           {is_verified && (
             <div className="flex items-center gap-1 text-[#8C8C8C] text-xs font-semibold mt-1">
-              <HiBadgeCheck className="text-[#FF7050]" size={16} />
+              <HiBadgeCheck className="text-[#77AF3D]" size={16} />
               <span>Verified Buyer</span>
             </div>
           )}
@@ -100,7 +100,7 @@ export default function ReviewItem({
 
       {/* Rating */}
       <div className="flex items-center gap-2 shrink-0 self-end md:self-start">
-        <span className="md:text-[40px] text-[24px] font-bold text-[#FF7050]">
+        <span className="md:text-[40px] text-[24px] font-bold text-[#77AF3D]">
           {rating}.0
         </span>
         <div className="flex text-[#FFB800] text-lg gap-[2px]">

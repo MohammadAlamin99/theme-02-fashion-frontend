@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { FaSpinner, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
-import { useAdminProfileData, useAdminUpdateProfileMutation, useAdminUpdateAvatarMutation } from "@/hooks/useProfile";
+import {
+  useAdminProfileData,
+  useAdminUpdateProfileMutation,
+  useAdminUpdateAvatarMutation,
+} from "@/hooks/useProfile";
 import { User, Phone, Mail, Shield, Camera, Loader2 } from "lucide-react";
 
 const AdminProfilePage = () => {
@@ -13,8 +17,11 @@ const AdminProfilePage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -22,12 +29,16 @@ const AdminProfilePage = () => {
       const rawUser = profile.user || profile.data || profile;
       setName(rawUser.name || "");
       setEmail(rawUser.email || "");
-      
-      const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") || "http://localhost:8082";
+
+      const backendBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
+        "http://localhost:8082";
       if (rawUser.avatar) {
-        setAvatarPreview(rawUser.avatar.startsWith("data:") || rawUser.avatar.startsWith("http") 
-          ? rawUser.avatar 
-          : `${backendBaseUrl}/${rawUser.avatar.replace(/^\/+/, "")}`
+        setAvatarPreview(
+          rawUser.avatar.startsWith("data:") ||
+            rawUser.avatar.startsWith("http")
+            ? rawUser.avatar
+            : `${backendBaseUrl}/${rawUser.avatar.replace(/^\/+/, "")}`,
         );
       } else {
         setAvatarPreview(null);
@@ -49,11 +60,17 @@ const AdminProfilePage = () => {
 
       uploadAvatar.mutate(file, {
         onSuccess: () => {
-          setStatus({ type: "success", text: "Admin avatar changed successfully!" });
+          setStatus({
+            type: "success",
+            text: "Admin avatar changed successfully!",
+          });
         },
         onError: (err: any) => {
-          setStatus({ type: "error", text: err.message || "Failed to upload avatar image file." });
-        }
+          setStatus({
+            type: "error",
+            text: err.message || "Failed to upload avatar image file.",
+          });
+        },
       });
     }
   };
@@ -64,7 +81,10 @@ const AdminProfilePage = () => {
     const cleanEmail = email.trim();
 
     if (!cleanName) {
-      return setStatus({ type: "error", text: "Name field cannot be left blank." });
+      return setStatus({
+        type: "error",
+        text: "Name field cannot be left blank.",
+      });
     }
 
     setStatus(null);
@@ -76,12 +96,18 @@ const AdminProfilePage = () => {
       },
       {
         onSuccess: () => {
-          setStatus({ type: "success", text: "Profile modifications synchronized successfully!" });
+          setStatus({
+            type: "success",
+            text: "Profile modifications synchronized successfully!",
+          });
         },
         onError: (err: any) => {
-          setStatus({ type: "error", text: err.message || "Could not save adjustments." });
+          setStatus({
+            type: "error",
+            text: err.message || "Could not save adjustments.",
+          });
         },
-      }
+      },
     );
   };
 
@@ -89,7 +115,9 @@ const AdminProfilePage = () => {
     return (
       <div className="w-full min-h-[calc(100vh-80px)] bg-gray-50 flex flex-col items-center justify-center font-poppins gap-3">
         <Loader2 className="text-[#FF7050] animate-spin" size={32} />
-        <span className="text-sm font-medium text-gray-500">Loading admin profile context...</span>
+        <span className="text-sm font-medium text-gray-500">
+          Loading admin profile context...
+        </span>
       </div>
     );
   }
@@ -98,17 +126,19 @@ const AdminProfilePage = () => {
   const isPendingState = updateProfile.isPending || uploadAvatar.isPending;
 
   return (
-    
-    <div className="w-full min-h-[calc(100vh-80px)] bg-gray-50 p-4 md:p-6 font-poppins text-black">
-      <div className="max-w-3xl mx-auto bg-white rounded-[12px] border border-[#D2D2D2] overflow-hidden relative shadow-xs">
+    <div className="w-full min-h-[calc(100vh-80px)] bg-gray-50 mt-4 font-poppins text-black">
+      <div className="mx-auto bg-white border border-gray-100 overflow-hidden relative">
         <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-[#FF6A00] to-[#FF9F1C]"></div>
 
         <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left bg-white">
-          
           <div className="relative group w-20 h-20 shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FF6A00] to-[#FF9F1C] flex items-center justify-center text-white text-3xl font-bold shadow-xs overflow-hidden border-2 border-orange-100 relative">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                <img
+                  src={avatarPreview}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 name.charAt(0).toUpperCase() || "A"
               )}
@@ -118,7 +148,7 @@ const AdminProfilePage = () => {
                 </div>
               )}
             </div>
-            
+
             {!uploadAvatar.isPending && (
               <button
                 type="button"
@@ -139,8 +169,12 @@ const AdminProfilePage = () => {
           </div>
 
           <div>
-            <h1 className="text-xl font-bold text-black">{name || "Admin Details"}</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Management Control Portal Settings</p>
+            <h1 className="text-xl font-bold text-black">
+              {name || "Admin Details"}
+            </h1>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Management Control Portal Settings
+            </p>
           </div>
         </div>
 
@@ -148,21 +182,31 @@ const AdminProfilePage = () => {
           {(status || isError) && (
             <div
               className={`flex items-center gap-3 text-sm font-medium p-4 rounded-[8px] border transition-all ${
-                status?.type === "success" ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"
+                status?.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-red-50 border-red-200 text-red-700"
               }`}
             >
-              {status?.type === "success" ? <FaCheckCircle size={16} /> : <FaExclamationCircle size={16} />}
+              {status?.type === "success" ? (
+                <FaCheckCircle size={16} />
+              ) : (
+                <FaExclamationCircle size={16} />
+              )}
               <span>{status?.text || error?.message}</span>
             </div>
           )}
 
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Account Parameters</h2>
+          <h2 className="text-base font-medium text-gray-400 mb-2">
+            Account Parameters
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
               <User className="text-[#FF7050] shrink-0" size={20} />
               <div className="flex-1">
-                <label className="text-[11px] text-gray-400 block font-semibold uppercase">Full Name</label>
+                <label className="text-sm  text-gray-400 block font-medium">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -176,7 +220,9 @@ const AdminProfilePage = () => {
             <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent opacity-70 cursor-not-allowed">
               <Phone className="text-gray-400 shrink-0" size={20} />
               <div className="flex-1">
-                <label className="text-[11px] text-gray-400 block font-semibold uppercase">Phone Number</label>
+                <label className="text-sm  text-gray-400 block font-medium">
+                  Phone Number
+                </label>
                 <input
                   type="text"
                   value={profile?.phone || profile?.user?.phone || ""}
@@ -189,7 +235,9 @@ const AdminProfilePage = () => {
             <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
               <Mail className="text-[#FF7050] shrink-0" size={20} />
               <div className="flex-1">
-                <label className="text-[11px] text-gray-400 block font-semibold uppercase">Email Address</label>
+                <label className="text-sm  text-gray-400 block font-medium">
+                  Email Address
+                </label>
                 <input
                   type="email"
                   value={email}
@@ -202,7 +250,9 @@ const AdminProfilePage = () => {
             <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent opacity-80">
               <Shield className="text-[#FF7050] shrink-0" size={20} />
               <div>
-                <span className="text-[11px] text-gray-400 block font-semibold uppercase">Privilege Role</span>
+                <span className="text-sm  text-gray-400 block font-medium">
+                  Privilege Role
+                </span>
                 <span className="text-sm font-bold text-[#FF6A00] tracking-wide block mt-0.5">
                   {currentRole}
                 </span>
@@ -215,9 +265,13 @@ const AdminProfilePage = () => {
               type="submit"
               disabled={isPendingState}
               className="text-white px-6 py-3 rounded-[8px] text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-all hover:brightness-105"
-              style={{ background: "linear-gradient(180deg, #FF6A00 0%, #FF9F1C 100%)" }}
+              style={{
+                background: "linear-gradient(180deg, #FF6A00 0%, #FF9F1C 100%)",
+              }}
             >
-              {updateProfile.isPending && <FaSpinner className="animate-spin" size={14} />}
+              {updateProfile.isPending && (
+                <FaSpinner className="animate-spin" size={14} />
+              )}
               Save Changes
             </button>
           </div>

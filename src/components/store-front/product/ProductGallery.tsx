@@ -199,7 +199,7 @@ export const ProductGallery: React.FC<GalleryProps> = ({ items }) => {
           }
         }
         .product-thumbs-slider .swiper-slide-thumb-active {
-          border: 2px solid #7CB640 !important;
+          border: 2px solid #7cb640 !important;
         }
       `}</style>
     </div>

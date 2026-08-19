@@ -110,13 +110,12 @@ const CampaignSection = () => {
                   <button
                     className="
                     cursor-pointer
-                    bg-[#FF7050]
+                    bg-[#77AF3D]
                     text-white
                     rounded-full
                     font-inter
                     font-medium
                     transition-all
-                    hover:bg-[#e66345]
                     active:scale-95
                     text-[8px]
                     sm:text-[10px]
