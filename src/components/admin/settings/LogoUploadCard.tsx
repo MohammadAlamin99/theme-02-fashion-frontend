@@ -1,8 +1,16 @@
-
 import { Trash2 } from "lucide-react";
 import { uploadSettingsMedia } from "@/services-api/settingsService";
+import Image from "next/image";
 
-export const LogoUploadCard = ({ title, value, onChange }: any) => {
+export const LogoUploadCard = ({
+  title,
+  value,
+  onChange,
+}: {
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+}) => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       try {
@@ -31,7 +39,7 @@ export const LogoUploadCard = ({ title, value, onChange }: any) => {
         {/* Real-time Preview */}
         <div className="h-16 w-full flex items-center justify-center mb-4">
           {value ? (
-            <img
+            <Image
               src={fullImageUrl}
               alt={title}
               className="max-h-full object-contain"
@@ -39,6 +47,9 @@ export const LogoUploadCard = ({ title, value, onChange }: any) => {
                 console.error("Image failed to load:", fullImageUrl);
                 (e.target as HTMLImageElement).style.display = "none";
               }}
+              unoptimized
+              width={500}
+              height={500}
             />
           ) : (
             <div className="text-gray-400 text-xs">No Image</div>
