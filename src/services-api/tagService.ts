@@ -146,7 +146,7 @@ export const getHomeTags = async (): Promise<HomeTagSection[]> => {
       headers: {
         "Content-Type": "application/json",
       },
-      next: { revalidate: 600 },
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {
@@ -156,7 +156,10 @@ export const getHomeTags = async (): Promise<HomeTagSection[]> => {
     const result = await response.json();
     return result.data || result;
   } catch (error) {
-    console.error("Fetch Error (getHomeTags):", error instanceof Error ? error.message : "Unknown error");
+    console.error(
+      "Fetch Error (getHomeTags):",
+      error instanceof Error ? error.message : "Unknown error",
+    );
     throw error;
   }
 };
