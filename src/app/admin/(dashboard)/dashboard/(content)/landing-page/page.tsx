@@ -1,6 +1,6 @@
 // "use client";
 // import React, { useEffect, useRef, useCallback } from "react";
-// import { useForm, useFieldArray } from "react-hook-form";
+// import { useForm, useFieldArray, Path } from "react-hook-form";
 // import {
 //   useAdminLandingPage,
 //   useSaveLandingPageMutation,
@@ -174,7 +174,7 @@
 
 //   const onImageUpload = async (
 //     e: React.ChangeEvent<HTMLInputElement>,
-//     fieldPath: keyof CreateLandingPageDto,
+//     fieldPath: Path<CreateLandingPageDto>,
 //   ) => {
 //     e.preventDefault();
 //     const files = e.target.files;
@@ -1406,26 +1406,50 @@ import {
   Plus,
   Trash2,
   Layout,
-  Search,
-  Image as ImageIcon,
+  ImageIcon as ImageIconLucide,
   Video,
   FileText,
   Monitor,
   Star,
   Palette,
-  HelpCircle,
-  CheckCircle2,
   Sparkles,
   Link2,
   Play,
 } from "lucide-react";
 import ContentHead from "@/components/admin/content/ContentHead";
 import ContentNavigation from "@/components/admin/content/ContentNavigation";
+import ProductSearchSelect, {
+  LandingPageProduct,
+} from "@/components/admin/content/landing-page/Productsearchselect";
+import Image from "next/image";
+import CustomImageIcon from "./CustomImageIcon";
+
+// Renamed on import to avoid clashing with the native browser ImageIcon-less
+// name collision some bundlers warn about; keep JSX usage as <ImageIconLucide />.
+const ImageIcon = ImageIconLucide;
+
+/**
+ * The product list hook's return shape isn't pinned down here (it lives in
+ * useAllProductsForLP), so we normalize with a type guard instead of
+ * reaching for `any`.
+ */
+function extractProductArray(source: unknown): LandingPageProduct[] {
+  if (Array.isArray(source)) return source as LandingPageProduct[];
+  if (
+    source &&
+    typeof source === "object" &&
+    "data" in source &&
+    Array.isArray((source as { data: unknown }).data)
+  ) {
+    return (source as { data: LandingPageProduct[] }).data;
+  }
+  return [];
+}
 
 export default function LandingPagePage() {
   const lastLoadedId = useRef<string | null>(null);
 
-  // 🚀 Helper to extract YouTube Video ID
+  // Extract YouTube video ID from a URL.
   const getYoutubeId = (url: string | undefined | null) => {
     if (!url) return null;
     const regExp =
@@ -1434,7 +1458,7 @@ export default function LandingPagePage() {
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  // 🚀 Helper to get YouTube Thumbnail URL
+  // Get the YouTube thumbnail URL for a video link.
   const getYoutubeThumbnail = (url: string | undefined | null) => {
     const videoId = getYoutubeId(url);
     return videoId
@@ -1442,7 +1466,7 @@ export default function LandingPagePage() {
       : null;
   };
 
-  // 🚀 URL RESOLVER: Resolves image paths from the backend
+  // Resolves relative image paths coming back from the backend.
   const getImageUrl = useCallback((path: string | undefined | null) => {
     if (!path || path.trim() === "") return null;
     if (path.startsWith("data:") || path.startsWith("http")) return path;
@@ -1453,7 +1477,6 @@ export default function LandingPagePage() {
       "http://localhost:8082/api/v1";
 
     const backendBaseUrl = rawApiUrl.replace(/\/api(\/v1)?\/?$/, "");
-
     const cleanPath = path.replace(/^\/+/, "");
     return `${backendBaseUrl}/${cleanPath}`;
   }, []);
@@ -1463,21 +1486,16 @@ export default function LandingPagePage() {
     let videoId = "";
 
     if (url.includes("embed/")) {
-      const parts = url.split("embed/");
-      videoId = parts[1]?.split("?")[0] || "";
+      videoId = url.split("embed/")[1]?.split("?")[0] || "";
     } else if (url.includes("youtu.be/")) {
-      const parts = url.split("youtu.be/");
-      videoId = parts[1]?.split("?")[0] || "";
+      videoId = url.split("youtu.be/")[1]?.split("?")[0] || "";
     } else if (url.includes("watch?v=")) {
-      const parts = url.split("watch?v=");
-      videoId = parts[1]?.split("&")[0] || "";
+      videoId = url.split("watch?v=")[1]?.split("&")[0] || "";
     }
 
     if (videoId) {
-      // Uses youtube-nocookie.com domain to bypass account/cookie restriction blocks
       return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&enablejsapi=1`;
     }
-
     return url;
   }, []);
 
@@ -1583,7 +1601,7 @@ export default function LandingPagePage() {
         await trigger(fieldPath);
         toast.success("Image uploaded!", { id: tId });
       }
-    } catch (error) {
+    } catch {
       toast.error("Upload failed", { id: tId });
     }
   };
@@ -1593,16 +1611,20 @@ export default function LandingPagePage() {
       toast.error("Please upload the Hero Image first!");
       return;
     }
+    if (!formData.productId) {
+      toast.error("Please select a product first!");
+      return;
+    }
     savePage(formData, {
       onSuccess: () => toast.success("Landing Page Published!"),
       onError: (err: Error) => toast.error(err.message),
     });
   };
 
-  // Selected product lookup from your product list
-  const selectedProduct = (
-    Array.isArray(productList) ? productList : (productList as any)?.data
-  )?.find((p: any) => p.id === liveData.productId);
+  const productsArray = extractProductArray(productList);
+  const selectedProduct = productsArray.find(
+    (p) => p.id === liveData.productId,
+  );
 
   if (isLoadingProducts)
     return (
@@ -1620,143 +1642,166 @@ export default function LandingPagePage() {
 
       <div className="flex h-[calc(100vh-105px)] overflow-hidden">
         {/* ========================================================= */}
-        {/* --- LEFT EDITOR: MODERN FORM DESIGN --- */}
+        {/* --- LEFT EDITOR --- */}
         {/* ========================================================= */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-[58%] overflow-y-auto scrollbar-hide space-y-6 pb-40"
+          className="w-[58%] overflow-y-auto scrollbar-hide space-y-6 pb-40 px-6"
         >
           {/* PRODUCT & URL CONFIGURATION */}
-          <div className="bg-white p-6 rounded-lg space-y-4 transition-all">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-              <Search size={14} /> Product & Page Setup
-            </div>
-            <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-2.5 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20">
-              <Search size={18} className="text-slate-400 ml-2" />
-              <select
-                {...register("productId", { required: true })}
-                className="flex-1 bg-transparent outline-none text-sm font-normal text-slate-700"
-              >
-                <option value="">Select Target Product...</option>
-                {(Array.isArray(productList)
-                  ? productList
-                  : (productList as any)?.data
-                )?.map((p: any) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="bg-white pt-6 space-y-4">
+            <SectionLabel text="Product" />
+            <ProductSearchSelect
+              selectedProduct={
+                selectedProduct as LandingPageProduct | undefined
+              }
+              onSelect={(product) =>
+                setValue("productId", product.id, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+              onClear={() =>
+                setValue("productId", "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+              resolveImageUrl={getImageUrl}
+              placeholder="Search by product name..."
+              hasError={!liveData.productId}
+            />
+            {/* Kept registered so RHF still validates/tracks productId */}
+            <input
+              type="hidden"
+              {...register("productId", { required: true })}
+            />
+
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20">
-                <span className="px-3 py-2.5 bg-slate-100 text-slate-500 text-xs font-normal border-r border-slate-200">
-                  /lp/
-                </span>
+              <div>
+                <FieldLabel text="Slug" />
+                <div className="flex items-center bg-[#F9FAFB] rounded-lg border-[#E5E7EB] border">
+                  <input
+                    {...register("slug", { required: true })}
+                    placeholder="custom-landing-slug"
+                    className="flex-1 p-4 bg-transparent outline-none text-[#AEAEAE] text-sm font-normal"
+                  />
+                </div>
+              </div>
+              <div>
+                <FieldLabel text="SEO Meta Title" />
                 <input
-                  {...register("slug", { required: true })}
-                  placeholder="custom-landing-slug"
-                  className="flex-1 p-2.5 bg-transparent outline-none text-sm font-normal"
+                  {...register("title")}
+                  placeholder="SEO Meta Title"
+                  className="w-full p-4 text-[#AEAEAE] bg-[#F9FAFB] border-[#E5E7EB] rounded-lg outline-none text-sm font-normal border"
                 />
               </div>
-              <input
-                {...register("title")}
-                placeholder="SEO Meta Title"
-                className="bg-slate-50 rounded-lg border border-slate-200 p-2.5 outline-none text-xs font-noraml focus:ring-2 focus:ring-blue-500/20"
-              />
             </div>
           </div>
 
           {/* HERO SECTION */}
-          <div className="bg-white p-6 space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-              <Layout size={14} /> Hero Section
-            </div>
-            <div className="grid grid-cols-[1.2fr_1.8fr] gap-6 items-start">
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl h-44 flex flex-col items-center justify-center bg-slate-50 relative group overflow-hidden">
-                {liveData.topImage ? (
-                  <img
-                    src={getImageUrl(liveData.topImage)!}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    alt="Hero"
-                  />
-                ) : (
-                  <ImageIcon className="text-slate-300" size={40} />
-                )}
+          <div className="bg-white space-y-4">
+            <SectionHeader icon={<Layout size={14} />} text="Hero Section" />
+            {/* <div className="grid grid-cols-[1.2fr_1.8fr] gap-6 items-start h-full">
+              <div className="h-full">
+                <FieldLabel text="Top Image" />
+                <ImageUploadBox
+                  imageUrl={getImageUrl(liveData.topImage)}
+                  onChange={(e) => onImageUpload(e, "topImage")}
+                  label={liveData.topImage ? "Change Image" : "Add Image"}
+                />
                 <input
                   type="hidden"
                   {...register("topImage", { required: true })}
                 />
-                <label className="absolute bottom-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] px-3.5 py-1.5 rounded-lg font-bold cursor-pointer z-10 hover:bg-black transition shadow-md">
-                  {liveData.topImage ? "Change Image" : "Upload Hero Image"}
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => onImageUpload(e, "topImage")}
-                  />
-                </label>
               </div>
               <div className="space-y-3">
-                <textarea
-                  {...register("headline", { required: true })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
-                  placeholder="Main Headline (e.g., Transform Your Daily Routine)*"
+                <div>
+                  <FieldLabel text="Headline Text*" />
+                  <textarea
+                    {...register("headline", { required: true })}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg py-2.5 px-3 text-[15px] font-normal ocus:outline-none focus:ring-0 focus:border-transparent"
+                    placeholder="Enter Text"
+                  />
+                </div>
+                <div>
+                  <FieldLabel text="Sub Headline Text*" />
+                  <textarea
+                    {...register("subHeadline")}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg py-2.5 px-3 text-[15px] font-normal ocus:outline-none focus:ring-0 focus:border-transparent"
+                    placeholder="Enter Text"
+                  />
+                </div>
+              </div>
+            </div> */}
+
+            <div className="grid grid-cols-[1.2fr_1.8fr] gap-6 items-stretch">
+              <div className="flex flex-col h-full">
+                <FieldLabel text="Top Image" />
+
+                <div className="flex-1">
+                  <ImageUploadBox
+                    imageUrl={getImageUrl(liveData.topImage)}
+                    onChange={(e) => onImageUpload(e, "topImage")}
+                    label={liveData.topImage ? "Change Image" : "Add Image"}
+                  />
+                </div>
+
+                <input
+                  type="hidden"
+                  {...register("topImage", { required: true })}
                 />
-                <textarea
-                  {...register("subHeadline")}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20 h-20 resize-none"
-                  placeholder="Sub-headline / Short catchy summary..."
-                />
+              </div>
+
+              <div className="flex flex-col gap-4 h-full">
+                <div className="">
+                  <FieldLabel text="Headline Text*" />
+                  <textarea
+                    {...register("headline", { required: true })}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg py-2.5 px-3 text-[15px] font-normal focus:outline-none focus:ring-0 focus:border-transparent"
+                    placeholder="Enter Text"
+                  />
+                </div>
+
+                <div className="h-full">
+                  <FieldLabel text="Sub Headline Text*" />
+                  <textarea
+                    {...register("subHeadline")}
+                    className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg py-2.5 px-3 text-[15px] font-normal focus:outline-none focus:ring-0 focus:border-transparent"
+                    placeholder="Enter Text"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* OFFERS / TRUST BAR */}
-          <div className="bg-white p-6 rounded-lg space-y-4 transition-all">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-                <Sparkles size={14} /> Offers & Trust Highlights
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  appendOffer({ title: "", subTitle: "", icon: "" })
-                }
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition shadow-sm"
-              >
-                <Plus size={14} /> Add Item
-              </button>
-            </div>
+          {/* <div className="bg-white space-y-4">
+            <SectionHeader
+              icon={<Sparkles size={14} />}
+              text="Offers & Trust Highlights"
+              onAdd={() => appendOffer({ title: "", subTitle: "", icon: "" })}
+              addLabel="Add More"
+            />
             <div className="space-y-3">
               {offerFields.map((field, index) => (
                 <div
                   key={field.id}
                   className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg flex-wrap"
                 >
-                  <label className="h-10 w-10 border border-dashed border-slate-300 rounded-lg bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-blue-400 transition">
-                    {watch(`offers.${index}.icon`) ? (
-                      <img
-                        src={getImageUrl(watch(`offers.${index}.icon`))!}
-                        className="w-full h-full object-contain p-1"
-                      />
-                    ) : (
-                      <ImageIcon size={16} className="text-slate-400" />
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => onImageUpload(e, `offers.${index}.icon`)}
-                    />
-                  </label>
+                  <IconUploadSlot
+                    imageUrl={getImageUrl(watch(`offers.${index}.icon`))}
+                    onChange={(e) => onImageUpload(e, `offers.${index}.icon`)}
+                  />
                   <input
                     {...register(`offers.${index}.title`)}
                     className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Offer Title (e.g. Free Delivery)"
+                    placeholder="Offer Headline"
                   />
                   <input
                     {...register(`offers.${index}.subTitle`)}
                     className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Sub-text (e.g. On orders over $50)"
+                    placeholder="Offer Sub Headline"
                   />
                   <button
                     type="button"
@@ -1768,55 +1813,116 @@ export default function LandingPagePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
-          {/* KEY FEATURES */}
-          <div className="bg-white p-6 rounded-lg space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-                <CheckCircle2 size={14} /> Key Features
-              </div>
+          <div className="bg-white">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-lato text-[#023337]">
+                Offer Section
+              </h2>
+            </div>
+
+            {/* Offers List */}
+            <div className="space-y-6">
+              {offerFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="grid grid-cols-12 gap-5 items-end font-lato"
+                >
+                  {/* Offer Headline Input */}
+                  <div className="col-span-5">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Offer Headline
+                    </label>
+                    <input
+                      {...register(`offers.${index}.title`)}
+                      className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none"
+                      placeholder="Enter Text"
+                    />
+                  </div>
+
+                  {/* Offer Sub Headline Input */}
+                  <div className="col-span-5">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Offer Sub Headline
+                    </label>
+                    <input
+                      {...register(`offers.${index}.subTitle`)}
+                      className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none"
+                      placeholder="Enter Text"
+                    />
+                  </div>
+
+                  {/* Icon Upload Slot */}
+                  <div className="col-span-2 flex flex-col items-start">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Icon
+                    </label>
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="flex-1 cursor-pointer">
+                        <IconUploadSlot
+                          imageUrl={getImageUrl(watch(`offers.${index}.icon`))}
+                          onChange={(e) =>
+                            onImageUpload(e, `offers.${index}.icon`)
+                          }
+                        />
+                      </div>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeOffer(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                      >
+                        <Trash2 size={22} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add More Button */}
+            <div className="flex justify-end mt-6">
               <button
                 type="button"
                 onClick={() =>
-                  appendFeat({ title: "", subTitle: "", icon: "" })
+                  appendOffer({ title: "", subTitle: "", icon: "" })
                 }
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition shadow-sm"
+                className="bg-[#FF9F1C] text-white text-sm font-semibold cursor-pointer py-2 px-4 rounded-lg"
               >
-                <Plus size={14} /> Add Feature
+                Add More
               </button>
             </div>
+          </div>
+
+          {/* KEY FEATURES */}
+          {/* <div className="bg-white space-y-4">
+            <SectionHeader
+              icon={<CheckCircle2 size={14} />}
+              text="Key Features"
+              onAdd={() => appendFeat({ title: "", subTitle: "", icon: "" })}
+              addLabel="Add Feature"
+            />
             <div className="space-y-3">
               {featFields.map((field, index) => (
                 <div
                   key={field.id}
                   className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex-wrap"
                 >
-                  <label className="h-10 w-10 border border-dashed border-slate-300 rounded-lg bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-blue-400 transition">
-                    {watch(`features.${index}.icon`) ? (
-                      <img
-                        src={getImageUrl(watch(`features.${index}.icon`))!}
-                        className="w-full h-full object-contain p-1"
-                      />
-                    ) : (
-                      <ImageIcon size={16} className="text-slate-400" />
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(e) =>
-                        onImageUpload(e, `features.${index}.icon`)
-                      }
-                    />
-                  </label>
+                  <IconUploadSlot
+                    imageUrl={getImageUrl(watch(`features.${index}.icon`))}
+                    onChange={(e) => onImageUpload(e, `features.${index}.icon`)}
+                  />
                   <input
                     {...register(`features.${index}.title`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-noraml outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Feature Name"
                   />
                   <input
                     {...register(`features.${index}.subTitle`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-noraml outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Short feature explanation"
                   />
                   <button
@@ -1829,13 +1935,96 @@ export default function LandingPagePage() {
                 </div>
               ))}
             </div>
+          </div> */}
+
+          <div className="bg-white">
+            {/* Header Section - প্রথম কোডের মতো ডিজাইন */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-lato text-[#023337]">
+                Key Features
+              </h2>
+            </div>
+
+            {/* Features List */}
+            <div className="space-y-6">
+              {featFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="grid grid-cols-12 gap-5 items-end font-lato"
+                >
+                  {/* Feature Title Input */}
+                  <div className="col-span-5">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Feature Name
+                    </label>
+                    <input
+                      {...register(`features.${index}.title`)}
+                      className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none focus:border-[#FF9F1C] transition"
+                      placeholder="Enter Text"
+                    />
+                  </div>
+
+                  {/* Feature Sub Title Input */}
+                  <div className="col-span-5">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Short feature explanation
+                    </label>
+                    <input
+                      {...register(`features.${index}.subTitle`)}
+                      className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none focus:border-[#FF9F1C] transition"
+                      placeholder="Enter Text"
+                    />
+                  </div>
+
+                  {/* Icon & Delete Button Section */}
+                  <div className="col-span-2 flex flex-col items-start">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Icon
+                    </label>
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="flex-1 cursor-pointer">
+                        <IconUploadSlot
+                          imageUrl={getImageUrl(
+                            watch(`features.${index}.icon`),
+                          )}
+                          onChange={(e) =>
+                            onImageUpload(e, `features.${index}.icon`)
+                          }
+                        />
+                      </div>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeFeat(index)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                      >
+                        <Trash2 size={22} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                type="button"
+                onClick={() =>
+                  appendFeat({ title: "", subTitle: "", icon: "" })
+                }
+                className="bg-[#FF9F1C] text-white text-sm font-semibold cursor-pointer py-2.5 px-6 rounded-lg hover:bg-[#e68a17] transition"
+              >
+                Add Feature
+              </button>
+            </div>
           </div>
 
           {/* SHOWCASE GALLERY */}
-          <div className="bg-white p-6 rounded-lg space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-              <ImageIcon size={14} /> Showcase Gallery (4 Slots)
-            </div>
+          <div className="bg-white space-y-4">
+            <SectionHeader
+              icon={<ImageIcon size={14} />}
+              text={`Product Image (${liveData.productImages?.filter(Boolean).length ?? 0}/4)`}
+            />
             <div className="grid grid-cols-4 gap-4">
               {[0, 1, 2, 3].map((i) => (
                 <div
@@ -1846,6 +2035,7 @@ export default function LandingPagePage() {
                     <img
                       src={getImageUrl(liveData.productImages[i])!}
                       className="w-full h-full object-cover"
+                      alt={`Product ${i + 1}`}
                     />
                   ) : (
                     <Plus size={20} className="text-slate-300" />
@@ -1861,25 +2051,28 @@ export default function LandingPagePage() {
                 </div>
               ))}
             </div>
+            <p className="text-[10px] text-slate-400">
+              Note: Use images with a 1:1.6 aspect ratio (855×1386 pixels.)
+            </p>
           </div>
 
-          {/* VIDEO SECTION WITH THUMBNAIL PREVIEW */}
-          <div className="bg-white p-6 rounded-lg  space-y-4 ">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-              <Video size={14} /> Product Video Section
-            </div>
-            <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20">
-              <Link2 size={16} className="text-slate-400 ml-1" />
-              <input
-                {...register("videoLink")}
-                className="flex-1 bg-transparent outline-none text-xs font-semibold text-slate-700"
-                placeholder="Paste YouTube Link (e.g. https://www.youtube.com/watch?v=5qVZVt5zCY8)"
-              />
+          {/* VIDEO SECTION */}
+          <div className="bg-white space-y-4 font-lato">
+            <SectionHeader icon={<Video size={14} />} text="Video Section" />
+            <div>
+              <FieldLabel text="Video Link" />
+              <div className="flex items-center gap-2 bg-[#F9FAFB] rounded-xl p-4 border border-[#E5E7EB]">
+                {/* <Link2 size={16} className="text-slate-400 ml-1" /> */}
+                <input
+                  {...register("videoLink")}
+                  className="flex-1 bg-transparent outline-none text-[15px] font-semibold text-slate-700"
+                  placeholder="Paste YouTube Link"
+                />
+              </div>
             </div>
 
-            {/* 🚀 Bulletproof Thumbnail Preview */}
             {getYoutubeThumbnail(liveData.videoLink) ? (
-              <div className="mt-3 aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-900 relative group shadow-sm">
+              <div className="mt-1 aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-900 relative group shadow-sm">
                 <img
                   src={getYoutubeThumbnail(liveData.videoLink)!}
                   alt="Video Thumbnail"
@@ -1906,23 +2099,16 @@ export default function LandingPagePage() {
             ) : null}
           </div>
 
-          {/* CUSTOMER REVIEWS (FIXED COLLISION) */}
-          <div className="bg-white p-6 rounded-lg  space-y-4 ">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-                <Star size={14} /> Customer Reviews
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  appendReview({ name: "", quote: "", rating: 5, image: "" })
-                }
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition shadow-sm"
-              >
-                <Plus size={14} /> Add Review
-              </button>
-            </div>
-
+          {/* CUSTOMER REVIEWS */}
+          {/* <div className="bg-white space-y-4">
+            <SectionHeader
+              icon={<Star size={14} />}
+              text="Customer Reviews"
+              onAdd={() =>
+                appendReview({ name: "", quote: "", rating: 5, image: "" })
+              }
+              addLabel="Add More"
+            />
             <div className="space-y-4">
               {reviewFields.map((f, i) => (
                 <div
@@ -1931,12 +2117,12 @@ export default function LandingPagePage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 flex-1">
-                      {/* Avatar Uploader */}
-                      <label className="h-10 w-10 border border-dashed border-slate-300 rounded-full bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-blue-400 transition">
+                      <label className="h-10 w-10 border border-dashed border-slate-300 rounded-full bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-orange-400 transition">
                         {watch(`reviews.${i}.image`) ? (
                           <img
                             src={getImageUrl(watch(`reviews.${i}.image`))!}
                             className="w-full h-full object-cover"
+                            alt="Reviewer"
                           />
                         ) : (
                           <ImageIcon size={16} className="text-slate-400" />
@@ -1954,8 +2140,17 @@ export default function LandingPagePage() {
                         className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20"
                         placeholder="Customer Name"
                       />
+                      <input
+                        type="number"
+                        min={0}
+                        max={5}
+                        {...register(`reviews.${i}.rating`, {
+                          valueAsNumber: true,
+                        })}
+                        className="w-14 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none text-center focus:ring-2 focus:ring-blue-500/20"
+                        placeholder="5"
+                      />
                     </div>
-                    {/* Dedicated Delete Button Container preventing collision */}
                     <button
                       type="button"
                       onClick={() => removeReview(i)}
@@ -1973,23 +2168,122 @@ export default function LandingPagePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
-          {/* FAQS (FIXED COLLISION) */}
-          <div className="bg-white p-6 rounded-lg  space-y-4 ">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-                <HelpCircle size={14} /> Frequently Asked Questions
-              </div>
-              <button
-                type="button"
-                onClick={() => appendFaq({ question: "", answer: "" })}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition shadow-sm"
-              >
-                <Plus size={14} /> Add FAQ
-              </button>
+          <div className="bg-white">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-lato text-[#023337]">
+                Customer Reviews
+              </h2>
             </div>
 
+            {/* Reviews List */}
+            <div className="space-y-8">
+              {reviewFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="grid grid-cols-12 gap-5 items-start font-lato p-5 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB]"
+                >
+                  {/* Customer Image Slot */}
+                  <div className="col-span-2 flex flex-col items-start">
+                    <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                      Photo
+                    </label>
+                    <div className="w-full">
+                      <IconUploadSlot
+                        imageUrl={getImageUrl(watch(`reviews.${index}.image`))}
+                        onChange={(e) =>
+                          onImageUpload(e, `reviews.${index}.image`)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* Name and Rating Section */}
+                  <div className="col-span-9 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Customer Name */}
+                      <div>
+                        <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                          Customer Name
+                        </label>
+                        <input
+                          {...register(`reviews.${index}.name`)}
+                          className="w-full bg-white border border-[#E5E7EB] rounded-lg p-3 text-[15px] outline-none focus:border-[#FF9F1C]"
+                          placeholder="Enter customer name"
+                        />
+                      </div>
+
+                      {/* Rating */}
+                      <div>
+                        <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                          Rating (0-5)
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          {...register(`reviews.${index}.rating`, {
+                            valueAsNumber: true,
+                          })}
+                          className="w-full bg-white border border-[#E5E7EB] rounded-lg p-3 text-[15px] outline-none focus:border-[#FF9F1C]"
+                          placeholder="5"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quote / Testimonial */}
+                    <div>
+                      <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                        Customer Quote
+                      </label>
+                      <textarea
+                        {...register(`reviews.${index}.quote`)}
+                        className="w-full bg-white border border-[#E5E7EB] rounded-lg p-3 text-[15px] outline-none focus:border-[#FF9F1C] resize-none"
+                        placeholder="Enter customer testimonial..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  <div className="col-span-1 flex justify-end pt-9">
+                    <button
+                      type="button"
+                      onClick={() => removeReview(index)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                    >
+                      <Trash2 size={22} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add More Button */}
+            <div className="flex justify-end mt-6">
+              <button
+                type="button"
+                onClick={() =>
+                  appendReview({ name: "", quote: "", rating: 5, image: "" })
+                }
+                className="bg-[#FF9F1C] text-white text-sm font-semibold cursor-pointer py-2.5 px-6 rounded-lg hover:bg-[#e68a17] transition"
+              >
+                Add Review
+              </button>
+            </div>
+          </div>
+
+          {/* FAQS */}
+          {/* <div className="bg-white space-y-4">
+            <SectionHeader
+              icon={<HelpCircle size={14} />}
+              text="Frequently Asked Questions"
+              onAdd={() => appendFaq({ question: "", answer: "" })}
+              addLabel="Add More"
+            />
             <div className="space-y-4">
               {faqFields.map((f, i) => (
                 <div
@@ -2019,66 +2313,102 @@ export default function LandingPagePage() {
                 </div>
               ))}
             </div>
+          </div> */}
+
+          <div className="bg-white">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-lato text-[#023337]">
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            {/* FAQ List */}
+            <div className="space-y-6">
+              {faqFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-5 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] font-lato relative group"
+                >
+                  {/* Delete Button - Top Right */}
+                  <div className="absolute top-4 right-4">
+                    <button
+                      type="button"
+                      onClick={() => removeFaq(index)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Question Input */}
+                    <div className="pr-12">
+                      {" "}
+                      {/* Space for delete button */}
+                      <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                        Question
+                      </label>
+                      <input
+                        {...register(`faqs.${index}.question`)}
+                        className="w-full bg-white border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none focus:border-[#FF9F1C] transition"
+                        placeholder="e.g., What is your return policy?"
+                      />
+                    </div>
+
+                    {/* Answer Input */}
+                    <div>
+                      <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                        Answer
+                      </label>
+                      <textarea
+                        {...register(`faqs.${index}.answer`)}
+                        className="w-full bg-white border border-[#E5E7EB] rounded-lg p-4 text-[15px] outline-none focus:border-[#FF9F1C] transition resize-none"
+                        placeholder="Provide a clear answer..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add More Button */}
+            <div className="flex justify-end mt-6">
+              <button
+                type="button"
+                onClick={() => appendFaq({ question: "", answer: "" })}
+                className="bg-[#FF9F1C] text-white text-sm font-semibold cursor-pointer py-2.5 px-6 rounded-lg hover:bg-[#e68a17] transition"
+              >
+                Add FAQ
+              </button>
+            </div>
           </div>
 
           {/* THEME BRANDING */}
-          <div className="bg-white p-6 rounded-lg  space-y-4 ">
-            <div className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
-              <Palette size={14} /> Color Theme Configuration
-            </div>
+          <div className="bg-white space-y-4">
+            <SectionHeader icon={<Palette size={14} />} text="Theme Section" />
             <div className="grid grid-cols-3 gap-6">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">
-                  Background
-                </label>
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1.5 bg-slate-50">
-                  <input
-                    type="color"
-                    {...register("backgroundColor")}
-                    className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent"
-                  />
-                  <span className="text-xs font-mono font-semibold uppercase">
-                    {liveData.backgroundColor}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">
-                  Button Color
-                </label>
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1.5 bg-slate-50">
-                  <input
-                    type="color"
-                    {...register("buttonColor")}
-                    className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent"
-                  />
-                  <span className="text-xs font-mono font-semibold uppercase">
-                    {liveData.buttonColor}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">
-                  Text Color
-                </label>
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1.5 bg-slate-50">
-                  <input
-                    type="color"
-                    {...register("textColor")}
-                    className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent"
-                  />
-                  <span className="text-xs font-mono font-semibold uppercase">
-                    {liveData.textColor}
-                  </span>
-                </div>
-              </div>
+              <ColorField
+                label="Background Colour"
+                value={liveData.backgroundColor}
+                registerProps={register("backgroundColor")}
+              />
+              <ColorField
+                label="Button Colour"
+                value={liveData.buttonColor}
+                registerProps={register("buttonColor")}
+              />
+              <ColorField
+                label="Text Colour"
+                value={liveData.textColor}
+                registerProps={register("textColor")}
+              />
             </div>
           </div>
 
           {/* SUBMIT FOOTER */}
-          <div className="flex justify-between items-center py-6 border-t border-slate-200 px-6">
+          <div className="flex justify-between items-center py-6 border-t border-slate-200">
             <button
               type="button"
               className="font-medium text-slate-600 flex items-center gap-2 text-sm hover:text-slate-900 transition bg-gray-200 p-4 rounded-lg cursor-pointer"
@@ -2101,27 +2431,22 @@ export default function LandingPagePage() {
         </form>
 
         {/* ========================================================= */}
-        {/* --- RIGHT PREVIEW: LIVE VISUAL DEVICE --- */}
+        {/* --- RIGHT PREVIEW --- */}
         {/* ========================================================= */}
-
-        <div className="w-[42%] bg-gray-100 rounded-lg p-6 overflow-y-auto scrollbar-hide flex flex-col items-center">
+        <div className="w-[42%] bg-white rounded-lg p-6 overflow-y-auto scrollbar-hide flex flex-col items-center">
           <div className="flex justify-between items-center w-full max-w-md mb-4 font-bold text-slate-700 text-sm shrink-0">
             Live Visual Preview <Monitor size={20} />
           </div>
 
-          {/* 🚀 EXACT LAYOUT CONTAINER MATCHING STOREFRONT DESIGN */}
           <div
-            className="w-full max-w-md h-[780px] bg-white rounded-xl border-2 border-slate-900 overflow-y-auto scrollbar-hide flex flex-col transition-all shrink-0"
+            className="w-full max-w-md h-[780px] bg-white rounded-xl border-5 border-[#F9F9F9] overflow-y-auto scrollbar-hide flex flex-col transition-all shrink-0"
             style={{
               backgroundColor: liveData.backgroundColor || "#ffffff",
               color: liveData.textColor || "#111827",
             }}
           >
-            {/* 🚀 PIXEL-PERFECT HERO SECTION */}
             <div className="px-8 py-12 grid grid-cols-2 gap-6 items-center shrink-0">
-              {/* Left Side Content Container */}
               <div className="flex flex-col items-center text-center space-y-4 max-w-xs mx-auto">
-                {/* Headline with dynamic fallback & formatting */}
                 <h1
                   className="text-2xl font-black tracking-tight leading-[1.15] text-slate-900"
                   style={{ color: liveData.textColor || "#0f172a" }}
@@ -2140,14 +2465,10 @@ export default function LandingPagePage() {
                     </>
                   )}
                 </h1>
-
-                {/* Subheadline / Short Description */}
                 <p className="text-[9px] text-zinc-400 font-medium leading-relaxed max-w-[200px]">
                   {liveData.subHeadline ||
                     "Write here about your product short description."}
                 </p>
-
-                {/* Glow CTA Button */}
                 <div className="pt-2">
                   <button
                     style={{
@@ -2161,7 +2482,6 @@ export default function LandingPagePage() {
                 </div>
               </div>
 
-              {/* Right Side Hero Image */}
               <div className="w-full aspect-[1.1/1] rounded-[1.5rem] overflow-hidden bg-slate-100 shadow-sm border border-slate-100/80">
                 {liveData.topImage ? (
                   <img
@@ -2180,7 +2500,6 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT TRUST BAR / OFFERS BANNER */}
             {liveData.offers && liveData.offers.length > 0 && (
               <div className="bg-[#f3f3f3] py-7 px-4 grid grid-cols-3 gap-3 items-center shrink-0">
                 {liveData.offers.map((off, i) => (
@@ -2188,7 +2507,6 @@ export default function LandingPagePage() {
                     key={i}
                     className="flex flex-col items-center text-center space-y-1 px-1"
                   >
-                    {/* Icon Container */}
                     <div className="mb-0.5 flex items-center justify-center">
                       {off.icon ? (
                         <img
@@ -2204,13 +2522,9 @@ export default function LandingPagePage() {
                         />
                       )}
                     </div>
-
-                    {/* Title */}
                     <p className="text-[9px] font-black text-slate-900 leading-tight tracking-tight">
                       {off.title || "100% High Quality Product"}
                     </p>
-
-                    {/* Subtitle */}
                     {off.subTitle && (
                       <p className="text-[6.5px] font-normal text-slate-500 leading-normal max-w-[130px]">
                         {off.subTitle}
@@ -2221,9 +2535,7 @@ export default function LandingPagePage() {
               </div>
             )}
 
-            {/* 🚀 PIXEL-PERFECT PRODUCT SHOWCASE (2x2 GRID) */}
             <div className="px-8 py-10 text-center space-y-6 shrink-0">
-              {/* Section Heading & Sub-description */}
               <div className="space-y-1.5 max-w-sm mx-auto">
                 <h2
                   className="text-lg font-black tracking-tight text-slate-900"
@@ -2235,8 +2547,6 @@ export default function LandingPagePage() {
                   Explore our high quality gallery photos and product angles.
                 </p>
               </div>
-
-              {/* 2x2 Photo Grid */}
               <div className="grid grid-cols-2 gap-4">
                 {[0, 1, 2, 3].map((i) => (
                   <div
@@ -2261,9 +2571,7 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT "WHY TO USE SUPPLE" FEATURES SECTION */}
             <div className="px-6 py-10 text-center space-y-6 shrink-0 border-t border-slate-100">
-              {/* Header & Subtitle */}
               <div className="space-y-1.5 max-w-sm mx-auto">
                 <h2
                   className="text-lg font-black tracking-tight text-slate-900"
@@ -2276,9 +2584,7 @@ export default function LandingPagePage() {
                 </p>
               </div>
 
-              {/* 3-Column Layout: Left Features | Center Product Image | Right Features */}
               <div className="grid grid-cols-[1fr_1.1fr_1fr] gap-3 items-center">
-                {/* LEFT COLUMN (Features 1-3) */}
                 <div className="space-y-6">
                   {[0, 1, 2].map((idx) => {
                     const feat = liveData.features?.[idx];
@@ -2292,13 +2598,11 @@ export default function LandingPagePage() {
                       "Nisl vel porttitor feugiat ornare mollis ac. Dignissim amet feugiat.",
                       "Urna posuere egestas nunc et sit vel. Nam cursus interdum urna.",
                     ];
-
                     return (
                       <div
                         key={idx}
                         className="flex items-center justify-end gap-2 text-right"
                       >
-                        {/* Text Box */}
                         <div className="space-y-0.5 max-w-[120px]">
                           <h3 className="text-[9px] font-extrabold text-slate-900 leading-tight">
                             {feat?.title || defaultTitles[idx]}
@@ -2307,8 +2611,6 @@ export default function LandingPagePage() {
                             {feat?.subTitle || defaultSubs[idx]}
                           </p>
                         </div>
-
-                        {/* Icon */}
                         <div className="shrink-0 w-6 h-6 flex items-center justify-center">
                           {feat?.icon ? (
                             <img
@@ -2331,7 +2633,6 @@ export default function LandingPagePage() {
                   })}
                 </div>
 
-                {/* CENTER IMAGE */}
                 <div className="aspect-[1/1.3] rounded-[1.25rem] overflow-hidden bg-slate-100 shadow-sm border border-slate-100">
                   {liveData.topImage || liveData.productImages?.[0] ? (
                     <img
@@ -2352,7 +2653,6 @@ export default function LandingPagePage() {
                   )}
                 </div>
 
-                {/* RIGHT COLUMN (Features 4-6) */}
                 <div className="space-y-6">
                   {[3, 4, 5].map((idx) => {
                     const feat = liveData.features?.[idx];
@@ -2366,13 +2666,11 @@ export default function LandingPagePage() {
                       "In nulla laoreet amet platea feugiat purus at consequat orci.",
                       "Velit sed sem scelerisque gravida ornare enim. Venenatis pharetra.",
                     ];
-
                     return (
                       <div
                         key={idx}
                         className="flex items-center justify-start gap-2 text-left"
                       >
-                        {/* Icon */}
                         <div className="shrink-0 w-6 h-6 flex items-center justify-center">
                           {feat?.icon ? (
                             <img
@@ -2390,8 +2688,6 @@ export default function LandingPagePage() {
                             />
                           )}
                         </div>
-
-                        {/* Text Box */}
                         <div className="space-y-0.5 max-w-[120px]">
                           <h3 className="text-[9px] font-extrabold text-slate-900 leading-tight">
                             {feat?.title || defaultTitles[idx - 3]}
@@ -2407,21 +2703,16 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT CUSTOMER'S REVIEWS SECTION */}
             <div className="px-6 py-10 text-center space-y-6 shrink-0">
-              {/* Header */}
               <h2
                 className="text-lg font-black tracking-tight"
                 style={{ color: liveData.textColor || "#0f172a" }}
               >
-                Customer’s Reviews
+                Customer&rsquo;s Reviews
               </h2>
 
-              {/* Review Grid: Left Card | Right Product Showcase */}
               <div className="grid grid-cols-[1.2fr_1fr] gap-4 items-center relative max-w-md mx-auto">
-                {/* LEFT TESTIMONIAL CARD */}
                 <div className="bg-white/90 backdrop-blur-md p-5 rounded-[1.25rem] shadow-xl text-left space-y-3 relative z-10 border border-slate-100/60">
-                  {/* Badge Top Left */}
                   <div className="flex items-center gap-1.5 text-slate-800">
                     <div className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[7px]">
                       👍
@@ -2430,14 +2721,10 @@ export default function LandingPagePage() {
                       Testimonial
                     </span>
                   </div>
-
-                  {/* Quote Body */}
                   <p className="text-[7.5px] text-slate-600 font-normal leading-relaxed relative z-10">
                     {liveData.reviews?.[0]?.quote ||
                       "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit."}
                   </p>
-
-                  {/* Footer Info & Watermark Quote */}
                   <div className="flex justify-between items-end pt-1">
                     <div>
                       <h4 className="text-[9px] font-extrabold text-slate-900 leading-none">
@@ -2447,15 +2734,12 @@ export default function LandingPagePage() {
                         Verified Customer
                       </span>
                     </div>
-
-                    {/* Decorative Watermark Quote */}
                     <span className="text-6xl font-serif text-slate-200 leading-none -mb-1">
-                      “
+                      &ldquo;
                     </span>
                   </div>
                 </div>
 
-                {/* RIGHT PRODUCT / CUSTOMER PHOTO WITH "NEXT >" FLOATING BADGE */}
                 <div className="relative aspect-[3/4.2] rounded-[1.25rem] overflow-hidden shadow-lg bg-slate-100">
                   {liveData.reviews?.[0]?.image || liveData.topImage ? (
                     <img
@@ -2470,8 +2754,6 @@ export default function LandingPagePage() {
                   ) : (
                     <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-[8px]" />
                   )}
-
-                  {/* Floating 'Next >' Button Overlay */}
                   <div className="absolute bottom-3 right-3 bg-black text-white text-[7px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
                     <span>Next</span>
                     <span>›</span>
@@ -2479,7 +2761,6 @@ export default function LandingPagePage() {
                 </div>
               </div>
 
-              {/* PAGINATION DOTS */}
               <div className="flex justify-center items-center gap-1.5 pt-1">
                 <span
                   className="w-2 h-2 rounded-full transition-colors"
@@ -2490,9 +2771,7 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT FAQS SECTION */}
             <div className="px-6 py-10 text-center space-y-6 shrink-0">
-              {/* Header & Subtitle */}
               <div className="space-y-1 max-w-sm mx-auto">
                 <h2
                   className="text-lg font-black tracking-tight"
@@ -2505,7 +2784,6 @@ export default function LandingPagePage() {
                 </p>
               </div>
 
-              {/* Accordion Cards Container */}
               <div className="space-y-2.5 max-w-sm mx-auto text-left">
                 {(liveData.faqs && liveData.faqs.length > 0
                   ? liveData.faqs
@@ -2531,17 +2809,16 @@ export default function LandingPagePage() {
                       },
                     ]
                 ).map((faq, i) => {
-                  // First item shown open by default (or if answer exists)
                   const isOpen =
                     i === 0 ||
-                    (liveData.faqs && liveData.faqs.length > 0 && faq.answer);
-
+                    (liveData.faqs &&
+                      liveData.faqs.length > 0 &&
+                      Boolean(faq.answer));
                   return (
                     <div
                       key={i}
                       className="bg-white/90 backdrop-blur-xs border border-slate-200/80 rounded-xl p-3.5 shadow-xs transition-all space-y-1.5"
                     >
-                      {/* Header Row: Question + Toggle Icon */}
                       <div className="flex justify-between items-center gap-2 cursor-pointer">
                         <h3 className="text-[8.5px] font-extrabold text-slate-900 leading-snug">
                           {faq.question || "Frequently Asked Question Title?"}
@@ -2550,8 +2827,6 @@ export default function LandingPagePage() {
                           {isOpen ? "−" : "+"}
                         </span>
                       </div>
-
-                      {/* Answer Body (When expanded/present) */}
                       {isOpen && faq.answer && (
                         <p className="text-[7px] text-slate-500 font-normal leading-relaxed pt-1 border-t border-slate-100">
                           {faq.answer}
@@ -2563,10 +2838,8 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT FULL WIDESCREEN VIDEO BANNER */}
             <div className="px-6 py-8 shrink-0">
               <div className="aspect-[2.1/1] w-full rounded-[1.25rem] overflow-hidden shadow-sm bg-slate-900 relative group border border-slate-100/60">
-                {/* Video / Product Thumbnail Image */}
                 {getYoutubeThumbnail(liveData.videoLink) ||
                 liveData.topImage ||
                 liveData.productImages?.[0] ? (
@@ -2583,10 +2856,7 @@ export default function LandingPagePage() {
                 ) : (
                   <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-[8px]" />
                 )}
-
-                {/* Subtle Dark Overlay */}
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                  {/* Black Circle with Cyan Triangle Play Icon */}
                   <div className="w-9 h-9 bg-black rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
                     <Play
                       size={14}
@@ -2601,9 +2871,7 @@ export default function LandingPagePage() {
               </div>
             </div>
 
-            {/* 🚀 PIXEL-PERFECT "ORDER OUR PRODUCT" SECTION */}
             <div className="px-6 py-10 text-center space-y-6 shrink-0 pb-16">
-              {/* Header & Subtitle */}
               <div className="space-y-1 max-w-sm mx-auto">
                 <h2
                   className="text-lg font-black tracking-tight"
@@ -2616,11 +2884,8 @@ export default function LandingPagePage() {
                 </p>
               </div>
 
-              {/* Main Order Grid */}
               <div className="grid grid-cols-2 gap-5 items-start text-left max-w-md mx-auto">
-                {/* LEFT COLUMN: Main Image + 3 Thumbnails */}
                 <div className="space-y-2.5">
-                  {/* Main Image */}
                   <div className="aspect-[1/1.15] bg-slate-100 rounded-[1.25rem] overflow-hidden shadow-sm border border-slate-100/80">
                     {liveData.topImage || selectedProduct?.images?.[0] ? (
                       <img
@@ -2636,8 +2901,6 @@ export default function LandingPagePage() {
                       <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-[8px]" />
                     )}
                   </div>
-
-                  {/* 3 Thumbnails Row */}
                   <div className="grid grid-cols-3 gap-2">
                     {[0, 1, 2].map((i) => {
                       const imgPath =
@@ -2660,9 +2923,7 @@ export default function LandingPagePage() {
                     })}
                   </div>
                 </div>
-                {/* RIGHT COLUMN: Product Meta, Pricing, Purchase & Tabs */}
                 <div className="space-y-2.5 pt-1">
-                  {/* Dynamic Star Rating (Mapped to avg_rating) */}
                   <div className="flex items-center gap-0.5 text-amber-400">
                     {[...Array(5)].map((_, i) => {
                       const rating = Number(
@@ -2685,7 +2946,6 @@ export default function LandingPagePage() {
                     })}
                   </div>
 
-                  {/* Product Name */}
                   <h3 className="text-sm font-black text-slate-900 leading-tight">
                     {selectedProduct?.name || liveData.title || (
                       <span className="text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded text-[9px] font-bold border border-amber-200">
@@ -2694,7 +2954,6 @@ export default function LandingPagePage() {
                     )}
                   </h3>
 
-                  {/* Price Row (Mapped to sell_price & regular_price) */}
                   <div className="flex items-center gap-2">
                     {selectedProduct?.sell_price !== undefined ||
                     selectedProduct?.price !== undefined ? (
@@ -2709,7 +2968,6 @@ export default function LandingPagePage() {
                         ৳ --.--
                       </span>
                     )}
-
                     {(selectedProduct?.regular_price ||
                       selectedProduct?.originalPrice) && (
                       <span className="text-[9px] text-slate-400 font-medium line-through">
@@ -2720,7 +2978,6 @@ export default function LandingPagePage() {
                     )}
                   </div>
 
-                  {/* Short Summary Description (Mapped to short_description) */}
                   <p className="text-[7px] text-slate-500 font-normal leading-relaxed line-clamp-3">
                     {selectedProduct?.short_description ||
                       liveData.subHeadline || (
@@ -2730,7 +2987,6 @@ export default function LandingPagePage() {
                       )}
                   </p>
 
-                  {/* Purchase Button with Glow */}
                   <div className="pt-1">
                     <button
                       style={{
@@ -2743,10 +2999,8 @@ export default function LandingPagePage() {
                     </button>
                   </div>
 
-                  {/* Divider */}
                   <div className="border-t border-slate-200/80 pt-2 my-1" />
 
-                  {/* Tabs Header (Mapped to total_reviews) */}
                   <div className="flex items-center gap-3 text-[8.5px] font-bold">
                     <span
                       className="cursor-pointer"
@@ -2763,7 +3017,6 @@ export default function LandingPagePage() {
                     </span>
                   </div>
 
-                  {/* Detailed Description */}
                   <p className="text-[6.5px] text-slate-500 font-normal leading-relaxed">
                     {selectedProduct?.description || (
                       <span className="italic text-slate-400">
@@ -2777,6 +3030,178 @@ export default function LandingPagePage() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Small presentational helpers                                          */
+/* ---------------------------------------------------------------------- */
+
+function SectionLabel({ text }: { text: string }) {
+  return (
+    <p className="text-[15px] font-bold font-lato text-[#023337]">{text}</p>
+  );
+}
+
+function FieldLabel({ text }: { text: string }) {
+  return (
+    <label className="block text-[15px] font-bold text-[#023337] font-lato mb-1.5">
+      {text}
+    </label>
+  );
+}
+
+function SectionHeader({
+  text,
+  onAdd,
+  addLabel,
+}: {
+  icon: React.ReactNode;
+  text: string;
+  onAdd?: () => void;
+  addLabel?: string;
+}) {
+  return (
+    <div className="flex justify-between items-center pb-3">
+      <div className="flex items-center gap-2 text-lg font-lato font-bold text-[#023337]">
+        {text}
+      </div>
+      {onAdd && (
+        <button
+          type="button"
+          onClick={onAdd}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition shadow-sm"
+        >
+          <Plus size={14} /> {addLabel ?? "Add More"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// function ImageUploadBox({
+//   imageUrl,
+//   onChange,
+//   label,
+// }: {
+//   imageUrl: string | null;
+//   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+//   label: string;
+// }) {
+//   return (
+//     <div className="h-full">
+//       <div className="border border-[#E5E7EB] gap-4 rounded-lg h-52 flex flex-col items-center justify-center bg-slate-50">
+//         {imageUrl ? (
+//           <Image
+//             width={400}
+//             height={400}
+//             src={imageUrl}
+//             className="inset-0 w-full h-full object-cover"
+//             alt="Upload preview"
+//             unoptimized
+//           />
+//         ) : (
+//           <CustomImageIcon />
+//         )}
+//         <p className="text-[10px] text-[#A2A2A2] font-lato">
+//           Note: Use images with a 1:1.6 aspect ratio (855×1386 pixels.)
+//         </p>
+//         <label className="bg-[#FF9F1C] text-white text-[14px] px-4 py-2 rounded-lg font-bold cursor-pointer z-10">
+//           {label}
+//           <input type="file" className="hidden" onChange={onChange} />
+//         </label>
+//       </div>
+//     </div>
+//   );
+// }
+
+function ImageUploadBox({
+  imageUrl,
+  onChange,
+  label,
+}: {
+  imageUrl: string | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+}) {
+  return (
+    <div className="h-full">
+      <div className="relative overflow-hidden border border-[#E5E7EB] gap-4 rounded-lg h-52 flex flex-col items-center justify-center bg-slate-50">
+        {imageUrl ? (
+          <Image
+            width={400}
+            height={400}
+            src={imageUrl}
+            className="absolute inset-0 w-full h-full object-cover"
+            alt="Upload preview"
+            unoptimized
+          />
+        ) : (
+          <CustomImageIcon />
+        )}
+        <p className="relative z-10 text-[10px] text-[#A2A2A2] font-lato">
+          Note: Use images with a 1:1.6 aspect ratio (855×1386 pixels.)
+        </p>
+        <label className="relative z-10 bg-[#FF9F1C] text-white text-[14px] px-4 py-2 rounded-lg font-bold cursor-pointer">
+          {label}
+          <input type="file" className="hidden" onChange={onChange} />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function IconUploadSlot({
+  imageUrl,
+  onChange,
+}: {
+  imageUrl: string | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <label className="h-14 w-14 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB] flex items-center justify-center cursor-pointer shrink-0">
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          className="w-full h-full object-contain p-1"
+          alt="Icon"
+          width={64}
+          height={64}
+          unoptimized
+        />
+      ) : (
+        <ImageIcon size={16} className="text-slate-400" />
+      )}
+      <input type="file" className="hidden" onChange={onChange} />
+    </label>
+  );
+}
+
+function ColorField({
+  label,
+  value,
+  registerProps,
+}: {
+  label: string;
+  value: string | undefined;
+  registerProps: ReturnType<
+    ReturnType<typeof useForm<CreateLandingPageDto>>["register"]
+  >;
+}) {
+  return (
+    <div className="space-y-1.5 font-lato">
+      <label className="text-[15px] font-bold text-[#023337]">{label}</label>
+      <div className="flex items-center gap-2 border border-[#E5E7EB] rounded-lg p-1.5 bg-[#F9FAFB] mt-2">
+        <input
+          type="color"
+          {...registerProps}
+          className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent"
+        />
+        <span className="text-xs font-mono font-semibold uppercase">
+          {value}
+        </span>
       </div>
     </div>
   );

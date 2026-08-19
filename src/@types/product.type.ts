@@ -53,7 +53,7 @@ export interface ProductCard {
   slug: string;
   sell_price: string;
   regular_price: string;
-  images: string[];
+  images: string[] | undefined;
   avg_rating: number;
   total_reviews: number;
   quantity: number;
@@ -68,7 +68,7 @@ export interface Product {
   name: string;
   slug: string;
 
-  images: string[];
+  images: string[] | undefined;
 
   brand?: {
     id: string;

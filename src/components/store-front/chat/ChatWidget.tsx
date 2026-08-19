@@ -6,7 +6,6 @@ import { useChatEngine } from "@/hooks/useChat";
 import { useQuery } from "@tanstack/react-query";
 import {
   FiSend,
-  FiPaperclip,
   FiX,
   FiFileText,
   FiLoader,
@@ -76,8 +75,8 @@ const ChatWidget = () => {
   const isStoreReady = useAuthStore((state) => state._hasHydrated);
 
   // Zustand State for the internal message window
-  const isOpen = useAuthStore((state) => state.isChatOpen);
-  const setIsOpen = useAuthStore((state) => state.setIsChatOpen);
+  // const isOpen = useAuthStore((state) => state.isChatOpen);
+  // const setIsOpen = useAuthStore((state) => state.setIsChatOpen);
 
   // Local state for the multi-channel menu and phone popup
   const [showOptions, setShowOptions] = useState(false);
@@ -96,6 +95,32 @@ const ChatWidget = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const {
+    unreadMessageCount,
+    setUnreadMessageCount,
+    isChatOpen: isOpen,
+    setIsChatOpen: setIsOpen,
+  } = useAuthStore();
+
+  // 🚀 ACTION: Open chat and clear badge
+  const handleToggleChat = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+      setUnreadMessageCount(0); // 🚀 Clear count when opened
+      setShowOptions(false);
+      setShowPhoneInfo(false);
+    }
+  };
+
+  const handleOpenLiveChat = () => {
+    setIsOpen(true);
+    setUnreadMessageCount(0); // 🚀 Clear count when opened
+    setShowOptions(false);
+    setShowPhoneInfo(false);
+  };
 
   // 🚀 1. FETCH LIVE SETTINGS — staleTime:0 ensures admin toggle changes reflect immediately
   const { data: settings } = useQuery<ChatSettings>({
@@ -117,6 +142,31 @@ const ChatWidget = () => {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isAdminTyping]);
+
+  useEffect(() => {
+    const syncUnreadCount = async () => {
+      // Only sync if user is logged in and we haven't opened the chat yet
+      if (!user?.id || isOpen) return;
+
+      try {
+        const res = await apiFetch("/chat/conversations/sync-room", {
+          method: "GET",
+          headers: { "X-Customer-Request": "true" },
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          // The backend usually sends unreadCount in the conversation object
+          const count = json?.data?.unreadCount || json?.unreadCount || 0;
+          setUnreadMessageCount(count);
+        }
+      } catch (err) {
+        console.error("Customer unread sync failed:", err);
+      }
+    };
+
+    syncUnreadCount();
+  }, [user?.id, setUnreadMessageCount]);
 
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,7 +305,7 @@ const ChatWidget = () => {
       >
         <FiFileText
           size={16}
-          className={isMe ? "text-white" : "text-[#7CB640]"}
+          className={isMe ? "text-white" : "text-[#77AF3D]"}
         />
         <div className="overflow-hidden flex-1">
           <p className="truncate font-semibold text-[11px]">
@@ -275,7 +325,7 @@ const ChatWidget = () => {
   const enableLiveChat = settings?.enableLiveChat ?? true;
 
   return (
-    <div className="fixed bottom-[85px] right-4 lg:bottom-6 lg:right-6 z-[210] font-sans flex flex-col items-end">
+    <div className="fixed bottom-[85px] right-4 lg:bottom-6 lg:right-6 z-[210] font-sans flex flex-col items-end antialiased selection:bg-[#77AF3D]">
       {/* 🚀 1. THE MULTI-CHANNEL OPTIONS MENU */}
       {showOptions && !isOpen && (
         <div className="flex flex-col gap-3 mb-4 animate-in fade-in slide-in-from-bottom-5 duration-300 relative items-end">
@@ -303,7 +353,7 @@ const ChatWidget = () => {
                 {settings?.phone && (
                   <button
                     onClick={copyToClipboard}
-                    className="text-[#7CB640] hover:text-[#7CB640] border-none bg-transparent cursor-pointer p-1"
+                    className="text-[#77AF3D] border-none bg-transparent cursor-pointer p-1"
                   >
                     {copied ? (
                       <FiCheck size={16} className="text-emerald-500" />
@@ -370,15 +420,17 @@ const ChatWidget = () => {
           {/* 💬 Live Chat — show only if enableLiveChat is true */}
           {enableLiveChat && (
             <button
-              onClick={() => {
-                setIsOpen(true);
-                setShowOptions(false);
-                setShowPhoneInfo(false);
-              }}
-              className="flex items-center justify-center w-12 h-12 bg-[#7CB640] text-white rounded-full shadow-lg hover:scale-110 transition-all border-none cursor-pointer"
+              onClick={handleOpenLiveChat} // 🚀 Updated
+              className="relative flex items-center justify-center w-12 h-12 bg-[#77AF3D] text-white rounded-full shadow-lg hover:scale-110 transition-all border-none cursor-pointer"
               title="Live Chat"
             >
               <FiMessageSquare size={22} />
+              {/* Badge on the inner option button */}
+              {unreadMessageCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#77AF3D] text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
+                  {unreadMessageCount}
+                </span>
+              )}
             </button>
           )}
         </div>
@@ -386,19 +438,19 @@ const ChatWidget = () => {
 
       {/* 🚀 2. THE INTERNAL MESSAGE WINDOW */}
       {isOpen && (
-        <div className="w-[calc(100vw-32px)] sm:w-[400px] h-[480px] sm:h-[520px] bg-white border font-poppins border-gray-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 transform origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-[calc(100vw-32px)] sm:w-[400px] h-[480px] sm:h-[520px] bg-white border border-gray-100 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 transform origin-bottom-right animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-[#7CB640] to-[#7CB640] text-white flex items-center justify-between shrink-0 shadow-sm">
+          <div className="p-4 bg-gradient-to-r from-[#77AF3D] to-[#77AF3D] text-white flex items-center justify-between shrink-0 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center font-bold text-sm relative border border-white/10 shadow-inner">
                 OP
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#7CB640] rounded-full shadow-sm animate-pulse" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#77AF3D] rounded-full shadow-sm animate-pulse" />
               </div>
               <div>
-                <h4 className="text-sm font-medium tracking-wide font-poppins">
+                <h4 className="text-xs font-bold tracking-wide uppercase">
                   {t.chat.helpDesk}
                 </h4>
-                <p className="text-[12px] text-orange-50/80 font-medium">
+                <p className="text-[10px] text-orange-50/80 font-medium">
                   {t.chat.instantReply}
                 </p>
               </div>
@@ -422,7 +474,7 @@ const ChatWidget = () => {
           <div className="flex-1 overflow-y-auto p-4 bg-[#F8FAFC] space-y-3.5 custom-scrollbar">
             {loadingHistory ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                <FiLoader className="animate-spin text-[#7CB640]" size={20} />
+                <FiLoader className="animate-spin text-[#77AF3D]" size={20} />
                 <p className="text-xs font-medium">Synchronizing...</p>
               </div>
             ) : Array.isArray(messages) && messages.length === 0 ? (
@@ -447,7 +499,7 @@ const ChatWidget = () => {
                     >
                       {msg.text && (
                         <div
-                          className={`p-3 text-[13px] leading-relaxed shadow-3xs border ${isMe ? "bg-[#7CB640] text-white rounded-2xl rounded-tr-none border-transparent font-medium" : "bg-white text-gray-800 rounded-2xl rounded-tl-none border-gray-200/60 font-normal"}`}
+                          className={`p-3 text-[13px] leading-relaxed shadow-3xs border ${isMe ? "bg-[#77AF3D] text-white rounded-2xl rounded-tr-none border-transparent font-medium" : "bg-white text-gray-800 rounded-2xl rounded-tl-none border-gray-200/60 font-normal"}`}
                         >
                           {msg.text}
                         </div>
@@ -509,7 +561,7 @@ const ChatWidget = () => {
                           alt=""
                         />
                       ) : (
-                        <FiFileText size={16} className="text-[#7CB640] ml-1" />
+                        <FiFileText size={16} className="text-[#77AF3D] ml-1" />
                       )}
                       <span className="text-[10px] text-gray-600 truncate max-w-[80px] font-semibold">
                         {att.name}
@@ -529,7 +581,7 @@ const ChatWidget = () => {
 
             <form
               onSubmit={handleSendMessage}
-              className="flex items-center gap-2.5 bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:bg-white focus-within:border-[#7CB640] transition-all relative"
+              className="flex items-center gap-2.5 bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:bg-white focus-within:border-[#77AF3D] transition-all relative"
             >
               <input
                 type="file"
@@ -537,18 +589,18 @@ const ChatWidget = () => {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <button
+              {/* <button
                 type="button"
                 disabled={uploading}
                 onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-[#7CB640] transition-colors cursor-pointer border-none bg-transparent p-0 flex items-center"
+                className="text-gray-400 hover:text-[#77AF3D] transition-colors cursor-pointer border-none bg-transparent p-0 flex items-center"
               >
                 {uploading ? (
-                  <FiLoader className="animate-spin text-[#7CB640]" size={18} />
+                  <FiLoader className="animate-spin text-[#77AF3D]" size={18} />
                 ) : (
                   <FiPaperclip size={18} />
                 )}
-              </button>
+              </button> */}
 
               <input
                 type="text"
@@ -567,7 +619,7 @@ const ChatWidget = () => {
                   uploading ||
                   (!inputText.trim() && pendingAttachments.length === 0)
                 }
-                className="text-[#7CB640] bg-transparent border-none cursor-pointer flex items-center disabled:opacity-30"
+                className="text-[#77AF3D] bg-transparent border-none cursor-pointer flex items-center disabled:opacity-30"
               >
                 <FiSend size={18} />
               </button>
@@ -584,15 +636,25 @@ const ChatWidget = () => {
           } else {
             setShowOptions(!showOptions);
             if (showOptions) setShowPhoneInfo(false);
+            // If the user clicks this and options show,
+            // you might want to clear badge only when they enter 'Live Chat'
           }
         }}
         type="button"
-        className="bg-[#7CB640] text-white w-14 h-14 rounded-full shadow-[0_8px_24px_rgba(124,182,64,0.35)] hover:bg-[#7CB640] transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center z-[100] border-none outline-none"
+        className="relative bg-[#77AF3D] text-white w-14 h-14 rounded-full hover:bg-[#77AF3D] transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center z-[100] border-none outline-none"
       >
         {isOpen || showOptions ? (
           <FiX size={28} />
         ) : (
-          <BsChatDotsFill size={28} />
+          <>
+            <BsChatDotsFill size={28} />
+            {/* 🚀 THE MAIN RED BADGE */}
+            {unreadMessageCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#77AF3D] text-white font-bold text-[10px] min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center border-2 border-white shadow-md animate-in zoom-in">
+                {unreadMessageCount}
+              </span>
+            )}
+          </>
         )}
       </button>
     </div>
