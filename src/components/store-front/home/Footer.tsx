@@ -171,7 +171,7 @@ const Footer = () => {
                   <span className="text-[#727272] font-bold">
                     {t.footer.callUs}:
                   </span>{" "}
-                  {info?.contact_phone || "01904300117"}
+                  {info?.contact_phone || "+88 0141-0050041"}
                 </p>
               </div>
               <div className="flex items-center gap-3">

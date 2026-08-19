@@ -69,21 +69,21 @@ export default async function LegalPage({
       <div className="max-w-[1720px] mx-auto px-6">
         {/* Breadcrumb */}
         <nav className="flex items-center text-sm text-[#727272] mb-6 font-medium">
-          <Link href="/" className="hover:text-[#FF7050]">
+          <Link href="/" className="hover:text-[#7CB640]">
             {t.legal.home}
           </Link>
 
           <ChevronRight size={16} className="mx-2" />
 
-          <span className="text-[#FF7050]">
+          <span className="text-[#7CB640]">
             {page.title}
           </span>
         </nav>
 
         {/* Content Card */}
-        <div className="bg-white p-8 md:p-16 rounded-3xl shadow-sm border border-[#EEEEEE] relative overflow-hidden">
+        <div className="bg-white p-8 md:p-16 rounded-xl border border-gray-200 relative overflow-hidden">
           {/* Accent Bar */}
-          <div className="absolute top-0 left-0 w-2 h-full bg-[#FF7050]" />
+          <div className="absolute top-0 left-0 w-2 h-full bg-[#7CB640]" />
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-[#003032] mb-10 font-poppins tracking-tight">
             {page.title}
