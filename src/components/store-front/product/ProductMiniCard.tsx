@@ -1,6 +1,4 @@
 "use client";
-
-import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
 import { Product } from "@/@types/product.type";
@@ -18,7 +16,7 @@ interface ProductMiniCardProps {
 const ProductMiniCard = ({ product }: ProductMiniCardProps) => {
   const { language } = useLanguage();
   const t = translations[language];
-  const rowImage = product?.images[0] || "";
+  const rowImage = product?.images?.[0] || "";
   const imageUrl = rowImage.startsWith("http")
     ? rowImage
     : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
@@ -65,4 +63,3 @@ const ProductMiniCard = ({ product }: ProductMiniCardProps) => {
 };
 
 export default ProductMiniCard;
-

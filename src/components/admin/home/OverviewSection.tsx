@@ -1,5 +1,3 @@
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef, useEffect, ReactNode } from "react";
@@ -52,8 +50,6 @@ const OverviewSection: React.FC<OverviewSectionProps> = ({
   const formatDateLabel = (date: Date): string => {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
-
-  console.log(stats, "OverviewSection.tsx: stats prop");
 
   // Calendar Day Generator
   const renderDays = (): ReactNode[] => {
