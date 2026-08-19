@@ -183,7 +183,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
           </p>
         </div>
         <div className="text-center shrink-0">
-          <div className="text-[64px] font-semibold text-[#FF7050] leading-none mb-2">
+          <div className="text-[64px] font-semibold text-[#77AF3D] leading-none mb-2">
             {avgRating}
           </div>
           <div className="flex justify-center text-[#FDCC0D] text-2xl gap-1 mb-1">
@@ -263,7 +263,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t.review.yourName}
-                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#FF7050]"
+                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
               />
             </div>
             {/* Number Input */}
@@ -274,7 +274,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder={t.review.phonePlaceholder}
-                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#FF7050]"
+                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
               />
             </div>
           </div>
@@ -286,7 +286,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={t.review.reviewPlaceholder}
-              className="flex-1 bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] p-6 outline-none focus:border-[#FF7050] min-h-[174px] resize-none"
+              className="flex-1 bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] p-6 outline-none focus:border-[#77AF3D] min-h-[174px] resize-none"
             />
           </div>
         </div>
@@ -300,7 +300,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.review.yourEmail}
-              className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#FF7050]"
+              className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
             />
           </div>
 
@@ -319,11 +319,11 @@ const ReviewSection = ({ productId }: { productId: string }) => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className={`p-2.5 border-[#FF7050] border w-fit rounded-[12px] relative transition-colors ${selectedFiles.length > 0 ? "bg-orange-100" : ""}`}
+              className={`p-2.5 border-[#77AF3D] border w-fit rounded-[12px] relative transition-colors ${selectedFiles.length > 0 ? "bg-orange-100" : ""}`}
             >
               <ViewIcon />
               {selectedFiles.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#FF7050] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-[#77AF3D] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
                   {selectedFiles.length}
                 </span>
               )}
@@ -334,7 +334,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full bg-[#FF7050] rounded-[12px] text-xl font-semibold uppercase text-white py-4 disabled:bg-gray-400 transition-all active:scale-95"
+              className="w-full bg-[#77AF3D] rounded-[12px] text-xl font-semibold uppercase text-white py-4 disabled:bg-gray-400 transition-all active:scale-95"
             >
               {isSubmitting ? t.review.processing : t.review.submit}
             </button>
