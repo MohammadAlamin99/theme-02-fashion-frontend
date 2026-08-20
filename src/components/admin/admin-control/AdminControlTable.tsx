@@ -265,7 +265,7 @@ export default function AdminControlTable() {
   ];
 
   return (
-    <div className="">
+    <div className="bg-white py-4 rounded-lg">
       {isLoading ? (
         <div className="flex justify-center p-10">
           <Loader2 className="animate-spin" />
