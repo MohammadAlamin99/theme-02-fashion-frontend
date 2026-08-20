@@ -5,7 +5,7 @@ export default function OrderStatusItem({ icon, label, value, iconBg }: {
     iconBg: string;
 }) {
     return (
-        <div className="flex items-center justify-between bg-white p-3 rounded-[8px] min-w-[150px] flex-1">
+        <div className="flex items-center justify-between bg-[#F9F9F9] p-3 rounded-[8px] min-w-[150px] flex-1">
             <div className="flex items-center gap-2">
                 <div className={`p-2 rounded-[8px] ${iconBg}`}>
                     {icon}

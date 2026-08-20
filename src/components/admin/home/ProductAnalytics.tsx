@@ -71,11 +71,11 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
             unoptimized
           />
           <div>
-            <p className="font-medium text-[12px] text-[#023337] truncate max-w-[180px]">
+            <p className="font-medium text-[14px] text-[#023337] truncate max-w-[180px]">
               {item.name}
             </p>
             {item.total > 10 && (
-              <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium ">
+              <span className="text-sm bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">
                 Best Seller
               </span>
             )}
@@ -100,15 +100,10 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
         return (
           <div className="flex flex-col gap-1 min-w-[100px]">
             <span
-              className={`font-medium text-xs ${isOut ? "text-rose-600" : isLow ? "text-amber-500" : "text-emerald-600"}`}
+              className={`font-medium text-sm ${isOut ? "text-rose-600" : isLow ? "text-amber-500" : "text-emerald-600"}`}
             >
               {item.stock} Units Left
             </span>
-            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${isOut ? "w-0" : isLow ? "bg-amber-400 w-1/3" : "bg-emerald-500 w-full"}`}
-              />
-            </div>
           </div>
         );
       },
@@ -124,22 +119,22 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
         confirmed: number;
         delivered: number;
         returned: number;
-      }) => <span className="font-black text-gray-700">{item.total}</span>,
+      }) => <span className="font-medium text-gray-700 text-sm">{item.total}</span>,
     },
     {
       header: "Confirmed",
       key: "confirmed",
-      className: "text-blue-500 font-bold",
+      className: "text-blue-500 font-medium text-sm",
     },
     {
       header: "Delivered",
       key: "delivered",
-      className: "text-emerald-500 font-bold",
+      className: "text-emerald-500 font-medium text-sm",
     },
     {
       header: "Returned",
       key: "returned",
-      className: "text-rose-500 font-bold",
+      className: "text-rose-500 font-medium text-sm text-start",
     },
   ];
 
@@ -147,18 +142,17 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 font-poppins relative">
       {/* 1. Best Selling Table (Main) */}
       <div className="lg:col-span-2 bg-white px-6 py-3 rounded-[8px] flex flex-col">
-        <h2 className="text-lg font-bold text-[#23272E] font-lato mb-2 flex items-center gap-2">
-          <TrendingUp size={20} className="text-[#1DA1F2]" /> Best Selling
-          Product
+        <h2 className="text-lg font-bold text-[#23272E] font-lato mb-2 flex items-center gap-2 font-lato">
+          Best Selling Product
         </h2>
         <div className="overflow-x-auto flex-grow">
           <table className="w-full text-left">
             <thead className="bg-[#F3F6FF]">
-              <tr className="text-[13px] font-normal text-[#6A717F] uppercase">
-                <th className="py-3 px-4 rounded-l-[8px]">Product</th>
-                <th className="py-3 px-4 text-center">Sold</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 rounded-r-[8px] text-right">Price</th>
+              <tr className="text-[13px] font-normal font-lato text-[#6A717F] uppercase tracking-wide">
+                <th className="py-4 px-4 rounded-l-[8px]">Product</th>
+                <th className="py-4 px-4 text-center">Sold</th>
+                <th className="py-4 px-4 text-center">Status</th>
+                <th className="py-4 px-4 rounded-r-[8px] text-right">Price</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -204,19 +198,24 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
                         </td>
                         <td className="py-4 px-4 text-center">
                           <span
-                            className={`w-2 h-2 rounded-full mr-2 ${item.status === "Stock" ? "bg-green-500" : "bg-red-500"}`}
+                            className={`w-2 h-2 rounded-full mr-2 ${item.status === "Stock" ? "bg-[#21C45D]" : "bg-[#EF4343]"}`}
                           />
-                          <span
-                            className={
-                              item.status === "Stock"
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }
-                          >
-                            {item.status}
-                          </span>
+                          <div className="flex items-center justify-center">
+                            <div
+                              className={`w-2 h-2 rounded-full mr-2 ${item.status === "Stock" ? "bg-[#21C45D]" : "bg-[#EF4343]"}`}
+                            />
+                            <span
+                              className={
+                                item.status === "Stock"
+                                  ? "text-[#21C45D]"
+                                  : "text-[#EF4343]"
+                              }
+                            >
+                              {item.status}
+                            </span>
+                          </div>
                         </td>
-                        <td className="py-4 px-4 font-bold text-[#0F2D37] text-right">
+                        <td className="py-4 px-4 font-bold text-[#0F2D37] text-right text-[15px] font-lato">
                           ৳{item.price}
                         </td>
                       </tr>
@@ -243,26 +242,25 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
 
       {/* 2. Sidebar */}
       <div className="bg-white px-6 py-3 rounded-lg">
-        <div className="flex justify-between items-center mb-5 font-lato font-bold text-[#23272E]">
+        <div className="flex justify-between items-center mb-5 font-lato font-bold text-xl text-[#23272E]">
           <h2>Top Products</h2>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="text-[12px] text-[#1DA1F2] cursor-pointer hover:underline"
-          >
-            See All
-          </button>
         </div>
-        <div className="relative mb-6">
-          <Search
-            className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400"
-            size={16}
-          />
+        <div className="relative mb-6 group">
+          {/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search
+              className="text-slate-400 group-focus-within:text-sky-500 transition-colors"
+              size={18}
+            />
+          </div>
+
+          {/* Input Field */}
           <input
             type="text"
             placeholder="Filter sidebar..."
             value={sidebarSearch}
             onChange={(e) => setSidebarSearch(e.target.value)}
-            className="w-full bg-[#F9FAFB] border border-transparent rounded-[8px] py-2.5 pl-4 pr-10 text-sm focus:border-sky-200 outline-none placeholder:text-slate-400 transition-all"
+            className="block w-full bg-[#F3F6FF] rounded-lg py-4 pl-10 pr-4 text-sm text-slate-700 placeholder:text-[#6A717F]"
           />
         </div>
         <div className="space-y-4">
@@ -282,7 +280,7 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
             ) => (
               <div
                 key={idx}
-                className="flex items-center justify-between group cursor-pointer transition-transform hover:translate-x-1"
+                className="flex items-center justify-between group cursor-pointer transition-transform border-b border-[#D1D1D1] pb-2 "
               >
                 <div className="flex items-center gap-3">
                   <Image
@@ -290,19 +288,16 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
                     height={500}
                     src={getImgUrl(item.image)}
                     alt="Product Image"
-                    className="w-12 h-12 rounded-[4px] object-cover bg-gray-100 border border-gray-50 shadow-sm"
+                    className="w-12 h-12 rounded-[4px] object-cover"
                     unoptimized
                   />
                   <div>
-                    <h3 className="text-sm font-semibold text-[#0F2D37] truncate max-w-[120px]">
+                    <h3 className="text-[15px] font-medium font-lato text-[#023337] truncate max-w-[120px]">
                       {item.name}
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase">
-                      Sold: {item.totalOrder}
-                    </p>
                   </div>
                 </div>
-                <span className="font-bold text-[#1DA1F2] text-sm">
+                <span className="font-bold text-[#023337] text-[15px] font-lato">
                   ৳{item.price}
                 </span>
               </div>
@@ -315,11 +310,8 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
       {isModalOpen && (
         <div className="fixed inset-0 bg-[#023337]/30 backdrop-blur-md z-[2000] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white rounded-[20px] w-full max-w-5xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-8 py-6 flex justify-between items-center bg-white border-b border-gray-50">
+            <div className="px-8 py-6 flex justify-between items-center bg-white">
               <div className="flex items-center gap-4">
-                <div className="bg-[#1DA1F2]/10 p-3 rounded-2xl text-[#1DA1F2]">
-                  <BarChart3 size={24} />
-                </div>
                 <div>
                   <h3 className="text-xl font-medium text-[#023337] font-lato">
                     Sales & Remaining Inventory
@@ -344,7 +336,7 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
                   <span>Aggregating data...</span>
                 </div>
               ) : (
-                <div className="rounded-xl border border-gray-100 shadow-sm overflow-hidden bg-white">
+                <div className="rounded-xl overflow-hidden bg-white">
                   <DataTable
                     data={sellReport?.data || []}
                     columns={reportColumns}

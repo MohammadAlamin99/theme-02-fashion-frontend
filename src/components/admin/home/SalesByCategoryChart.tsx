@@ -1,5 +1,5 @@
 "use client";
-import React, { useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 interface PieChartData {
@@ -43,8 +43,8 @@ export default function SalesByCategoryChart({
         <PieChart>
           <Pie
             data={pieData}
-            innerRadius={65} // Slightly larger for a cleaner look
-            outerRadius={95}
+            innerRadius={50} // Slightly larger for a cleaner look
+            outerRadius={110}
             paddingAngle={5}
             dataKey="value"
             nameKey="name"

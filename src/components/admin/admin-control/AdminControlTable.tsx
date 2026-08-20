@@ -207,7 +207,7 @@ export default function AdminControlTable() {
           {activeMenuId === item.id && (
             <>
               <div
-                className="fixed inset-0 z-40"
+                className="inset-0 z-40"
                 onClick={() => setActiveMenuId(null)}
               />
               <div className="absolute right-0 mt-8 w-48 bg-white border border-gray-100 shadow-2xl rounded-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-200">

@@ -507,30 +507,6 @@ export default function AddRoleMain() {
           onSubmit={methods.handleSubmit(onSubmit)}
           className="flex gap-6 mt-6 items-start font-lato"
         >
-          {/* Permission Sidebar */}
-          <div
-            ref={sidebarRef}
-            className="w-1/3 bg-white p-6 rounded-xl transition-all"
-          >
-            <h3 className="font-bold text-[#023337] mb-4">Permissions</h3>
-            <div className="space-y-1">
-              {PERMISSIONS.map((p) => (
-                <label
-                  key={p}
-                  className="flex items-center gap-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded-md transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedPerms.includes(p)}
-                    onChange={() => togglePermission(p)}
-                    className="w-4 h-4 accent-[#1DA1F2]"
-                  />
-                  <span className="text-sm text-gray-700 font-medium">{p}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
           {/* Form Content */}
           <div className="w-2/3 bg-white p-8 rounded-xl">
             <div className="flex items-center gap-4 mb-8">
@@ -545,42 +521,56 @@ export default function AddRoleMain() {
 
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-[#023337] mb-2">
-                  Admin Name
+                <label className="block text-[15px] font-bold text-[#023337] mb-2">
+                  Name
                 </label>
                 <input
                   {...methods.register("name")}
-                  className="w-full p-3 bg-gray-100 rounded-lg outline-none focus:border-[#1DA1F2] transition-all"
+                  className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                   placeholder="Enter name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-[#023337] mb-2">
+                <label className="block text-[15px] font-bold text-[#023337] mb-2">
                   Email*
                 </label>
                 <input
                   {...methods.register("email")}
-                  className="w-full p-3 bg-gray-100 rounded-lg outline-none focus:border-[#1DA1F2] transition-all"
+                  className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                   placeholder="Enter email"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-[#023337] mb-2">
+                <label className="block text-[15px] font-bold text-[#023337] mb-2">
                   Phone*
                 </label>
                 <input
                   {...methods.register("phone")}
-                  className="w-full p-3 bg-gray-100 rounded-lg outline-none focus:border-[#1DA1F2] transition-all"
+                  className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                   placeholder="Enter phone number"
                 />
               </div>
+
+              {!isEdit && (
+                <div className="mt-6">
+                  <label className="block text-sm font-bold text-[#023337] mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    {...methods.register("password")}
+                    className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
+                    placeholder="Set Password"
+                  />
+                </div>
+              )}
               <div>
-                <label className="block text-sm font-bold text-[#023337] mb-2">
+                <label className="block text-[15px] font-bold text-[#023337] mb-2">
                   Role*
                 </label>
                 <select
                   {...methods.register("role")}
-                  className="w-full p-3 bg-gray-100 rounded-lg outline-none focus:border-[#1DA1F2] transition-all appearance-none"
+                  className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                 >
                   <option value="ADMIN">Admin</option>
                   <option value="MANAGER">Manager</option>
@@ -589,42 +579,25 @@ export default function AddRoleMain() {
 
               {/* RESTORED ACCESS IN FIELD */}
               <div>
-                <label className="block text-sm font-bold text-[#023337] mb-2">
+                <label className="block text-[15px] font-bold text-[#023337] mb-2">
                   Access in*
                 </label>
                 <div
                   onClick={handleAccessClick}
-                  className="w-full p-3 bg-[#F9F9F9] rounded-lg border cursor-pointer hover:border-[#1DA1F2] transition-colors flex items-center justify-between"
+                  className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                 >
                   <span className="text-sm text-gray-600 font-medium">
                     {selectedPerms.length} Permissions Selected
-                  </span>
-                  <span className="text-[10px] bg-[#1DA1F2] text-white px-2 py-1 rounded">
-                    View
                   </span>
                 </div>
               </div>
             </div>
 
-            {!isEdit && (
-              <div className="mt-6">
-                <label className="block text-sm font-bold text-[#023337] mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  {...methods.register("password")}
-                  className="w-full p-3 bg-[#F9F9F9] rounded-lg border outline-none focus:border-[#1DA1F2] transition-all"
-                  placeholder="Set Password"
-                />
-              </div>
-            )}
-
             <div className="flex justify-end gap-3 mt-10">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2.5 font-semibold text-black bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                className="px-6 py-2.5 font-semibold text-black bg-white border border-[#E5E7EB] rounded-lg transition-colors cursor-pointer w-[145px]"
               >
                 Cancel
               </button>
@@ -633,6 +606,30 @@ export default function AddRoleMain() {
                 type="submit"
                 className="px-8 py-2.5"
               />
+            </div>
+          </div>
+
+          {/* Permission Sidebar */}
+          <div
+            ref={sidebarRef}
+            className="w-1/3 bg-white p-6 rounded-xl transition-all h-[61vh]"
+          >
+            <h3 className="text-[15px] font-bold text-[#023337] mb-4">Permissions</h3>
+            <div className="space-y-1">
+              {PERMISSIONS.map((p) => (
+                <label
+                  key={p}
+                  className="flex items-center gap-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded-md transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedPerms.includes(p)}
+                    onChange={() => togglePermission(p)}
+                    className="w-4 h-4 accent-[#1DA1F2]"
+                  />
+                  <span className="text-sm text-black font-normal font-poppins">{p}</span>
+                </label>
+              ))}
             </div>
           </div>
         </form>

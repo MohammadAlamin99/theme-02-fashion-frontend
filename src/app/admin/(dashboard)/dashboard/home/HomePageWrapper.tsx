@@ -55,7 +55,7 @@ export default function HomePageWrapper() {
 
       <SalesAnalytics
         performanceData={stats?.charts?.performance || []}
-        categoryData={stats?.categorySales || []} 
+        categoryData={stats?.categorySales || []}
         isLoading={isLoading}
       />
 

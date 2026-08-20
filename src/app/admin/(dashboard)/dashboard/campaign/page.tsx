@@ -4,7 +4,7 @@ import PermissionGuard from "@/components/admin/common/PermissionGuard";
 export default function Page() {
   return (
     <PermissionGuard permission="Campaign">
-      <div className="flex overflow-hidden">
+      <div className="flex">
         <main className="w-full mt-4">
           <CampaignTable />
         </main>

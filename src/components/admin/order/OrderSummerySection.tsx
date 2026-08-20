@@ -4,13 +4,18 @@ import VisitorOrderChart from "./VisitorOrderChart";
 import OrderSummaryChart from "./OrderSummaryChart";
 import ReturnIcon from "@/components/store-front/svg/svg/ReturnIcon";
 
-const orderSummaryData = [
-  { name: "Pending", value: 31, color: "#26007F" },
-  { name: "Confirmed", value: 20, color: "#7AD100" },
-  { name: "Delivered", value: 14, color: "#1884FF" },
-  { name: "Canceled", value: 11, color: "#FAB300" },
-  { name: "Paid Returned", value: 15, color: "#C71CB6" },
-  { name: "Returned", value: 9, color: "#DA0000" },
+import { useQuery } from "@tanstack/react-query";
+import { fetchOrderCounts } from "@/services-api/orderService";
+import { dashboardApi } from "@/services-api/dashboardService";
+import { useMemo } from "react";
+
+const initialOrderSummaryData = [
+  { name: "Pending", value: 0, percentage: 0, color: "#26007F" },
+  { name: "Confirmed", value: 0, percentage: 0, color: "#7AD100" },
+  { name: "Delivered", value: 0, percentage: 0, color: "#1884FF" },
+  { name: "Canceled", value: 0, percentage: 0, color: "#FAB300" },
+  { name: "Refunded", label: "Paid Returned", value: 0, percentage: 0, color: "#C71CB6" },
+  { name: "Returned", value: 0, percentage: 0, color: "#DA0000" },
 ];
 
 const areaChartData = Array.from({ length: 31 }, (_, i) => ({
@@ -20,11 +25,76 @@ const areaChartData = Array.from({ length: 31 }, (_, i) => ({
 }));
 
 export default function OrderSummerySection() {
+  const { data: tabCountsData, isLoading: isCountsLoading } = useQuery({
+    queryKey: ["order-summary-counts"],
+    queryFn: async () => {
+      const tabsToFetch = initialOrderSummaryData.map((t) => t.name);
+      return await fetchOrderCounts(tabsToFetch);
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: statsData, isLoading: isStatsLoading } = useQuery({
+    queryKey: ["order-summary-dashboard-stats"],
+    queryFn: () => dashboardApi.getStatistics("month"),
+    refetchOnWindowFocus: false,
+  });
+
+  const stats = statsData?.data || statsData;
+  const overview = stats?.overview || {};
+  const lifecycle = stats?.orderLifecycle || {};
+
+  const totalOrdersOverview = overview.totalOrders || 0;
+  const totalRevenue = overview.totalRevenue || 0;
+  const avgOrder = totalOrdersOverview > 0 ? (totalRevenue / totalOrdersOverview) : 0;
+  
+  const totalReturned = lifecycle.RETURNED || 0;
+  // Estimate demurrage charges (e.g. 120 BDT per returned package)
+  const demurrageCharges = totalReturned * 120;
+
+  const { orderSummaryData, totalOrders } = useMemo(() => {
+    if (!tabCountsData) {
+      return {
+        orderSummaryData: initialOrderSummaryData.map((item) => ({
+          ...item,
+          name: item.label || item.name,
+        })),
+        totalOrders: 0,
+      };
+    }
+
+    const counts: Record<string, number> = tabCountsData.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.tab]: curr.count,
+      }),
+      {}
+    );
+
+    const total = initialOrderSummaryData.reduce(
+      (sum, tab) => sum + (counts[tab.name] || 0),
+      0
+    );
+
+    const mappedData = initialOrderSummaryData.map((tab) => {
+      const count = counts[tab.name] || 0;
+      const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+      return {
+        name: tab.label || tab.name,
+        value: count, // Count is passed to PieChart for sizing slices
+        percentage,
+        color: tab.color,
+      };
+    });
+
+    return { orderSummaryData: mappedData, totalOrders: total };
+  }, [tabCountsData]);
+
   return (
     <div className="w-full font-lato mt-2">
       <div className="bg-[#F9F9F9] rounded-lg">
         {/* Main Grid Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-2 md:mx-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* 1. Order Summary (Left) */}
           <div className="bg-white rounded-lg px-4 py-5 w-full">
             <h3 className="text-[#23272E] text-[18px] font-bold mb-5">
@@ -32,7 +102,7 @@ export default function OrderSummerySection() {
             </h3>
             <div className="flex items-center justify-between">
               {/* visitor order chart */}
-              <OrderSummaryChart orderSummaryData={orderSummaryData} />
+              <OrderSummaryChart orderSummaryData={orderSummaryData} total={totalOrders} />
 
               {/* Legend */}
               <div className="flex flex-col gap-2 flex-1 ml-4">
@@ -54,7 +124,7 @@ export default function OrderSummerySection() {
                       className="font-medium font-lato text-sm"
                       style={{ color: item.color }}
                     >
-                      ({item.value}%)
+                      ({item.percentage}%)
                     </span>
                   </div>
                 ))}
@@ -105,7 +175,7 @@ export default function OrderSummerySection() {
               </div>
               <div className="flex justify-between items-end">
                 <span className="text-[#003032] text-2xl font-bold flex items-center">
-                  <span className="mr-1">৳</span> 17865
+                  <span className="mr-1">৳</span> {isStatsLoading ? "..." : Math.round(avgOrder).toLocaleString()}
                 </span>
                 <span className="text-[#EF4343] text-sm font-medium mb-1 flex items-center gap-1">
                   <ArrowDown size={16} color="#EF4343" /> 5%
@@ -123,14 +193,14 @@ export default function OrderSummerySection() {
               </div>
               <div className="flex justify-between items-start">
                 <div className="flex flex-col">
-                  <span className="text-[#DA0000] text-base font-bold">50</span>
+                  <span className="text-[#DA0000] text-base font-bold">{isStatsLoading ? "..." : totalReturned}</span>
                   <span className="text-[#A1A1A1] text-[12px]">
                     Total Returned
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[#DA0000] text-base font-bold">
-                    ৳5,00,000.00
+                    ৳{isStatsLoading ? "..." : demurrageCharges.toLocaleString()}
                   </span>
                   <span className="text-[#A1A1A1] text-[12px]">
                     Demurrage charges

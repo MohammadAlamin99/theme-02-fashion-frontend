@@ -1,4 +1,3 @@
-
 "use client";
 import React from "react";
 import SalesByCategoryChart from "./SalesByCategoryChart";
@@ -49,16 +48,27 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
           <h2 className="text-[18px] font-lato font-bold text-black text-left">
             Sale Performance
           </h2>
-          <div className="flex gap-6 text-[12px] font-semibold">
+          <div className="flex gap-6 text-[14px] font-semibold">
             <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#38BDF8]" /> Placed Order
+              <span className="bg-gradient-to-r from-[#38BDF8] to-[#1E90FF] bg-clip-text text-transparent">
+                Placed Order
+              </span>
             </span>
             <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#FB923C]" /> Order
-              Delivered
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  background:
+                    "linear-gradient(180deg, #FF6A00 0%, #FF9F1C 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Order Delivered
+              </span>
             </span>
             <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#EF4444]" /> Order Cancel
+              <span className="text-[#C00000]">Order Cancel</span>
             </span>
           </div>
         </div>
@@ -85,14 +95,14 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
         ) : formattedPieData.length > 0 ? (
           <>
             <SalesByCategoryChart pieData={formattedPieData} />
-            <div className="grid grid-cols-2 gap-y-3 mt-4">
+            <div className="grid grid-cols-2 gap-y-3 mt-4 font-poppins">
               {formattedPieData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div
-                    className="w-2 h-2 rounded-full shrink-0"
+                    className="w-3 h-3 rounded-full shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-[11px] font-medium text-gray-800">
+                  <span className="text-[14px] font-medium text-gray-800">
                     {item.name}{" "}
                     <span
                       className="font-bold ml-0.5"

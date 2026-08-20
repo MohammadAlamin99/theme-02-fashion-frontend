@@ -194,10 +194,10 @@ export default function CampaignTable() {
             <MoreVertical size={20} />
           </button>
           {activeMenuId === item.id && (
-            <div className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg z-50 py-1 text-left">
+            <div className="absolute right-0 mt-2 w-36 bg-white rounded shadow-lg z-50 py-1 text-left">
               <button
                 onClick={() => openEditModal(item)}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50"
+                className="w-full flex items-center cursor-pointer gap-2 px-4 py-2 text-sm hover:bg-gray-50"
               >
                 <Edit3 size={14} /> Edit Item
               </button>
@@ -209,7 +209,7 @@ export default function CampaignTable() {
                     deleteMutation.mutate(item.id);
                   }
                 }}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                className="w-full flex items-center cursor-pointer gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
               >
                 <Trash2 size={14} /> Delete Item
               </button>
@@ -221,7 +221,7 @@ export default function CampaignTable() {
   ];
 
   return (
-    <div className="w-full bg-white rounded-lg p-5 font-poppins min-h-[400px] flex flex-col">
+    <div className="w-full bg-white rounded-lg p-5 font-poppins flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-lato font-bold text-[#023337]">Campaign</h1>
         {/* <button
@@ -238,7 +238,7 @@ export default function CampaignTable() {
         />
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 h-full">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin text-blue-400" />
