@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -389,7 +389,6 @@ export default function AddChildCategoryMain() {
                 className={`w-full justify-center bg-[#085E00] hover:bg-[#064400] text-white py-3 font-semibold ${childCategoryMutation.isPending ? "opacity-60 pointer-events-none" : ""}`}
               />
             </div>
-
           </div>
         </form>
       </div>

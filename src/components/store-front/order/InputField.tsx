@@ -26,7 +26,7 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => (
   <div className="flex flex-col gap-2 w-full">
     <label className="text-[#727272] font-semibold text-lg font-poppins">
-      {label} {required && <span className="text-[#FF7050]">*</span>}
+      {label} {required && <span className="text-[#7CB640]">*</span>}
     </label>
     {isTextArea ? (
       <textarea
@@ -35,8 +35,8 @@ const InputField: React.FC<InputFieldProps> = ({
         onChange={onChange}
         placeholder={placeholder}
         className={`bg-[#F9F9F9] px-6 py-5 rounded-[12px] outline-none text-sm border transition-all min-h-[100px] font-poppins ${
-          error ? "border-[#FF7050]" : "border-transparent"
-        } focus:border-[#FF7050]`}
+          error ? "border-[#7CB640]" : "border-transparent"
+        } focus:border-[#7CB640]`}
       />
     ) : (
       <input
@@ -46,8 +46,8 @@ const InputField: React.FC<InputFieldProps> = ({
         type={type}
         placeholder={placeholder}
         className={`bg-[#F9F9F9] px-6 py-5 rounded-[12px] outline-none text-base text-normal border transition-all font-poppins ${
-          error ? "border-[#FF7050]" : "border-transparent"
-        } focus:border-[#FF7050]`}
+          error ? "border-[#7CB640]" : "border-transparent"
+        } focus:border-[#7CB640]`}
       />
     )}
   </div>

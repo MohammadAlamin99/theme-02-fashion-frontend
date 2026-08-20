@@ -183,7 +183,7 @@ export default function LandingPageRenderer({
   const router = useRouter();
 
   const handlePurchase = () => {
-    if (selectedProduct?.slug) {
+    if (selectedProduct && "slug" in selectedProduct && selectedProduct.slug) {
       router.push(`/product/${selectedProduct.slug}`);
     } else {
       // স্লাগ না থাকলে নিচের অর্ডার সেকশনে নিয়ে যাবে

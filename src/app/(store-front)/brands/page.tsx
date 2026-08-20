@@ -93,8 +93,8 @@ export default function AllBrandsPage() {
           <Link href="/" className="text-[#727272]">
             Home
           </Link>
-          <FaChevronRight color="#FF7050" size={15} />
-          <span className="text-[#FF7050]">{t.brands}</span>
+          <FaChevronRight color="#7CB640" size={15} />
+          <span className="text-[#7CB640]">{t.brands}</span>
         </nav>
 
         {/* ── Page Title ─────────────────────────────────────── */}
@@ -167,7 +167,7 @@ export default function AllBrandsPage() {
               </div>
               <button
                 onClick={() => setSelectedBrand(null)}
-                className="text-sm font-poppins text-[#727272] hover:text-[#FF7050] transition-colors px-4 py-2 rounded-full border border-gray-200 hover:border-[#FF7050]"
+                className="text-sm font-poppins text-[#727272] hover:text-[#7CB640] transition-colors px-4 py-2 rounded-full border border-gray-200 hover:border-[#7CB640]"
               >
                 Clear
               </button>
@@ -187,7 +187,7 @@ export default function AllBrandsPage() {
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <p className="font-poppins text-lg text-[#727272]">
                   No products found for{" "}
-                  <span className="text-[#FF7050] font-medium">
+                  <span className="text-[#7CB640] font-medium">
                     {selectedBrand.name}
                   </span>
                   .
@@ -211,7 +211,7 @@ export default function AllBrandsPage() {
                     <button
                       onClick={() => fetchNextPage()}
                       disabled={isFetchingNextPage}
-                      className="px-8 py-3 bg-white border border-gray-200 rounded-full hover:bg-[#FF7050] hover:text-white hover:border-[#FF7050] transition-all font-poppins disabled:opacity-50 cursor-pointer"
+                      className="px-8 py-3 bg-white border border-gray-200 rounded-full hover:bg-[#7CB640] hover:text-white hover:border-[#7CB640] transition-all font-poppins disabled:opacity-50 cursor-pointer"
                     >
                       {isFetchingNextPage ? "Loading..." : "Load More"}
                     </button>
@@ -244,8 +244,8 @@ function BrandCard({
       title={`Browse ${brand.name} products`}
       className={`group flex flex-col items-center justify-center gap-3 p-5 md:p-6 rounded-[20px] cursor-pointer transition-all duration-200 active:scale-[0.97] border-2 ${
         isSelected
-          ? "bg-white border-[#FF7050] shadow-lg shadow-[#FF7050]/10"
-          : "bg-[#F7F7F7] border-transparent hover:border-[#FF7050]/40 hover:shadow-md hover:bg-white"
+          ? "bg-white border-[#7CB640] shadow-lg shadow-[#7CB640]/10"
+          : "bg-[#F7F7F7] border-transparent hover:border-[#7CB640]/40 hover:shadow-md hover:bg-white"
       }`}
     >
       <div className="relative w-full h-[70px] md:h-[90px]">
@@ -262,12 +262,12 @@ function BrandCard({
         />
       </div>
       <h3
-        className={`font-poppins text-sm md:text-[15px] font-medium text-center break-words w-full transition-colors ${isSelected ? "text-[#FF7050]" : "text-black"}`}
+        className={`font-poppins text-sm md:text-[15px] font-medium text-center break-words w-full transition-colors ${isSelected ? "text-[#7CB640]" : "text-black"}`}
       >
         {brand.name}
       </h3>
       {isSelected && (
-        <span className="text-[10px] font-poppins bg-[#FF7050] text-white px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-poppins bg-[#7CB640] text-white px-2 py-0.5 rounded-full">
           Selected
         </span>
       )}

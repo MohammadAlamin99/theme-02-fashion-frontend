@@ -1,6 +1,7 @@
 import { apiFetch } from "@/utils/api";
 import { getAdminTokenAction } from "@/app/actions/auth";
 import { Product } from "@/@types/product.type";
+import { getProductCampaignInfo } from "@/utils/campaign";
 
 export interface ProductQuery {
   page?: number;
@@ -44,7 +45,34 @@ export const fetchSingleProduct = async (id: string) => {
   if (!res.ok)
     throw new Error("Could not retrieve the specified product profiles.");
   const json = await res.json();
-  return json?.data || json;
+  const product: Product | null = json?.data || json || null;
+
+  if (product && !product.campaign_discount) {
+    try {
+      const activeRes = await apiFetch(`/campaigns/active`);
+      if (activeRes.ok) {
+        const activeJson = await activeRes.json();
+        const activeCampaigns = Array.isArray(activeJson?.data)
+          ? activeJson.data
+          : Array.isArray(activeJson)
+            ? activeJson
+            : [];
+        const info = getProductCampaignInfo(
+          product,
+          product.sell_price,
+          activeCampaigns,
+        );
+        if (info.discountValue > 0) {
+          product.campaign_discount = info.campaignDiscount;
+          product.final_price = info.finalPrice;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return product;
 };
 
 // 🚀 3. UPLOAD MULTIPLE IMAGES TO SHARED TAXONOMY INTERCEPTOR
@@ -271,7 +299,7 @@ export const searchProducts = async (query: string) => {
   return productsList;
 };
 
-// get product by id
+// get product by id/slug
 export const getProductBySlug = async (
   slug: string,
 ): Promise<Product | null> => {
@@ -282,8 +310,34 @@ export const getProductBySlug = async (
   });
 
   const result = await res.json();
+  const product: Product | null = result?.data || null;
 
-  return result?.data || null;
+  if (product && !product.campaign_discount) {
+    try {
+      const activeRes = await apiFetch(`/campaigns/active`);
+      if (activeRes.ok) {
+        const activeJson = await activeRes.json();
+        const activeCampaigns = Array.isArray(activeJson?.data)
+          ? activeJson.data
+          : Array.isArray(activeJson)
+            ? activeJson
+            : [];
+        const info = getProductCampaignInfo(
+          product,
+          product.sell_price,
+          activeCampaigns,
+        );
+        if (info.discountValue > 0) {
+          product.campaign_discount = info.campaignDiscount;
+          product.final_price = info.finalPrice;
+        }
+      }
+    } catch {
+      // ignore silently if active campaign check fails
+    }
+  }
+
+  return product;
 };
 
 // related product

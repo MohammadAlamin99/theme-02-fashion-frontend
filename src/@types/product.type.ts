@@ -43,6 +43,13 @@ export interface FAQItem {
   a: string;
 }
 
+export interface CampaignDiscountInfo {
+  discount_value: number | string;
+  campaign_name?: string;
+  campaign_id?: string;
+  is_free_delivery?: boolean;
+}
+
 /**
  * Product card / product listing type
  * Use this when API returns only basic product information.
@@ -58,6 +65,8 @@ export interface ProductCard {
   total_reviews: number;
   quantity: number;
   discount_tag: string | null;
+  campaign_discount?: CampaignDiscountInfo | null;
+  final_price?: number | string | null;
 }
 
 /**
@@ -117,4 +126,28 @@ export interface Product {
   featuredImage?: string;
 
   price?: number;
+
+  campaign_discount?: CampaignDiscountInfo | null;
+  final_price?: number | string | null;
+
+  // Admin-side fields (returned by backend when fetching a product for editing)
+  category_id?: string;
+  category?: { id: string; name?: string };
+  brand_id?: string;
+  tag_ids?: string[];
+  tags?: { id: string; name?: string; [key: string]: unknown }[];
+  unit_id?: string;
+  unit?: { id: string; name?: string };
+  modelName?: string;
+  cost_price?: number | string | null;
+  barcode?: string | null;
+  priority?: number | null;
+  is_variant_mandatory?: boolean;
+  status?: string;
+  condition?: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_tags?: string;
+  supplier_ids?: string[];
 }
+

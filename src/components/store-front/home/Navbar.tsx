@@ -13,7 +13,6 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import { LuUserRound as UserIcon } from "react-icons/lu";
-import FireIcon from "../svg/FireIcon";
 import WishIcon from "../svg/WishIcon";
 import CartIcon from "../svg/CartIcon";
 import ChatIcon from "../svg/ChatIcon";
@@ -34,6 +33,8 @@ import toast from "react-hot-toast";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
 import { getWishlist } from "@/services-api/wishlistService";
+import { Campaign, getActiveCampaign } from "@/services-api/campaignService";
+import { getProductCampaignInfo } from "@/utils/campaign";
 import { House } from "lucide-react";
 
 interface SearchResponse {
@@ -56,6 +57,83 @@ type CartItem = {
     | { label?: string; value?: string; type?: string }[];
   price?: string | number;
   quantity: number;
+};
+
+export interface CampaignApiResponse {
+  data: {
+    data: Campaign[];
+  };
+}
+
+// ─────────────────────────────────────────────────────────
+// Mobile Sub-Category Accordion (Level 2 + Level 3)
+// ─────────────────────────────────────────────────────────
+interface MobileSubCategoryListProps {
+  items: Category[];
+  onClose: () => void;
+}
+
+const MobileSubCategoryList = ({
+  items,
+  onClose,
+}: MobileSubCategoryListProps) => {
+  const [openSub, setOpenSub] = useState<string | null>(null);
+
+  return (
+    <div className="pb-2">
+      {items.map((sub) => {
+        const hasChildren = sub.children && sub.children.length > 0;
+        const isOpen = openSub === sub.id;
+
+        return (
+          <div key={sub.id} className="border-t border-gray-50">
+            {/* Sub-category row */}
+            <div className="flex items-center pl-4 pr-2 py-3">
+              {/* Name: navigates to category page */}
+              <Link
+                href={`/category/${sub.slug}`}
+                onClick={onClose}
+                className="text-[13px] font-medium text-gray-600 hover:text-[#7CB640] transition-colors flex-1"
+              >
+                {sub.name}
+              </Link>
+              {/* Chevron: only toggles accordion — no navigation */}
+              {hasChildren && (
+                <button
+                  type="button"
+                  onClick={() => setOpenSub(isOpen ? null : sub.id)}
+                  className="p-2 -mr-1 shrink-0 cursor-pointer"
+                  aria-label={`Toggle ${sub.name} children`}
+                >
+                  <FiChevronDown
+                    className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180 text-[#7CB640]" : ""}`}
+                    size={14}
+                  />
+                </button>
+              )}
+            </div>
+
+            {/* Child categories (Level 3) */}
+            {isOpen && hasChildren && (
+              <div className="pl-8 pb-3 space-y-2">
+                {sub.children!.map((child) => (
+                  <Link
+                    key={child.id}
+                    href={`/category/${child.slug}`}
+                    onClick={onClose}
+                    className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-[#7CB640] transition-colors py-1"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0" />
+                    {child.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 };
 
 const Navbar = () => {
@@ -202,8 +280,61 @@ const Navbar = () => {
     enabled: isStoreReady && (!!user || !!guestId),
   });
 
-  const cartItems = cartData?.items || ([] as CartItem[]);
-  const subTotal = cartData?.sub_total || 0;
+  const { data: activeCampaignsData } = useQuery({
+    queryKey: ["activeCampaigns"],
+    queryFn: getActiveCampaign,
+  });
+
+  const activeCampaigns = Array.isArray(activeCampaignsData?.data)
+    ? activeCampaignsData.data
+    : Array.isArray(activeCampaignsData)
+      ? activeCampaignsData
+      : (activeCampaignsData as unknown as CampaignApiResponse)?.data?.data ||
+        [];
+
+  const rawCartItems = (cartData?.items || []) as (CartItem & {
+    product?: Product;
+    productId?: string;
+  })[];
+  const cartItems = rawCartItems.map((item) => {
+    const prod = item.product || (item as unknown as Product);
+    const pId =
+      item.productId ||
+      (item as unknown as { product_id: string }).product_id ||
+      prod?.id ||
+      item.id;
+    const sellPrice =
+      prod?.sell_price ||
+      (item as unknown as { sell_price: number }).sell_price ||
+      item.price ||
+      0;
+
+    const info = getProductCampaignInfo(
+      {
+        id: pId,
+        slug: prod?.slug,
+        sell_price: sellPrice,
+        price: item.price,
+        campaign_discount: prod?.campaign_discount,
+        final_price: prod?.final_price,
+      },
+      sellPrice,
+      activeCampaigns,
+    );
+
+    const effectivePrice =
+      info.finalPrice > 0 ? info.finalPrice : Number(item.price || 0);
+
+    return {
+      ...item,
+      price: effectivePrice || item.price,
+    };
+  });
+
+  const subTotal = cartItems.reduce((acc, item) => {
+    const p = Number(item.price || 0);
+    return acc + p * (item.quantity || 1);
+  }, 0);
   const queryClient = useQueryClient();
 
   // update quantity
@@ -453,6 +584,7 @@ const Navbar = () => {
           <div className="flex-1 overflow-y-auto">
             {(categories || []).map((link, idx) => (
               <div key={link.id} className="border-b border-gray-50">
+                {/* Parent Category Row */}
                 <div
                   onClick={() =>
                     setOpenMobileDropdown(
@@ -461,28 +593,31 @@ const Navbar = () => {
                   }
                   className="flex justify-between py-4 text-gray-700 font-semibold cursor-pointer"
                 >
-                  <span>{link.name}</span>
+                  <Link
+                    href={`/category/${link.slug}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDrawerOpen(false);
+                    }}
+                    className="flex-1 hover:text-[#7CB640] transition-colors"
+                  >
+                    {link.name}
+                  </Link>
                   {link.children && link.children.length > 0 && (
                     <FiChevronDown
-                      className={openMobileDropdown === idx ? "rotate-180" : ""}
+                      className={`transition-transform duration-200 shrink-0 ml-2 ${openMobileDropdown === idx ? "rotate-180 text-[#7CB640]" : ""}`}
                     />
                   )}
                 </div>
+
+                {/* Sub-categories (Level 2) with their own children (Level 3) */}
                 {openMobileDropdown === idx &&
                   link.children &&
                   link.children.length > 0 && (
-                    <div className="pl-4 pb-4 space-y-3">
-                      {link.children.map((sub) => (
-                        <Link
-                          key={sub.id}
-                          href={`/category/${sub.slug}`}
-                          onClick={() => setIsDrawerOpen(false)}
-                          className="block text-gray-500 text-sm"
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
-                    </div>
+                    <MobileSubCategoryList
+                      items={link.children}
+                      onClose={() => setIsDrawerOpen(false)}
+                    />
                   )}
               </div>
             ))}

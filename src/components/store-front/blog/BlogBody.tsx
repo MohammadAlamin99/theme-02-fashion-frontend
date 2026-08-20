@@ -24,12 +24,12 @@ export default function BlogBody({ content, relatedProducts }: BlogBodyProps) {
     "http://localhost:8082";
 
   return (
-    <section className="container mx-auto px-4 font-inter pb-20">
+    <section className="container mx-auto px-4 font-inter">
       {/* 1. Main Body Text (Dynamic HTML) */}
 
       <div className="mb-10">
         <div
-          className="blog-rich-text prose prose-lg max-w-none 
+          className="blog-rich-text prose prose-lg max-w-none break-words
                prose-p:text-[#585858] 
                prose-headings:text-black 
                prose-headings:font-bold 

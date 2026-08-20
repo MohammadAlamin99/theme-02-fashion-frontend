@@ -294,9 +294,10 @@ export default {
     sold: "বিক্রিত",
     viewed: "দেখেছেন",
     inStock: "স্টকে আছে",
-    outOfStock: "স্টক শেষ",
+    outofstock: "স্টক শেষ",
 
     addToCart: "কার্টে যোগ করুন",
+    outofStock: "স্টক শেষ",
     orderNow: "অর্ডার করুন",
 
     off: "ছাড়",

@@ -103,7 +103,7 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
             {flashSale.meta_description || flashSale.description}
           </p>
 
-          <div className="bg-[#32CD32] rounded-[12px] p-3 md:p-4 flex items-center justify-center gap-3 md:gap-6 mb-6 md:mb-8 w-fit">
+          <div className="bg-[#14305F] rounded-[12px] p-3 md:p-4 flex items-center justify-center gap-3 md:gap-6 mb-6 md:mb-8 w-fit">
             {[
               timeLeft.days,
               timeLeft.hours,
@@ -125,7 +125,7 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
 
           <Link
             href={`/flash-sale/${flashSale.slug}`}
-            className="flex items-center gap-4 text-[#FF7050] font-poppins text-[16px] md:text-[20px] font-semibold group hover:opacity-80 transition-all"
+            className="flex items-center gap-4 text-[#7CB640] font-poppins text-[16px] md:text-[20px] font-semibold group hover:opacity-80 transition-all"
           >
             {t.flashSale.goToFlashSale}
             <FiArrowRight className="text-xl md:text-2xl transition-transform group-hover:translate-x-2" />
@@ -134,10 +134,10 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
 
         <div className="w-full lg:w-[65%] min-w-0">
           <div className="relative overflow-hidden sm:px-8 px-0">
-            <button className="flash-prev cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-xl hidden sm:flex items-center justify-center text-black text-2xl border border-gray-100 hover:bg-[#FF7050] hover:text-white transition-all disabled:opacity-0">
+            <button className="flash-prev cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-xl hidden sm:flex items-center justify-center text-black text-2xl border border-gray-100 hover:bg-[#7CB640] hover:text-white transition-all disabled:opacity-0">
               <FiChevronLeft />
             </button>
-            <button className="flash-next cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-xl hidden sm:flex items-center justify-center text-black text-2xl border border-gray-100 hover:bg-[#FF7050] hover:text-white transition-all disabled:opacity-0">
+            <button className="flash-next cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-xl hidden sm:flex items-center justify-center text-black text-2xl border border-gray-100 hover:bg-[#7CB640] hover:text-white transition-all disabled:opacity-0">
               <FiChevronRight />
             </button>
 

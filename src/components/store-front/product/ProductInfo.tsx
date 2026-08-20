@@ -292,11 +292,28 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     }
   };
 
+  const hasCampaign = !selectedVariant && !!product.campaign_discount;
+  const campaignDiscountVal = hasCampaign
+    ? Number(product.campaign_discount?.discount_value) || 0
+    : 0;
+
+  const baseSellPrice = parseFloat(product.sell_price) || 0;
+  const computedCampaignPrice =
+    hasCampaign && campaignDiscountVal > 0
+      ? Math.round(baseSellPrice * (1 - campaignDiscountVal / 100))
+      : baseSellPrice;
+
   const currentPrice = selectedVariant
     ? parseFloat(selectedVariant.price)
-    : parseFloat(product.sell_price);
+    : hasCampaign
+      ? product.final_price !== undefined && product.final_price !== null
+        ? Number(product.final_price)
+        : computedCampaignPrice
+      : baseSellPrice;
 
-  const regularPrice = parseFloat(product.regular_price);
+  const regularPrice = hasCampaign
+    ? baseSellPrice
+    : parseFloat(product.regular_price) || 0;
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
   const currentStock = selectedVariant
     ? selectedVariant.stock
@@ -304,9 +321,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 
   // discount calculation
   const discount =
-    regularPrice > currentPrice
-      ? Math.round(((regularPrice - currentPrice) / regularPrice) * 100)
-      : 0;
+    hasCampaign && campaignDiscountVal > 0
+      ? campaignDiscountVal
+      : regularPrice > currentPrice
+        ? Math.round(((regularPrice - currentPrice) / regularPrice) * 100)
+        : 0;
 
   // helper function to create variant name
   const getVariantDisplayLabel = (rawAttributes: unknown) => {
@@ -397,29 +416,34 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         <div className="hidden sm:block h-5 w-[1px] bg-[#D2D2D2]"></div>
 
         <span
-          className={`${currentStock > 0 ? "bg-[#32CD32]" : "bg-red-500"} text-white text-xs sm:text-[14px] font-semibold px-3 py-1 rounded-[8px]`}
+          className={`${currentStock > 0 ? "bg-[#123060]" : "bg-red-500"} text-white text-xs sm:text-[14px] font-semibold px-3 py-1 rounded-[8px]`}
         >
           {currentStock > 0
             ? `${currentStock} ${t.product.inStock}`
-            : t.product.outOfStock}
+            : t.product.outofstock}
         </span>
       </div>
 
       {/* Price Section */}
       <div className="flex justify-between md:flex-row flex-col md:items-center items-start gap-3 border-b-2 border-[#D2D2D2] py-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="text-[#7CB640] text-2xl sm:text-[32px] font-bold">
             {t.product.bdt} {currentPrice.toLocaleString()}
           </span>
-          {discount > 0 && regularPrice > currentPrice && (
+          {regularPrice > currentPrice && (
             <>
               <span className="text-[#727272] text-lg sm:text-[24px] font-medium line-through">
                 {t.product.bdt} {regularPrice.toLocaleString()}
               </span>
-              <span className="bg-[#32CD32] text-white text-[11px] px-2 py-0.5 rounded-md">
+              <span className="bg-[#E4572E] text-white text-xs px-2.5 py-1 rounded-md font-semibold">
                 {discount}% {t.product.off}
               </span>
             </>
+          )}
+          {hasCampaign && product.campaign_discount?.campaign_name && (
+            <span className="bg-black/80 text-white text-xs px-2 py-0.5 rounded-md font-medium">
+              {product.campaign_discount.campaign_name}
+            </span>
           )}
         </div>
       </div>
@@ -606,7 +630,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
               handleAddToCart();
             }}
           >
-            {isAddingToCart ? "Adding..." : "Add To Cart"}
+            {isAddingToCart ? t.product.addToCart + "..." : t.product.addToCart}
           </button>
           <button
             disabled={currentStock <= 0 || isAddingToCart}
@@ -614,7 +638,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
               e.preventDefault();
               handleOrderNow();
             }}
-            className="cursor-pointer flex-1 h-[52px] bg-[#32CD32] text-white font-semibold rounded-[8px] hover:bg-[#28a728] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="cursor-pointer flex-1 h-[52px] bg-[#7CB640] text-white font-semibold rounded-[8px] hover:bg-[#6c8c31] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {t.product.orderNow}
           </button>

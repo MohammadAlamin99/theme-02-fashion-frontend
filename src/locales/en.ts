@@ -270,7 +270,7 @@ export default {
     sold: "Sold",
     viewed: "Viewed",
     inStock: "In Stock",
-    outOfStock: "Out of Stock",
+    outofstock: "Out of Stock",
 
     addToCart: "Add to Cart",
     orderNow: "Order Now",

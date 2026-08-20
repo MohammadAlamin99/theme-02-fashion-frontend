@@ -33,7 +33,6 @@ import FaqsSection from "./FaqsSection";
 import VideoUrlsSection from "./VideoUrlsSection";
 import SeoSection from "./SeoSection";
 import SidebarCatalogSection from "./SidebarCatalogSection";
-import SidebarSupplierSection from "./SidebarSupplierSection";
 import SidebarBrandSection from "./SidebarBrandSection";
 import SidebarTagSection from "./SidebarTagSection";
 import toast from "react-hot-toast";
@@ -90,7 +89,6 @@ export default function ProductUploadMain() {
       seoDescription: "",
       seoTitle: "",
       tag_ids: [] as string[],
-      supplier_ids: [] as string[],
       video_urls: [] as string[],
       specifications: [] as { type: string; desc: string }[],
       faqs: [] as { q: string; a: string }[],
@@ -111,15 +109,42 @@ export default function ProductUploadMain() {
   );
 
   // Handles any shape backend might send: ["id1","id2"], [{id:"id1"}], [{tag_id:"id1"}], [{tag:{id:"id1"}}]
-  function extractIds(source: string): string[] {
+  function extractIds(
+    source:
+      | string[]
+      | {
+          id?: string;
+          tag_id?: string;
+          tag?: { id?: string };
+          [key: string]: unknown;
+        }[]
+      | {
+          product_id?: string;
+          tag_id: string;
+          tag: {
+            id: string;
+            name: string;
+            slug: string;
+            image_url: string;
+            is_flash_sale: boolean;
+          };
+        }[]
+      | null
+      | undefined,
+  ): string[] {
     if (!Array.isArray(source)) return [];
     return source
       .map((item) => {
         let id = null;
-        if (typeof item === "string" || typeof item === "number") id = item;
-        else if (item?.id) id = item.id;
-        else if (item?.tag_id) id = item.tag_id;
-        else if (item?.tag?.id) id = item.tag.id;
+        const obj = item as unknown as {
+          id?: string;
+          tag_id?: string;
+          tag?: { id?: string };
+        };
+        if (typeof obj === "string" || typeof obj === "number") id = obj;
+        else if (obj?.id) id = obj.id;
+        else if (obj?.tag_id) id = obj.tag_id;
+        else if (obj?.tag?.id) id = obj.tag.id;
 
         return id ? String(id) : null;
       })
@@ -163,11 +188,6 @@ export default function ProductUploadMain() {
             existingProduct.product_tags ??
             existingProduct.tags,
         ),
-        supplier_ids: Array.isArray(existingProduct.supplier_ids)
-          ? existingProduct.supplier_ids
-          : Array.isArray(existingProduct.suppliers)
-            ? existingProduct.suppliers.map((s: { id: string }) => s.id)
-            : [],
         video_urls: Array.isArray(existingProduct.video_urls)
           ? existingProduct.video_urls
           : [],
@@ -182,32 +202,22 @@ export default function ProductUploadMain() {
               ? "CUSTOM"
               : "DEFAULT",
         customShippingRows: Array.isArray(existingProduct.shipping_config)
-          ? existingProduct.shipping_config.map(
-              (row: { zone: string; charge: string }) => ({
-                zone: row.zone || "",
-                charge: String(row.charge ?? 0),
-              }),
-            )
+          ? existingProduct.shipping_config.map((row) => ({
+              zone: row.zone || "",
+              charge: String(row.charge ?? 0),
+            }))
           : [],
         // 🚀 FIXED: map backend's attributes[] array instead of the old flat `attribute` string
         variants: Array.isArray(existingProduct.variants)
-          ? existingProduct.variants.map(
-              (v: {
-                id: string;
-                attributes: string[];
-                stock: number;
-                sku: string;
-                price: number;
-                images: string[];
-              }) => ({
-                variantId: v.id,
-                attributes: Array.isArray(v.attributes) ? v.attributes : [],
-                stock: v.stock ?? 0,
-                sku: v.sku || "",
-                price: v.price ?? 0,
-                images: Array.isArray(v.images) ? v.images : [],
-              }),
-            )
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            existingProduct.variants.map((v: any) => ({
+              variantId: v.id,
+              attributes: Array.isArray(v.attributes) ? v.attributes : [],
+              stock: v.stock ?? 0,
+              sku: v.sku || "",
+              price: v.price ?? 0,
+              images: Array.isArray(v.images) ? v.images : [],
+            }))
           : [],
       });
       if (Array.isArray(existingProduct.images)) {
@@ -271,9 +281,8 @@ export default function ProductUploadMain() {
             : {}),
       };
 
-      // Include tags and suppliers in payload for both Create and Edit mode
+      // Include tags in payload for both Create and Edit mode
       finalPayload.tag_ids = formPayload.tag_ids || [];
-      finalPayload.supplier_ids = formPayload.supplier_ids || [];
 
       // Include variants in payload for both create and edit mode
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -512,7 +521,6 @@ export default function ProductUploadMain() {
 
             <SidebarCatalogSection />
             <SidebarBrandSection />
-            <SidebarSupplierSection isEditMode={isEditMode} />
             <SidebarTagSection isEditMode={isEditMode} />
           </div>
         </div>

@@ -330,26 +330,7 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-[#023337] mb-1.5">
-                  Minimum Order
-                </label>
-                <input
-                  type="text"
-                  value={formData.min_order_amount}
-                  placeholder="BDT 500"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      min_order_amount: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4 items-end">
               <div>
                 <label className="block text-sm font-semibold text-[#023337] mb-1.5">
                   Status
@@ -368,7 +349,45 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                   <option value="draft">Draft</option>
                 </select>
               </div>
-              <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5">
+              {/* <div>
+                <label className="block text-sm font-semibold text-[#023337] mb-1.5">
+                  Minimum Order
+                </label>
+                <input
+                  type="text"
+                  value={formData.min_order_amount}
+                  placeholder="BDT 500"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      min_order_amount: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
+                />
+              </div> */}
+            </div>
+
+            {/* <div className="grid grid-cols-2 gap-4 items-end"> */}
+            {/* <div>
+                <label className="block text-sm font-semibold text-[#023337] mb-1.5">
+                  Status
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      status: e.target.value as "active" | "draft",
+                    })
+                  }
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
+                >
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div> */}
+            {/* <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5">
                 <span className="text-sm font-semibold text-[#023337]">
                   Free Delivery
                 </span>
@@ -385,8 +404,8 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                     className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${formData.is_free_delivery ? "left-[22px]" : "left-0.5"}`}
                   />
                 </div>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
             <div className="relative" ref={dropdownRef}>
               <label className="block text-sm font-semibold text-[#023337] mb-1.5">
@@ -433,7 +452,7 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                     <div
                       key={`result-${product.id}`}
                       onClick={() => handleSelectProduct(product)}
-                      className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer border-b last:border-0"
+                      className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         {product.thumbnail && (

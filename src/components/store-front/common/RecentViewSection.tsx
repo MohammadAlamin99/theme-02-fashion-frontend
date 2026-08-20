@@ -120,6 +120,11 @@ const RecentlyViewed = () => {
 
                       <p className="text-[#7CB640] font-poppins text-[12px] font-bold mb-1">
                         {t.product.bdt} {product?.sell_price}
+                        {product?.regular_price && (
+                          <span className="text-[#808080] text-xs line-through ml-2">
+                              {t.product.bdt} {product?.regular_price}
+                          </span>
+                        )}
                       </p>
                       <div className="flex items-center gap-1">
                         <div className="flex text-[#FFB800] text-xs gap-[1px]">

@@ -17,8 +17,8 @@ interface Campaign {
   end_date: string;
 }
 
-// 2. Define the API Response Interface
-interface CampaignResponse {
+// 2. Define the possible API Response shapes
+interface CampaignEnvelope {
   success: boolean;
   statusCode: number;
   message: string;
@@ -26,15 +26,55 @@ interface CampaignResponse {
   timestamp: string;
 }
 
+interface NestedCampaignEnvelope {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: CampaignEnvelope;
+  timestamp: string;
+}
+
+type CampaignApiResponse =
+  | CampaignEnvelope
+  | NestedCampaignEnvelope
+  | Campaign[];
+
+// ---- Type guards & normalizer (declared BEFORE the component) ----
+
+function isCampaignArray(res: CampaignApiResponse): res is Campaign[] {
+  return Array.isArray(res);
+}
+
+function isNestedEnvelope(
+  res: CampaignApiResponse,
+): res is NestedCampaignEnvelope {
+  return (
+    !Array.isArray(res) &&
+    typeof res === "object" &&
+    res !== null &&
+    "data" in res &&
+    !Array.isArray((res as CampaignEnvelope).data)
+  );
+}
+
+function extractCampaigns(res: CampaignApiResponse | undefined): Campaign[] {
+  if (!res) return [];
+  if (isCampaignArray(res)) return res;
+  if (isNestedEnvelope(res)) return res.data.data ?? [];
+  return (res as CampaignEnvelope).data ?? [];
+}
+
+// ---- Component ----
+
 const CampaignSection = () => {
   const { language } = useLanguage();
   const t = translations[language];
-  // 3. Apply the type to useQuery
+
   const {
     data: apiResponse,
     isLoading,
     isError,
-  } = useQuery<CampaignResponse>({
+  } = useQuery<CampaignApiResponse>({
     queryKey: ["activeCampaigns"],
     queryFn: () => getActiveCampaign(),
   });
@@ -49,11 +89,11 @@ const CampaignSection = () => {
     );
   }
 
-  if (isError || !apiResponse?.success) {
-    return null; // Or show an error message
-  }
+  const campaigns: Campaign[] = extractCampaigns(apiResponse);
 
-  const campaigns = apiResponse.data || [];
+  if (isError || campaigns.length === 0) {
+    return null;
+  }
 
   return (
     <section className="w-full bg-white pb-[40px] md:pb-[80px] px-4 md:px-10">
@@ -81,7 +121,6 @@ const CampaignSection = () => {
                 h-auto lg:h-[320px] xl:h-[360px] 2xl:h-[413px]
               "
               >
-                {/* Title */}
                 <div className="text-center">
                   <h2 className="font-poppins text-[12px] sm:text-[16px] md:text-[22px] lg:text-[28px] xl:text-[34px] 2xl:text-[40px] font-medium text-black leading-tight">
                     {item.name}
@@ -93,10 +132,8 @@ const CampaignSection = () => {
                   </p>
                 </div>
 
-                {/* Image */}
                 <div className="relative flex items-center justify-center my-3 md:my-5 w-full h-[55px] sm:h-[75px] md:h-[100px] lg:h-[120px] xl:h-[150px] 2xl:h-[180px]">
                   <Image
-                    // Logic to handle empty banner_url or relative paths
                     src={iconUrl}
                     alt={item.name}
                     fill
@@ -105,7 +142,6 @@ const CampaignSection = () => {
                   />
                 </div>
 
-                {/* Button */}
                 <Link href={`/campaign/${item.slug}`}>
                   <button
                     className="

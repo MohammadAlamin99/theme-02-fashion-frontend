@@ -7,6 +7,7 @@ import { CartItem } from "@/@types/order.type";
 import { extractImageUrl } from "@/utils/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
+import { Product } from "@/@types/product.type";
 
 interface OrderItemProps {
   item: CartItem;
@@ -28,7 +29,10 @@ const OrderItem: React.FC<OrderItemProps> = ({
     "http://localhost:8082";
 
   const name = item.name || product?.name || "Product";
-  const price = item.price ?? product?.price ?? 0;
+  const price = Number(item.price ?? product?.price ?? 0);
+  const rawSellPrice = Number(
+    item.sell_price ?? (product as Product)?.sell_price ?? 0,
+  );
 
   const usableImage =
     extractImageUrl(variant?.images, backendBaseUrl) ||
@@ -82,10 +86,15 @@ const OrderItem: React.FC<OrderItemProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className="text-[#FF7050] font-bold text-[18px]">
               {t.product.bdt} {price}
             </span>
+            {rawSellPrice > price && (
+              <span className="line-through text-gray-400 text-xs sm:text-sm font-normal">
+                {t.product.bdt} {rawSellPrice}
+              </span>
+            )}
           </div>
         </div>
       </div>

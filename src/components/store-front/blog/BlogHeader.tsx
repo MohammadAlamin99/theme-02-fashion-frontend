@@ -21,7 +21,7 @@ const BlogHeader = ({
         <p className="text-[#8C8C8C] font-inter text-[14px] md:text-[16px] mb-4 font-medium">
           {author} - {date ? formatDistanceToNow(new Date(date)) : ""} {t.blog.ago}
         </p>
-        <h1 className="text-[#000000] font-poppins text-[18px] md:text-[32px] lg:text-[36px] font-bold leading-[1.2] mb-8">
+        <h1 className="text-[#000000] font-poppins text-[18px] md:text-[32px] lg:text-[36px] font-bold leading-[1.2] mb-8 break-words">
           {title}
         </h1>
         {/* <div className="flex flex-wrap items-center gap-6 md:gap-10 border-b border-[#F2F2F2] pb-8">
