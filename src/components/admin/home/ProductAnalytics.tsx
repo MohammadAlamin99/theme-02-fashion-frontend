@@ -280,7 +280,7 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
             ) => (
               <div
                 key={idx}
-                className="flex items-center justify-between group cursor-pointer transition-transform border-b border-[#D1D1D1] pb-2 "
+                className="flex items-center justify-between group cursor-pointer transition-transform pb-2 "
               >
                 <div className="flex items-center gap-3">
                   <Image

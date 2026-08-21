@@ -236,10 +236,27 @@ export const searchProductsService = async (query: string) => {
   return res.json();
 };
 
+// Tab label → backend status enum mapping (shared with OrderTable)
+export const TAB_STATUS_MAP: Record<string, string> = {
+  "All order": "",
+  "Pending": "PENDING",
+  "Confirmed": "CONFIRMED",
+  "On Hold": "ON_HOLD",
+  "Shipped": "SHIPPED",
+  "Sent To Courier": "SENT_TO_COURIER",
+  "Incomplete": "",
+  "Delivered": "DELIVERED",
+  "Partial Delivered": "PARTIAL_DELIVERED",
+  "Canceled": "CANCELED",
+  "Returned": "RETURNED",
+  "Refunded": "REFUNDED",
+  "Return Received": "RETURN_RECEIVED",
+};
+
 // 🚀 7. Fetch Order Tab Counts (Used for Initial Load)
 export const fetchOrderCounts = async (tabs: string[]) => {
   const promises = tabs.map(async (tab) => {
-    const status = tab === "All order" ? "" : tab.toUpperCase();
+    const status = TAB_STATUS_MAP[tab] ?? (tab === "All order" ? "" : tab.toUpperCase());
     const res = await getAllOrdersService({
       page: 1,
       limit: 1,

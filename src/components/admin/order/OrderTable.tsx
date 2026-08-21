@@ -288,6 +288,20 @@ const getStatusConfig = (status: string | undefined): StatusConfig => {
         className: "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100",
         iconColor: "text-teal-500",
       };
+    case "RETURN_RECEIVED":
+      return {
+        label: "Return Received",
+        icon: PackageCheck,
+        className: "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100",
+        iconColor: "text-cyan-500",
+      };
+    case "PARTIAL_DELIVERED":
+      return {
+        label: "Partial Delivered",
+        icon: Package,
+        className: "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100",
+        iconColor: "text-yellow-500",
+      };
     default:
       return {
         label: status.replace(/_/g, " "),
@@ -308,12 +322,29 @@ export default function OrderTable() {
   const tabs: string[] = [
     "All order",
     "Pending",
-    "Confirmed",
     "Incomplete",
+    "Shipped",
     "Delivered",
     "Canceled",
     "Returned",
   ];
+
+  // Tab label → backend status enum mapping
+  const TAB_STATUS_MAP: Record<string, string> = {
+    "All order": "",
+    "Pending": "PENDING",
+    "Confirmed": "CONFIRMED",
+    "On Hold": "ON_HOLD",
+    "Shipped": "SHIPPED",
+    "Sent To Courier": "SENT_TO_COURIER",
+    "Incomplete": "", // handled separately
+    "Delivered": "DELIVERED",
+    "Partial Delivered": "PARTIAL_DELIVERED",
+    "Canceled": "CANCELED",
+    "Returned": "RETURNED",
+    "Refunded": "REFUNDED",
+    "Return Received": "RETURN_RECEIVED",
+  };
 
   // Helper logic to prevent routing errors
   const isIncompleteTab = tabs[activeTab] === "Incomplete";
@@ -421,8 +452,7 @@ export default function OrderTable() {
       }
 
       // Hits: /orders -> Returns { data: { meta, data } }
-      const status =
-        tabs[activeTab] === "All order" ? "" : tabs[activeTab].toUpperCase();
+      const status = TAB_STATUS_MAP[tabs[activeTab]] ?? tabs[activeTab].toUpperCase();
       return await getAllOrdersService({
         page,
         limit: 10,
@@ -887,24 +917,34 @@ export default function OrderTable() {
                         "CONFIRMED",
                         "ON_HOLD",
                         "SHIPPED",
+                        "SENT_TO_COURIER",
                         "DELIVERED",
+                        "PARTIAL_DELIVERED",
                         "CANCELED",
+                        "RETURNED",
+                        "REFUNDED",
+                        "RETURN_RECEIVED",
                       ] as const
-                    ).map((s) => (
-                      <button
-                        key={s}
-                        onClick={() =>
-                          activeMenuId &&
-                          statusMutation.mutate({
-                            id: activeMenuId,
-                            payload: { status: s },
-                          })
-                        }
-                        className="w-full text-left px-4 py-1.5 text-[13px] text-gray-700 hover:bg-blue-50 hover:text-[#1DA1F2]"
-                      >
-                        {s}
-                      </button>
-                    ))}
+                    ).map((s) => {
+                      const cfg = getStatusConfig(s);
+                      const Icon = cfg.icon;
+                      return (
+                        <button
+                          key={s}
+                          onClick={() =>
+                            activeMenuId &&
+                            statusMutation.mutate({
+                              id: activeMenuId,
+                              payload: { status: s },
+                            })
+                          }
+                          className="w-full text-left px-4 py-1.5 text-[13px] text-gray-700 hover:bg-blue-50 hover:text-[#1DA1F2] flex items-center gap-2 transition-colors"
+                        >
+                          <Icon size={13} className={cfg.iconColor} />
+                          <span>{cfg.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

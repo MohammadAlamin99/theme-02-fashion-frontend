@@ -6,6 +6,7 @@ import OverviewSection from "@/components/admin/home/OverviewSection";
 import DashboardStats from "@/components/admin/home/DashboardStats";
 import ProductAnalytics from "@/components/admin/home/ProductAnalytics";
 import SalesAnalytics from "@/components/admin/home/SalesAnalytics";
+import SalesReport from "@/components/admin/home/SalesReport";
 import { dashboardApi } from "@/services-api/dashboardService";
 
 export type TimeFilter = "Day" | "Month" | "Year" | "All Time" | "Custom";
@@ -64,6 +65,9 @@ export default function HomePageWrapper() {
           bestSellingData={stats?.tables?.bestSellers || []}
           isLoading={isLoading}
         />
+      </div>
+      <div className="mt-2 mr-0 md:mr-1 mb-4">
+        <SalesReport />
       </div>
     </div>
   );
