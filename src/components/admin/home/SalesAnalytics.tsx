@@ -2,7 +2,6 @@
 import React from "react";
 import SalesByCategoryChart from "./SalesByCategoryChart";
 import SalesPerformenceChart from "./SalesPerformenceChart";
-
 interface CategoryData {
   name: string;
   value: number;
@@ -17,6 +16,7 @@ interface SalesAnalyticsProps {
     canceled: number;
   }[];
   categoryData?: CategoryData[];
+  orderOrigin?: { source: string; count: number }[];
   isLoading?: boolean;
 }
 
@@ -25,6 +25,7 @@ const CATEGORY_COLORS = ["#5D36FF", "#FAA43F", "#FFBB99", "#F35050", "#AEDF33"];
 const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
   performanceData = [],
   categoryData = [],
+  orderOrigin = [],
   isLoading,
 }) => {
   // ⚡ FIX: Mapping backend 'canceled' to component 'cancel'

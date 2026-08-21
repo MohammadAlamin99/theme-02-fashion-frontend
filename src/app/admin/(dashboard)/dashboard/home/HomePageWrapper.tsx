@@ -8,6 +8,7 @@ import ProductAnalytics from "@/components/admin/home/ProductAnalytics";
 import SalesAnalytics from "@/components/admin/home/SalesAnalytics";
 import SalesReport from "@/components/admin/home/SalesReport";
 import { dashboardApi } from "@/services-api/dashboardService";
+import OrderOriginChart from "@/components/admin/home/OrderOriginChart";
 
 export type TimeFilter = "Day" | "Month" | "Year" | "All Time" | "Custom";
 
@@ -26,7 +27,16 @@ export default function HomePageWrapper() {
       selectedDate.toDateString(),
     ],
     queryFn: () =>
-      dashboardApi.getStatistics(activeFilter, selectedDate.toISOString()),
+      dashboardApi.getStatistics(
+        activeFilter,
+        activeFilter === "Custom" ? selectedDate.toISOString() : undefined,
+      ),
+  });
+
+  const { data: visitorStats, isLoading: visitorLoading } = useQuery({
+    queryKey: ["admin-visitor-stats"],
+    queryFn: () => dashboardApi.getVisitorStats(),
+    refetchInterval: 30_000, // refresh every 30 seconds for live online count
   });
 
   const stats = serverResponse?.data || serverResponse;
@@ -48,15 +58,18 @@ export default function HomePageWrapper() {
       <div className="mt-2 mr-0 md:mr-1">
         <DashboardStats
           overview={stats?.overview}
+          visitorStats={visitorStats}
           lifecycle={stats?.orderLifecycle}
           chartData={stats?.charts?.performance || []}
-          isLoading={isLoading}
+          deviceViews={stats?.deviceViews || []}
+          isLoading={isLoading || visitorLoading}
         />
       </div>
 
       <SalesAnalytics
         performanceData={stats?.charts?.performance || []}
         categoryData={stats?.categorySales || []}
+        orderOrigin={stats?.orderOrigin || []}
         isLoading={isLoading}
       />
 
@@ -66,8 +79,14 @@ export default function HomePageWrapper() {
           isLoading={isLoading}
         />
       </div>
-      <div className="mt-2 mr-0 md:mr-1 mb-4">
-        <SalesReport />
+      <div className="mt-2 mr-0 md:mr-1 mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <SalesReport />
+        </div>
+        <div className="lg:col-span-1 h-full">
+          {/* 3. Order Origin */}
+          <OrderOriginChart data={stats?.orderOrigin || []} isLoading={isLoading} />
+        </div>
       </div>
     </div>
   );

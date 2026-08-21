@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Search, X, Loader2, BarChart3, TrendingUp } from "lucide-react";
+import { Search, X, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardApi } from "@/services-api/dashboardService";
 import Pagination from "../common/Pagination";
@@ -119,7 +119,9 @@ const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
         confirmed: number;
         delivered: number;
         returned: number;
-      }) => <span className="font-medium text-gray-700 text-sm">{item.total}</span>,
+      }) => (
+        <span className="font-medium text-gray-700 text-sm">{item.total}</span>
+      ),
     },
     {
       header: "Confirmed",

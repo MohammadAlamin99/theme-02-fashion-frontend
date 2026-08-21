@@ -21,7 +21,8 @@ export const dashboardApi = {
     
     if (raw === "day") mappedFilter = "day";
     if (raw === "year") mappedFilter = "year";
-    if (raw === "alltime") mappedFilter = "all"; // Backend logic uses 'all' for All Time
+    if (raw === "alltime" || raw === "all") mappedFilter = "all";
+    if (raw === "custom") mappedFilter = "custom";
 
     params.append("filter", mappedFilter);
     if (customDate) params.append("customDate", customDate);
@@ -56,5 +57,22 @@ export const dashboardApi = {
     const json = await res.json();
     // Return the nested data object to match your ProductAnalytics component expectations
     return json?.data || json; 
-  }
+  },
+  /**
+   * 🌐 Public Storefront Visitor Stats (no auth required)
+   * Returns: onlineNow, todayVisitors, totalVisitors
+   */
+  async getVisitorStats() {
+    const res = await apiFetch(`/admin/dashboard/visitor-stats`, {
+      method: "GET",
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch visitor stats");
+    const json = await res.json();
+    return (json?.data || json) as {
+      onlineNow: number;
+      todayVisitors: number;
+      totalVisitors: number;
+    };
+  },
 };

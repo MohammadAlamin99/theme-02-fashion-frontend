@@ -113,6 +113,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public API endpoints — bypass admin auth guard
+  if (pathname === "/admin/dashboard/visitor-stats") {
+    return NextResponse.next();
+  }
+
   // 2. Protect Admin Panel
   if (pathname.startsWith("/admin")) {
     if (!adminToken) {

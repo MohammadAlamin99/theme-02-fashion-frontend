@@ -14,15 +14,15 @@ const initialOrderSummaryData = [
   { name: "Confirmed", value: 0, percentage: 0, color: "#7AD100" },
   { name: "Delivered", value: 0, percentage: 0, color: "#1884FF" },
   { name: "Canceled", value: 0, percentage: 0, color: "#FAB300" },
-  { name: "Refunded", label: "Paid Returned", value: 0, percentage: 0, color: "#C71CB6" },
+  {
+    name: "Refunded",
+    label: "Paid Returned",
+    value: 0,
+    percentage: 0,
+    color: "#C71CB6",
+  },
   { name: "Returned", value: 0, percentage: 0, color: "#DA0000" },
 ];
-
-const areaChartData = Array.from({ length: 31 }, (_, i) => ({
-  day: i + 1,
-  visitors: Math.floor(Math.random() * 40) + 20 + i * 1.5,
-  orders: Math.floor(Math.random() * 30) + 10 + i * 2,
-}));
 
 export default function OrderSummerySection() {
   const { data: tabCountsData, isLoading: isCountsLoading } = useQuery({
@@ -46,11 +46,33 @@ export default function OrderSummerySection() {
 
   const totalOrdersOverview = overview.totalOrders || 0;
   const totalRevenue = overview.totalRevenue || 0;
-  const avgOrder = totalOrdersOverview > 0 ? (totalRevenue / totalOrdersOverview) : 0;
-  
+  const gmv = overview.gmv || 0;
+  const avgOrder =
+    totalOrdersOverview > 0
+      ? gmv / totalOrdersOverview
+      : overview.avgOrder || 0;
+
   const totalReturned = lifecycle.RETURNED || 0;
   // Estimate demurrage charges (e.g. 120 BDT per returned package)
   const demurrageCharges = totalReturned * 120;
+
+  const areaChartData = useMemo(() => {
+    const perf = stats?.charts?.performance || [];
+    if (perf.length > 0) {
+      return perf.map(
+        (p: { label: string; placed: number; delivered: number }) => ({
+          day: p.label,
+          orders: p.placed || 0,
+          visitors: Math.max((p.placed || 0) * 3 + 10, 10),
+        }),
+      );
+    }
+    return Array.from({ length: 31 }, (_, i) => ({
+      day: i + 1,
+      visitors: ((i * 13) % 25) + 20 + i * 1.5,
+      orders: ((i * 7) % 20) + 10 + i * 2,
+    }));
+  }, [stats]);
 
   const { orderSummaryData, totalOrders } = useMemo(() => {
     if (!tabCountsData) {
@@ -68,12 +90,12 @@ export default function OrderSummerySection() {
         ...acc,
         [curr.tab]: curr.count,
       }),
-      {}
+      {},
     );
 
     const total = initialOrderSummaryData.reduce(
       (sum, tab) => sum + (counts[tab.name] || 0),
-      0
+      0,
     );
 
     const mappedData = initialOrderSummaryData.map((tab) => {
@@ -102,7 +124,10 @@ export default function OrderSummerySection() {
             </h3>
             <div className="flex items-center justify-between">
               {/* visitor order chart */}
-              <OrderSummaryChart orderSummaryData={orderSummaryData} total={totalOrders} />
+              <OrderSummaryChart
+                orderSummaryData={orderSummaryData}
+                total={totalOrders}
+              />
 
               {/* Legend */}
               <div className="flex flex-col gap-2 flex-1 ml-4">
@@ -156,7 +181,11 @@ export default function OrderSummerySection() {
                 </span>
               </div>
               <div className="flex justify-between items-end">
-                <span className="text-[#023337] text-2xl font-bold">240</span>
+                <span className="text-[#023337] text-2xl font-bold">
+                  {isStatsLoading
+                    ? "..."
+                    : `৳ ${Math.round(gmv).toLocaleString()}`}
+                </span>
                 <span className="text-[#21C45D] font-lato text-sm font-bold mb-1 flex items-center gap-1">
                   <ArrowUp size={16} color="#1EB564" /> 20%
                 </span>
@@ -175,7 +204,10 @@ export default function OrderSummerySection() {
               </div>
               <div className="flex justify-between items-end">
                 <span className="text-[#003032] text-2xl font-bold flex items-center">
-                  <span className="mr-1">৳</span> {isStatsLoading ? "..." : Math.round(avgOrder).toLocaleString()}
+                  <span className="mr-1">৳</span>{" "}
+                  {isStatsLoading
+                    ? "..."
+                    : Math.round(avgOrder).toLocaleString()}
                 </span>
                 <span className="text-[#EF4343] text-sm font-medium mb-1 flex items-center gap-1">
                   <ArrowDown size={16} color="#EF4343" /> 5%
@@ -193,14 +225,17 @@ export default function OrderSummerySection() {
               </div>
               <div className="flex justify-between items-start">
                 <div className="flex flex-col">
-                  <span className="text-[#DA0000] text-base font-bold">{isStatsLoading ? "..." : totalReturned}</span>
+                  <span className="text-[#DA0000] text-base font-bold">
+                    {isStatsLoading ? "..." : totalReturned}
+                  </span>
                   <span className="text-[#A1A1A1] text-[12px]">
                     Total Returned
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[#DA0000] text-base font-bold">
-                    ৳{isStatsLoading ? "..." : demurrageCharges.toLocaleString()}
+                    ৳
+                    {isStatsLoading ? "..." : demurrageCharges.toLocaleString()}
                   </span>
                   <span className="text-[#A1A1A1] text-[12px]">
                     Demurrage charges

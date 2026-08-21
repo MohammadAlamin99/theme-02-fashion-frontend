@@ -20,24 +20,22 @@ import ConfirmIcon from "@/components/store-front/svg/svg/ConfirmIcon";
 import TruckIcon from "@/components/store-front/svg/svg/TruckIcon";
 import DeliverdIcon from "@/components/store-front/svg/svg/DeliverdIcon";
 import ReturnIcon from "@/components/store-front/svg/svg/ReturnIcon";
+import dayjs from "dayjs";
 
-const data = [
-  { name: "Jan 25", tab: 40, desktop: 180, mobile: 210 },
-  { name: "Jan 26", tab: 120, desktop: 90, mobile: 170 },
-  { name: "Jan 27", tab: 120, desktop: 120, mobile: 150 },
-  { name: "Jan 28", tab: 120, desktop: 135, mobile: 175 },
-  { name: "Jan 29", tab: 40, desktop: 185, mobile: 150 },
-  { name: "Jan 30", tab: 60, desktop: 145, mobile: 246 },
-  { name: "Jan 31", tab: 120, desktop: 135, mobile: 180 },
-  { name: "Feb 01", tab: 80, desktop: 120, mobile: 150 },
-  { name: "Feb 02", tab: 30, desktop: 125, mobile: 220 },
-];
+interface VisitorStats {
+  onlineNow: number;
+  todayVisitors: number;
+  totalVisitors: number;
+}
+
 interface DashboardStatsProps {
   overview?: {
-    onlineNow: number;
-    totalOrders: number;
-    totalVisitors: number;
+    onlineNow?: number;
+    todayVisitors?: number;
+    totalVisitors?: number;
+    totalOrders?: number;
   };
+  visitorStats?: VisitorStats;
   lifecycle?: {
     PENDING: number;
     CONFIRMED: number;
@@ -52,6 +50,12 @@ interface DashboardStatsProps {
     delivered: number;
     canceled: number;
   }[];
+  deviceViews?: {
+    date: string;
+    mobile: number;
+    desktop: number;
+    tab: number;
+  }[];
   isLoading: boolean;
 }
 
@@ -59,8 +63,10 @@ const emptySubscribe = () => () => {};
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({
   overview,
+  visitorStats,
   lifecycle,
   chartData = [],
+  deviceViews = [],
   isLoading,
 }) => {
   const mounted = useSyncExternalStore(
@@ -86,225 +92,155 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
           <VisitorStatCard
             icon={<OnlineIcon />}
             label="Online Now"
-            subtext="Live users"
-            value={formatValue(overview?.onlineNow)}
+            subtext="Active visitors on site"
+            value={formatValue(visitorStats?.onlineNow ?? overview?.onlineNow)}
             colorClass="text-[#008DFF]"
             bgClass="bg-[#C9E7FF]"
           />
           <VisitorStatCard
             icon={<UsersIcon />}
-            label="Total Orders"
-            subtext="In selected period"
-            value={formatValue(overview?.totalOrders)}
+            label="Today Visitors"
+            subtext={`Last 7 days: ${visitorStats?.todayVisitors ?? overview?.todayVisitors ?? 0}`}
+            value={formatValue(
+              visitorStats?.todayVisitors ?? overview?.todayVisitors,
+            )}
             colorClass="text-[#FF5500]"
             bgClass="bg-[#FFDDBD]"
           />
           <VisitorStatCard
             icon={<WorldIcon />}
             label="Total Visitors"
-            subtext="All time visits"
-            value={formatValue(overview?.totalVisitors)}
+            subtext={`${visitorStats?.totalVisitors ?? overview?.totalVisitors ?? 0} page views`}
+            value={formatValue(
+              visitorStats?.totalVisitors ?? overview?.totalVisitors,
+            )}
             colorClass="text-[#3F34BE]"
             bgClass="bg-[#D3C9F4]"
           />
         </div>
 
         {/* Right Side: Recharts Bar Chart */}
-
-        {/* <div className="lg:col-span-8 bg-white rounded-[8px] p-5 min-h-[320px] min-w-0">
-          {mounted && !isLoading ? (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart
-                data={chartData}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="placed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#38BDF8" />
-                    <stop offset="100%" stopColor="#1E90FF" />
-                  </linearGradient>
-                  <linearGradient id="delivered" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#A08BFF" />
-                    <stop offset="100%" stopColor="#5943FF" />
-                  </linearGradient>
-                  <linearGradient id="canceled" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FF9F1C" />
-                    <stop offset="100%" stopColor="#FF6A00" />
-                  </linearGradient>
-                </defs>
-
-                <CartesianGrid
-                  vertical={false}
-                  stroke="#F1F5F9"
-                  strokeDasharray="3 3"
-                />
-                <XAxis
-                  dataKey="label"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#A7A7A7", fontSize: 11 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#A7A7A7", fontSize: 11 }}
-                />
-                <Tooltip
-                  cursor={{ fill: "#F8FAFC" }}
-                  contentStyle={{
-                    borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                  }}
-                />
-                <Legend
-                  verticalAlign="top"
-                  align="right"
-                  iconType="circle"
-                  wrapperStyle={{
-                    paddingBottom: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                  }}
-                />
-
-                <Bar
-                  dataKey="placed"
-                  name="Placed"
-                  fill="url(#placed)"
-                  radius={[4, 4, 0, 0]}
-                  barSize={8}
-                />
-                <Bar
-                  dataKey="delivered"
-                  name="Delivered"
-                  fill="url(#delivered)"
-                  radius={[4, 4, 0, 0]}
-                  barSize={8}
-                />
-                <Bar
-                  dataKey="canceled"
-                  name="Canceled"
-                  fill="url(#canceled)"
-                  radius={[4, 4, 0, 0]}
-                  barSize={8}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-full w-full flex flex-col items-center justify-center text-gray-400 gap-2">
-              <Loader2 className="animate-spin text-blue-400" />
-              <p className="text-xs font-medium">
-                Generating performance chart...
-              </p>
-            </div>
-          )}
-        </div> */}
-
         <div className="lg:col-span-8 bg-white rounded-[8px] p-5">
-          {mounted && (
-            <ResponsiveContainer width="100%" height={260} minWidth={0}>
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 10, left: -20, bottom: 10 }}
-                barGap={4}
-              >
-                {/* 1. Define the Gradients */}
-                <defs>
-                  {/* Tab View Gradient */}
-                  <linearGradient id="tabGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="-1.83%" stopColor="#38BDF8" />
-                    <stop offset="100%" stopColor="#1E90FF" />
-                  </linearGradient>
+          {isLoading ? (
+            <div className="h-[260px] flex flex-col items-center justify-center text-gray-400 gap-2">
+              <Loader2 className="animate-spin text-blue-400" size={20} />
+              <p className="text-xs font-medium">Loading device data...</p>
+            </div>
+          ) : (
+            mounted && (
+              <ResponsiveContainer width="100%" height={260} minWidth={0}>
+                <BarChart
+                  data={deviceViews.map((d) => ({
+                    name: d.date,
+                    tab: d.tab,
+                    desktop: d.desktop,
+                    mobile: d.mobile,
+                  }))}
+                  margin={{ top: 20, right: 10, left: -20, bottom: 10 }}
+                  barGap={4}
+                >
+                  {/* 1. Define the Gradients */}
+                  <defs>
+                    {/* Tab View Gradient */}
+                    <linearGradient
+                      id="tabGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="-1.83%" stopColor="#38BDF8" />
+                      <stop offset="100%" stopColor="#1E90FF" />
+                    </linearGradient>
 
-                  {/* Desktop View Gradient */}
-                  <linearGradient
-                    id="desktopGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="#A08BFF" />
-                    <stop offset="100%" stopColor="#5943FF" />
-                  </linearGradient>
+                    {/* Desktop View Gradient */}
+                    <linearGradient
+                      id="desktopGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#A08BFF" />
+                      <stop offset="100%" stopColor="#5943FF" />
+                    </linearGradient>
 
-                  {/* Mobile View Gradient */}
-                  <linearGradient
-                    id="mobileGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="#FF9F1C" />
-                    <stop offset="100%" stopColor="#FF6A00" />
-                  </linearGradient>
-                </defs>
+                    {/* Mobile View Gradient */}
+                    <linearGradient
+                      id="mobileGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#FF9F1C" />
+                      <stop offset="100%" stopColor="#FF6A00" />
+                    </linearGradient>
+                  </defs>
 
-                {/* Grid - Set to horizontal only to match image */}
-                <CartesianGrid vertical={false} stroke="#F1F5F9" />
+                  {/* Grid - Set to horizontal only to match image */}
+                  <CartesianGrid vertical={false} stroke="#F1F5F9" />
 
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#A7A7A7", fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#A7A7A7", fontSize: 12 }}
-                  domain={[0, 300]}
-                  ticks={[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300]}
-                />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#A7A7A7", fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#A7A7A7", fontSize: 12 }}
+                    domain={[0, 300]}
+                    ticks={[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300]}
+                  />
 
-                <Tooltip
-                  cursor={{ fill: "#F8FAFC" }}
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "none",
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                  }}
-                />
+                  <Tooltip
+                    cursor={{ fill: "#F8FAFC" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "none",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                  />
 
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  iconType="circle"
-                  wrapperStyle={{
-                    paddingTop: "30px",
-                    fontSize: "12px",
-                    color: "#64748B",
-                  }}
-                />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    wrapperStyle={{
+                      paddingTop: "30px",
+                      fontSize: "12px",
+                      color: "#64748B",
+                    }}
+                  />
 
-                {/* 2. Apply Gradients and 16px bar width */}
-                <Bar
-                  dataKey="tab"
-                  name="Tab View"
-                  fill="url(#tabGradient)"
-                  radius={[2, 2, 0, 0]}
-                  barSize={16}
-                />
-                <Bar
-                  dataKey="desktop"
-                  name="Desktop View"
-                  fill="url(#desktopGradient)"
-                  radius={[2, 2, 0, 0]}
-                  barSize={16}
-                />
-                <Bar
-                  dataKey="mobile"
-                  name="Mobile View"
-                  fill="url(#mobileGradient)"
-                  radius={[2, 2, 0, 0]}
-                  barSize={16}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                  {/* 2. Apply Gradients and 16px bar width */}
+                  <Bar
+                    dataKey="tab"
+                    name="Tab View"
+                    fill="url(#tabGradient)"
+                    radius={[2, 2, 0, 0]}
+                    barSize={16}
+                  />
+                  <Bar
+                    dataKey="desktop"
+                    name="Desktop View"
+                    fill="url(#desktopGradient)"
+                    radius={[2, 2, 0, 0]}
+                    barSize={16}
+                  />
+                  <Bar
+                    dataKey="mobile"
+                    name="Mobile View"
+                    fill="url(#mobileGradient)"
+                    radius={[2, 2, 0, 0]}
+                    barSize={16}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )
           )}
         </div>
       </div>
