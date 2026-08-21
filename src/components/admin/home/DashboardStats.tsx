@@ -24,6 +24,7 @@ import dayjs from "dayjs";
 
 interface VisitorStats {
   onlineNow: number;
+  onlineByDevice?: { mobile: number; desktop: number; tab: number };
   todayVisitors: number;
   totalVisitors: number;
 }
@@ -31,6 +32,7 @@ interface VisitorStats {
 interface DashboardStatsProps {
   overview?: {
     onlineNow?: number;
+    onlineByDevice?: { mobile: number; desktop: number; tab: number };
     todayVisitors?: number;
     totalVisitors?: number;
     totalOrders?: number;
@@ -65,7 +67,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   overview,
   visitorStats,
   lifecycle,
-  chartData = [],
   deviceViews = [],
   isLoading,
 }) => {
@@ -75,14 +76,9 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     () => false,
   );
 
-  useEffect(() => {
-    if (chartData.length > 0) {
-      console.log("📊 Chart Data Arrived:", chartData);
-    }
-  }, [chartData]);
-
   const formatValue = (val?: number) =>
     isLoading ? "..." : (val?.toLocaleString() ?? "0");
+  const online = visitorStats?.onlineByDevice ?? overview?.onlineByDevice;
 
   return (
     <div className="font-poppins">
@@ -97,6 +93,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
             colorClass="text-[#008DFF]"
             bgClass="bg-[#C9E7FF]"
           />
+
           <VisitorStatCard
             icon={<UsersIcon />}
             label="Today Visitors"

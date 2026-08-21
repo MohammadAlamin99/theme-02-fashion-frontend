@@ -101,7 +101,7 @@ export function proxy(request: NextRequest) {
     request.cookies.get("token")?.value;
 
   const adminToken =
-    request.cookies.get("admin_token")?.value ||
+  request.cookies.get("admin_token")?.value ||
     request.cookies.get("token")?.value;
 
   // 1. Redirect logged-in users away from signin

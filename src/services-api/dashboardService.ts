@@ -18,7 +18,7 @@ export const dashboardApi = {
     // ⚡ Map UI Labels to Backend expected strings
     let mappedFilter = "month";
     const raw = filter.toLowerCase().replace(" ", "");
-    
+
     if (raw === "day") mappedFilter = "day";
     if (raw === "year") mappedFilter = "year";
     if (raw === "alltime" || raw === "all") mappedFilter = "all";
@@ -27,10 +27,13 @@ export const dashboardApi = {
     params.append("filter", mappedFilter);
     if (customDate) params.append("customDate", customDate);
 
-    const res = await apiFetch(`/admin/dashboard/statistics?${params.toString()}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token || ""}` },
-    });
+    const res = await apiFetch(
+      `/admin/dashboard/statistics?${params.toString()}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token || ""}` },
+      },
+    );
 
     if (!res.ok) throw new Error("Failed to fetch dashboard statistics");
     return res.json();
@@ -42,21 +45,24 @@ export const dashboardApi = {
   async getSellReport(query: SellReportQuery) {
     const token = await getAdminTokenAction();
     const params = new URLSearchParams();
-    
+
     if (query.page) params.append("page", String(query.page));
     if (query.limit) params.append("limit", String(query.limit));
     if (query.customDate) params.append("customDate", query.customDate);
 
-    const res = await apiFetch(`/admin/dashboard/sell-report?${params.toString()}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token || ""}` },
-    });
+    const res = await apiFetch(
+      `/admin/dashboard/sell-report?${params.toString()}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token || ""}` },
+      },
+    );
 
     if (!res.ok) throw new Error("Failed to fetch sell report");
-    
+
     const json = await res.json();
     // Return the nested data object to match your ProductAnalytics component expectations
-    return json?.data || json; 
+    return json?.data || json;
   },
   /**
    * 🌐 Public Storefront Visitor Stats (no auth required)
@@ -71,6 +77,7 @@ export const dashboardApi = {
     const json = await res.json();
     return (json?.data || json) as {
       onlineNow: number;
+      onlineByDevice: { mobile: number; desktop: number; tab: number };
       todayVisitors: number;
       totalVisitors: number;
     };

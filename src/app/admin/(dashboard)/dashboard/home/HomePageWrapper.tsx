@@ -85,7 +85,10 @@ export default function HomePageWrapper() {
         </div>
         <div className="lg:col-span-1 h-full">
           {/* 3. Order Origin */}
-          <OrderOriginChart data={stats?.orderOrigin || []} isLoading={isLoading} />
+          <OrderOriginChart
+            data={stats?.orderOrigin || []}
+            isLoading={isLoading}
+          />
         </div>
       </div>
     </div>
