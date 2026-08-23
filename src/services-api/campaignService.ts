@@ -110,7 +110,7 @@ export const uploadCampaignBanner = async (
   const formData = new FormData();
   formData.append("banner", file);
 
-  const res = await apiFetch("/campaigns/upload-bannner", {
+  const res = await apiFetch("/campaigns/upload-banner", {
     method: "POST",
     body: formData,
   });
