@@ -12,6 +12,7 @@ interface Campaign {
   name: string;
   slug: string;
   banner_url: string;
+  image: string;
   discount_value: string;
   is_free_delivery: boolean;
   end_date: string;
@@ -96,11 +97,11 @@ const CampaignSection = () => {
   }
 
   return (
-    <section className="w-full bg-white pb-[40px] md:pb-[80px] px-4 md:px-10">
-      <div className="max-w-[1720px] mx-auto">
+    <section className="w-full bg-white mt-10 mb-5 md:mt-20 md:mb-10 px-4 md:px-10">
+      <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 lg:gap-6 xl:gap-8 2xl:gap-[35px]">
           {campaigns.map((item: Campaign) => {
-            const rowImage = item?.banner_url || "";
+            const rowImage = item?.image || "";
             const isValidImg = rowImage.trim().length > 1;
             const iconUrl = isValidImg
               ? rowImage.startsWith("http") || rowImage.startsWith("/images/")
@@ -132,7 +133,7 @@ const CampaignSection = () => {
                   </p>
                 </div>
 
-                <div className="relative flex items-center justify-center my-3 md:my-5 w-full h-[55px] sm:h-[75px] md:h-[100px] lg:h-[120px] xl:h-[150px] 2xl:h-[180px]">
+                <div className="relative flex items-center justify-center my-3 md:my-5 w-full h-[100px] sm:h-[120px] md:h-[150px] lg:h-[170px] xl:h-[190px]">
                   <Image
                     src={iconUrl}
                     alt={item.name}
@@ -146,7 +147,7 @@ const CampaignSection = () => {
                   <button
                     className="
                     cursor-pointer
-                    bg-[#77AF3D]
+                    bg-[#D75300]
                     text-white
                     rounded-full
                     font-inter
