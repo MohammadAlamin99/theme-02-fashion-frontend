@@ -257,6 +257,20 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-[#023337] mb-1.5">
+                Campaign Name*
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                placeholder="Campaign Name"
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-[#023337] mb-1.5">
