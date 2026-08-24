@@ -29,14 +29,16 @@ const OrderItem: React.FC<OrderItemProps> = ({
     "http://localhost:8082";
 
   const name = item.name || product?.name || "Product";
-  const price = Number(item.price ?? 0);
-  const rawSellPrice = Number(
-    item.variant?.sell_price ||
-      item.variant?.price ||
-      item.sell_price ||
-      (product as Product)?.sell_price ||
-      0,
-  );
+  const hasVariant = !!item.variant;
+  const rawSellPrice = hasVariant
+    ? Number(
+        item.variant?.sell_price ?? item.variant?.price ?? item.sell_price ?? 0,
+      )
+    : Number(item.sell_price ?? (product as Product)?.sell_price ?? 0);
+
+  const price = Number(item.price ?? rawSellPrice ?? 0);
+
+  const hasDiscount = rawSellPrice > price;
 
   const usableImage =
     extractImageUrl(variant?.images, backendBaseUrl) ||
@@ -94,7 +96,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
             <span className="text-[#FF7050] font-bold text-[18px]">
               {t.product.bdt} {price}
             </span>
-            {rawSellPrice > price && (
+            {hasDiscount && (
               <span className="line-through text-gray-400 text-xs sm:text-sm font-normal">
                 {t.product.bdt} {rawSellPrice}
               </span>
