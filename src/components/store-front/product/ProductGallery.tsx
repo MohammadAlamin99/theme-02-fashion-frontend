@@ -76,7 +76,7 @@ export const ProductGallery: React.FC<GalleryProps> = ({ items }) => {
                       alt={`Product view ${index + 1}`}
                       fill
                       priority={index === 0}
-                      className="object-contain"
+                      className="object-cover"
                       unoptimized
                     />
                     {item.type === "video" && (
