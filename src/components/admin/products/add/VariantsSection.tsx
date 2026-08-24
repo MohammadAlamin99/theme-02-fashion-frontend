@@ -190,7 +190,7 @@ export default function VariantsSection({
     }
   };
 
-  const showBuilder = !isEditMode || editingIndex !== null;
+  const showBuilder = true;
 
   return (
     <SectionWrapper
