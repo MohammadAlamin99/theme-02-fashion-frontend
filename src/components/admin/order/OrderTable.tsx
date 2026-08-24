@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -13,6 +13,7 @@ import {
   Printer,
   FileText,
   RefreshCw,
+  Trash2,
   ChevronLeft,
   X,
   Loader2,
@@ -137,7 +138,6 @@ interface Order {
   customer?: OrderCustomer;
   user?: OrderUser;
 }
-
 interface CustomerContact {
   avatar?: string;
   name?: string;
@@ -189,6 +189,7 @@ interface DetailsModalState {
 /* ------------------------------------------------------------------ */
 
 const getStatusConfig = (status: string | undefined): StatusConfig => {
+  // 🚀 Safe check to prevent "Cannot read properties of undefined (reading 'replace')"
   if (!status) {
     return {
       label: "Unknown",
@@ -375,7 +376,6 @@ export default function OrderTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activeMenuId]);
-
   const baseStorageUrl: string =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8083";
@@ -1223,7 +1223,4 @@ export default function OrderTable() {
       )}
     </div>
   );
-}
-function useEffect(arg0: () => () => void, arg1: (string | null)[]) {
-  throw new Error("Function not implemented.");
 }

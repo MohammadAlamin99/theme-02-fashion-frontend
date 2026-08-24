@@ -29,9 +29,13 @@ const OrderItem: React.FC<OrderItemProps> = ({
     "http://localhost:8082";
 
   const name = item.name || product?.name || "Product";
-  const price = Number(item.price ?? product?.price ?? 0);
+  const price = Number(item.price ?? 0);
   const rawSellPrice = Number(
-    item.sell_price ?? (product as Product)?.sell_price ?? 0,
+    item.variant?.sell_price ||
+      item.variant?.price ||
+      item.sell_price ||
+      (product as Product)?.sell_price ||
+      0,
   );
 
   const usableImage =

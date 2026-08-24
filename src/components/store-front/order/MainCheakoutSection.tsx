@@ -571,7 +571,7 @@
 //             <div className="flex flex-col gap-2 w-full relative">
 //               <label className="text-[#727272] font-semibold text-base md:text-lg">
 //                 {t.checkout.deliveryCharge}{" "}
-//                 <span className="text-[#7CB640]">*</span>
+//                 <span className="text-[#D75300]">*</span>
 //               </label>
 //               <div className="relative w-full">
 //                 <select
@@ -595,7 +595,7 @@
 //             <div className="flex flex-col gap-2 w-full relative">
 //               <label className="text-[#727272] font-semibold text-base md:text-lg">
 //                 {t.checkout.paymentMethod}{" "}
-//                 <span className="text-[#7CB640]">*</span>
+//                 <span className="text-[#D75300]">*</span>
 //               </label>
 //               <div className="relative w-full">
 //                 <select
@@ -647,7 +647,7 @@
 //           <button
 //             onClick={handlePlaceOrder}
 //             disabled={placeOrderMutation.isPending}
-//             className="bg-[#7CB640] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
+//             className="bg-[#D75300] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
 //           >
 //             {placeOrderMutation.isPending
 //               ? "Placing Order..."
@@ -812,42 +812,64 @@ const MainCheckoutSection: React.FC = () => {
       const existingProduct = (item.product || {}) as Product;
       const combinedProd = { ...existingProduct, ...pData };
       const pId = item.productId || combinedProd.id || item.id;
-      const rawSellPrice =
+
+      // Variant-er nijer price — display + final calculation er base
+      const variantPrice = item.variant?.sell_price || item.variant?.price;
+
+      // Product-er base sell_price — শুধু campaign-eligibility ar discount % ber korar jonno
+      const productBasePrice =
         parseFloat(
-          combinedProd.sell_price ||
-            String(
-              existingProduct.sell_price || item.sell_price || item.price || 0,
-            ),
+          String(
+            combinedProd.sell_price ||
+              existingProduct.sell_price ||
+              item.sell_price ||
+              item.price ||
+              0,
+          ),
         ) || 0;
 
       const info = getProductCampaignInfo(
         {
           id: pId,
           slug: combinedProd.slug,
-          sell_price: rawSellPrice,
+          sell_price: productBasePrice,
           price: item.price,
           campaign_discount: combinedProd.campaign_discount,
           final_price: combinedProd.final_price,
         },
-        rawSellPrice,
+        productBasePrice,
         activeCampaigns,
       );
 
+      // Display/base price: variant thakle variant price, na hole product base price
+      const displayBasePrice =
+        parseFloat(String(variantPrice)) || productBasePrice;
+
+      // Campaign discount ratio ber kori (product base price er upor base kore),
+      // taropor SEI ratio ta variant-er nijer price-e apply kori —
+      // fixed campaign finalPrice diye variant price overwrite kori na
+      const discountRatio =
+        productBasePrice > 0 &&
+        info.finalPrice > 0 &&
+        info.finalPrice < productBasePrice
+          ? info.finalPrice / productBasePrice
+          : 1;
+
       const finalEffectivePrice =
-        info.finalPrice > 0
-          ? info.finalPrice
-          : Number(item.price || rawSellPrice || 0);
+        discountRatio < 1
+          ? Math.round(displayBasePrice * discountRatio)
+          : Number(item.price || displayBasePrice || 0);
 
       return {
         ...item,
         price: finalEffectivePrice,
-        sell_price: rawSellPrice,
+        sell_price: displayBasePrice, // strike-through original price
         product: {
           id: item.productId,
           name: item.name || existingProduct.name || pData?.name || "Product",
           featuredImage: item.image || existingProduct.featuredImage || "",
           price: finalEffectivePrice,
-          sell_price: rawSellPrice,
+          sell_price: displayBasePrice,
           shipping_type:
             existingProduct.shipping_type || pData?.shipping_type || "DEFAULT",
           shipping_config:
@@ -860,7 +882,6 @@ const MainCheckoutSection: React.FC = () => {
   }, [rawCartItems, productQueries, activeCampaigns]);
 
   const courierConfig = shippingSettings?.courier_config;
-  // golobal setttings have only enable
   const isSubCityAvailable = useMemo(() => {
     if (!courierConfig?.sub_city) return false;
     return cartItems.every((item) => {
@@ -1225,7 +1246,7 @@ const MainCheckoutSection: React.FC = () => {
     );
 
   return (
-    <div className="max-w-[1720px] mx-auto p-4 md:p-10 font-poppins bg-white">
+    <div className="container mx-auto font-poppins bg-white md:px-0 px-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         {/* Form Section */}
         <div className="lg:col-span-7 flex flex-col gap-5 md:gap-6">
@@ -1273,7 +1294,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.deliveryCharge}{" "}
-                <span className="text-[#7CB640]">*</span>
+                <span className="text-[#D75300]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -1297,7 +1318,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.paymentMethod}{" "}
-                <span className="text-[#7CB640]">*</span>
+                <span className="text-[#D75300]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -1380,7 +1401,7 @@ const MainCheckoutSection: React.FC = () => {
           <button
             onClick={handlePlaceOrder}
             disabled={placeOrderMutation.isPending}
-            className="bg-[#7CB640] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
+            className="bg-[#D75300] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
           >
             {placeOrderMutation.isPending
               ? "Placing Order..."

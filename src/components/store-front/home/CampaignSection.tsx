@@ -98,7 +98,7 @@ const CampaignSection = () => {
 
   return (
     <section className="w-full bg-white mt-10 mb-5 md:mt-20 md:mb-10 px-4 md:px-10">
-      <div className="container mx-auto">
+      <div className="max-w-[1720px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 lg:gap-6 xl:gap-8 2xl:gap-[35px]">
           {campaigns.map((item: Campaign) => {
             const rowImage = item?.image || "";

@@ -84,6 +84,8 @@ export interface CartItem {
     color?: string;
     size?: string;
     images?: string[];
+    price?: number | string;
+    sell_price?: number | string;
   };
 }
 

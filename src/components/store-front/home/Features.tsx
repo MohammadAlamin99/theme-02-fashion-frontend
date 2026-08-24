@@ -1,16 +1,14 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
-
 
 const featureImages = [
   "/images/store-front/feature/feture1.svg",
   "/images/store-front/feature/feature2.svg",
   "/images/store-front/feature/feature3.svg",
   "/images/store-front/feature/feature4.svg",
-
 ];
 
 const Features = () => {

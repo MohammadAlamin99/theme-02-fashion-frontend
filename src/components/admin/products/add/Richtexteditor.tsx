@@ -119,7 +119,6 @@ export default function RichTextEditor({
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      // শুধুমাত্র তখনই কন্টেন্ট সেট করবে যখন ডাটাবেসের ভ্যালু এবং এডিটরের ভ্যালু আলাদা হবে
       editor.commands.setContent(value || "");
     }
   }, [value, editor]);

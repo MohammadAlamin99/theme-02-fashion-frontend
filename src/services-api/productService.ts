@@ -76,7 +76,7 @@ export const fetchSingleProduct = async (id: string) => {
 };
 
 // 🚀 3. UPLOAD MULTIPLE IMAGES TO SHARED TAXONOMY INTERCEPTOR
-export const uploadProductMedia = async (files: FileList) => {
+export const uploadProductMedia = async (files: FileList | File[]) => {
   const token = await getAdminTokenAction();
   const formData = new FormData();
 
