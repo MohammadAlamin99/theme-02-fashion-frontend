@@ -292,28 +292,49 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
     }
   };
 
-  const hasCampaign = !selectedVariant && !!product.campaign_discount;
+  // ===== Pricing Logic (dynamic — variant + campaign + normal discount সব ক্ষেত্রেই কাজ করবে) =====
+  const hasCampaign = !!product.campaign_discount;
   const campaignDiscountVal = hasCampaign
     ? Number(product.campaign_discount?.discount_value) || 0
     : 0;
 
-  const baseSellPrice = parseFloat(product.sell_price) || 0;
+  // product-level normal discount ratio বের করা হচ্ছে (campaign ছাড়া regular vs sell price থেকে)
+  const productRegularPrice = parseFloat(product.regular_price) || 0;
+  const productSellPrice = parseFloat(product.sell_price) || 0;
+  const hasProductLevelDiscount =
+    productRegularPrice > productSellPrice && productSellPrice > 0;
+  const discountRatio = hasProductLevelDiscount
+    ? productSellPrice / productRegularPrice
+    : 1;
+
+  // base price → variant selected থাকলে variant.price, নাহলে product.sell_price
+  const baseSellPrice = selectedVariant
+    ? parseFloat(selectedVariant.price) || 0
+    : productSellPrice;
+
   const computedCampaignPrice =
     hasCampaign && campaignDiscountVal > 0
       ? Math.round(baseSellPrice * (1 - campaignDiscountVal / 100))
       : baseSellPrice;
 
-  const currentPrice = selectedVariant
-    ? parseFloat(selectedVariant.price)
-    : hasCampaign
-      ? product.final_price !== undefined && product.final_price !== null
-        ? Number(product.final_price)
-        : computedCampaignPrice
-      : baseSellPrice;
+  // final_price শুধু no-variant অবস্থায় ব্যবহার হবে (backend precomputed, variant-specific না)
+  const currentPrice = hasCampaign
+    ? !selectedVariant &&
+      product.final_price !== undefined &&
+      product.final_price !== null
+      ? Number(product.final_price)
+      : computedCampaignPrice
+    : baseSellPrice;
 
+  // regular price (strike-through) calculation
   const regularPrice = hasCampaign
-    ? baseSellPrice
-    : parseFloat(product.regular_price) || 0;
+    ? baseSellPrice // campaign থাকলে campaign-এর আগের price-ই strike-through
+    : selectedVariant
+      ? hasProductLevelDiscount
+        ? Math.round(baseSellPrice / discountRatio) // variant price-এর উপর একই % ratio apply
+        : baseSellPrice
+      : productRegularPrice;
+
   const currentSku = selectedVariant ? selectedVariant.sku : product.sku;
   const currentStock = selectedVariant
     ? selectedVariant.stock

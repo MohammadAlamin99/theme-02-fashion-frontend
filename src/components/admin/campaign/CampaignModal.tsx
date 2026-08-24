@@ -222,10 +222,10 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
     if (formData.product_ids.length === 0)
       return toast.error("Select at least one product");
 
-    const { selected_products_info, ...restFormData } = formData; // নতুন
+    const { selected_products_info, ...restFormData } = formData;
 
     const finalPayload: CreateCampaignInput = {
-      ...restFormData, // formData এর বদলে restFormData
+      ...restFormData,
       slug:
         formData.slug ||
         formData.name.toLowerCase().trim().replace(/\s+/g, "-"),
