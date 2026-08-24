@@ -73,7 +73,7 @@ export default function HomePageWrapper() {
         isLoading={isLoading}
       />
 
-      <div className="mt-2 mr-0 md:mr-1 mb-4">
+      <div className="mt-2 mr-0 md:mr-1 mb-2">
         <ProductAnalytics
           bestSellingData={stats?.tables?.bestSellers || []}
           isLoading={isLoading}

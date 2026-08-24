@@ -13,7 +13,6 @@ import {
   Printer,
   FileText,
   RefreshCw,
-  Trash2,
   ChevronLeft,
   X,
   Loader2,
@@ -52,21 +51,12 @@ import {
 } from "@/services-api/incompleteOrderService";
 import { apiFetch } from "@/utils/api";
 
-/* ------------------------------------------------------------------ */
-/*  TYPES / INTERFACES                                                 */
-/*  (এই ব্লকটা আদর্শভাবে @/@types/order.type.ts এ রাখা উচিত এবং        */
-/*  Order/Customer import করে ব্যবহার করা উচিত, যেন পুরো অ্যাপে একই    */
-/*  shape সবখানে থাকে। এখানে দেখানোর জন্য একসাথে রাখা হলো।)            */
-/* ------------------------------------------------------------------ */
-
-// একটা variant এর ভেতরের তথ্য (order_items / cart_items দুটোতেই আসে)
 interface ProductVariant {
   images?: string[];
   sku?: string;
   unit?: string;
 }
 
-// পণ্যের বেসিক তথ্য (order_items এর ভেতরে nested product)
 interface ProductInfo {
   id?: string;
   name?: string;
@@ -74,7 +64,6 @@ interface ProductInfo {
   featuredImage?: string;
 }
 
-// useQueries দিয়ে /products/:id থেকে যেটা resolve হয় (Incomplete/lead modal এর জন্য)
 interface ProductMetadata {
   id: string;
   name?: string;
@@ -84,14 +73,12 @@ interface ProductMetadata {
   sell_price?: number;
 }
 
-// order_items এবং cart_items দুটোই backend এ আলাদা shape এ আসে,
-// কিন্তু UI তে একই ভাবে render হয় — তাই একটা কমন LineItem টাইপ।
 interface LineItem {
   id?: string;
-  productId?: string; // cart_items (incomplete order) এ থাকে
-  variantId?: string; // cart_items এ থাকে
-  product_name?: string; // order_items এ থাকে
-  externalName?: string; // guest/external checkout item name
+  productId?: string;
+  variantId?: string;
+  product_name?: string;
+  externalName?: string;
   image?: string;
   externalImage?: string;
   external_image?: string;
@@ -123,8 +110,6 @@ interface OrderUser {
   };
 }
 
-// মূল Order/Lead object — order_items ও cart_items দুটোই optional,
-// কারণ Incomplete order এ cart_items থাকে, রেগুলার order এ order_items.
 interface Order {
   id: string;
   order_number?: string;
@@ -153,8 +138,6 @@ interface Order {
   user?: OrderUser;
 }
 
-// action menu-তে যে কনট্যাক্ট কার্ড দেখানো হয় সেটার জন্য (আগের নাম `User`
-// ছিল, যেটা lucide-react এর `User` icon import এর সাথে collide করছিল)
 interface CustomerContact {
   avatar?: string;
   name?: string;
@@ -206,7 +189,6 @@ interface DetailsModalState {
 /* ------------------------------------------------------------------ */
 
 const getStatusConfig = (status: string | undefined): StatusConfig => {
-  // 🚀 Safe check to prevent "Cannot read properties of undefined (reading 'replace')"
   if (!status) {
     return {
       label: "Unknown",
@@ -299,7 +281,8 @@ const getStatusConfig = (status: string | undefined): StatusConfig => {
       return {
         label: "Partial Delivered",
         icon: Package,
-        className: "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100",
+        className:
+          "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100",
         iconColor: "text-yellow-500",
       };
     default:
@@ -332,17 +315,17 @@ export default function OrderTable() {
   // Tab label → backend status enum mapping
   const TAB_STATUS_MAP: Record<string, string> = {
     "All order": "",
-    "Pending": "PENDING",
-    "Confirmed": "CONFIRMED",
+    Pending: "PENDING",
+    Confirmed: "CONFIRMED",
     "On Hold": "ON_HOLD",
-    "Shipped": "SHIPPED",
+    Shipped: "SHIPPED",
     "Sent To Courier": "SENT_TO_COURIER",
-    "Incomplete": "", // handled separately
-    "Delivered": "DELIVERED",
+    Incomplete: "", // handled separately
+    Delivered: "DELIVERED",
     "Partial Delivered": "PARTIAL_DELIVERED",
-    "Canceled": "CANCELED",
-    "Returned": "RETURNED",
-    "Refunded": "REFUNDED",
+    Canceled: "CANCELED",
+    Returned: "RETURNED",
+    Refunded: "REFUNDED",
     "Return Received": "RETURN_RECEIVED",
   };
 
@@ -376,6 +359,22 @@ export default function OrderTable() {
   const handlePrint = useReactToPrint({
     contentRef: invoiceRef,
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setActiveMenuId(null);
+        setShowStatusMenu(false);
+      }
+    };
+
+    if (activeMenuId) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeMenuId]);
 
   const baseStorageUrl: string =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
@@ -452,7 +451,8 @@ export default function OrderTable() {
       }
 
       // Hits: /orders -> Returns { data: { meta, data } }
-      const status = TAB_STATUS_MAP[tabs[activeTab]] ?? tabs[activeTab].toUpperCase();
+      const status =
+        TAB_STATUS_MAP[tabs[activeTab]] ?? tabs[activeTab].toUpperCase();
       return await getAllOrdersService({
         page,
         limit: 10,
@@ -679,19 +679,19 @@ export default function OrderTable() {
         </div>
       ),
     },
-        {
-          header: "Payment",
-          key: "payment",
-          render: (item: Order) => (
-            <div onClick={() => openDetails(item)} className="cursor-pointer">
-              <p
-                className={`font-medium text-[14px] ${item.payment_status === "PAID" ? "text-green-500" : "text-red-500"}`}
-              >
-                {item.payment_status || "UNPAID"}
-              </p>
-            </div>
-          ),
-        },
+    {
+      header: "Payment",
+      key: "payment",
+      render: (item: Order) => (
+        <div onClick={() => openDetails(item)} className="cursor-pointer">
+          <p
+            className={`font-medium text-[14px] ${item.payment_status === "PAID" ? "text-green-500" : "text-red-500"}`}
+          >
+            {item.payment_status || "UNPAID"}
+          </p>
+        </div>
+      ),
+    },
     {
       header: "Price",
       key: "amount",
@@ -1223,4 +1223,7 @@ export default function OrderTable() {
       )}
     </div>
   );
+}
+function useEffect(arg0: () => () => void, arg1: (string | null)[]) {
+  throw new Error("Function not implemented.");
 }
