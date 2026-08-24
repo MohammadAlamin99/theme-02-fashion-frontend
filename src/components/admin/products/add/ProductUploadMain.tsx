@@ -95,6 +95,7 @@ export default function ProductUploadMain() {
       shippingMode: "DEFAULT" as "DEFAULT" | "CUSTOM" | "FREE",
       customShippingRows: [] as { zone: string; charge: string }[],
       variants: [] as VariantRow[],
+      images: [] as string[],
     },
   });
 

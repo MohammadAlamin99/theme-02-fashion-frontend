@@ -81,10 +81,10 @@ export const uploadProductMedia = async (files: FileList) => {
   const formData = new FormData();
 
   Array.from(files).forEach((file) => {
-    formData.append("image", file);
+    formData.append("images", file);
   });
 
-  const res = await apiFetch("/categories/upload-image", {
+  const res = await apiFetch("/products/upload-image", {
     method: "POST",
     headers: { Authorization: `Bearer ${token || ""}` },
     body: formData,
@@ -97,6 +97,7 @@ export const uploadProductMedia = async (files: FileList) => {
   if (data?.image_url) return [data.image_url];
   if (data?.data?.image_url) return [data.data.image_url];
   if (Array.isArray(data?.image_urls)) return data.image_urls;
+  if (Array.isArray(data?.data?.image_urls)) return data.data.image_urls;
 
   return [];
 };
@@ -107,6 +108,8 @@ export const uploadVariantImage = async (files: FileList) => {
   const formData = new FormData();
 
   Array.from(files).forEach((file) => {
+    // Note: If variant image upload fails, you may need to change "image" to "images" if the backend intercepts "images".
+    // Currently leaving as "image" based on prior manual user edit.
     formData.append("image", file);
   });
 
