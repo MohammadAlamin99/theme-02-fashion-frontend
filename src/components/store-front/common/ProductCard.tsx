@@ -431,25 +431,27 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
     ? Number(product.campaign_discount?.discount_value) || 0
     : 0;
 
-  const computedCampaignPrice = hasCampaignDiscount && campaignDiscountVal > 0
-    ? Math.round(sellPrice * (1 - campaignDiscountVal / 100))
-    : sellPrice;
+  const computedCampaignPrice =
+    hasCampaignDiscount && campaignDiscountVal > 0
+      ? Math.round(sellPrice * (1 - campaignDiscountVal / 100))
+      : sellPrice;
 
   const displayPrice = hasCampaignDiscount
-    ? (product.final_price !== undefined && product.final_price !== null
-        ? Number(product.final_price)
-        : computedCampaignPrice)
+    ? product.final_price !== undefined && product.final_price !== null
+      ? Number(product.final_price)
+      : computedCampaignPrice
     : sellPrice;
 
   const hasRegularDiscount = regularPrice > sellPrice;
 
-  const badgeText = hasCampaignDiscount && campaignDiscountVal > 0
-    ? `${campaignDiscountVal}% OFF`
-    : product.discount_tag
-      ? product.discount_tag
-      : hasRegularDiscount
-        ? `${Math.round(((regularPrice - sellPrice) / regularPrice) * 100)}% OFF`
-        : null;
+  const badgeText =
+    hasCampaignDiscount && campaignDiscountVal > 0
+      ? `${campaignDiscountVal}% OFF`
+      : product.discount_tag
+        ? product.discount_tag
+        : hasRegularDiscount
+          ? `${Math.round(((regularPrice - sellPrice) / regularPrice) * 100)}% OFF`
+          : null;
 
   const showBadge = !!badgeText;
   const strikeThroughPrice = hasCampaignDiscount ? sellPrice : regularPrice;
@@ -463,18 +465,22 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8083";
-  const firstImage =
-    product.images && product.images.length > 0 ? product.images[0] : null;
-  const cleanImg = typeof firstImage === "string" ? firstImage.trim() : "";
-  const isValidImg = cleanImg.replace(/^\/+/, "").length > 0;
 
-  const productImage = isValidImg ? cleanImg : "/images/placeholder.svg";
+  const rawFirst = product.images?.[0];
+  const imagePath =
+    typeof rawFirst === "string" ? rawFirst : rawFirst?.url || "";
+  const cleanImg = imagePath.trim();
+  const productImage = cleanImg || "/images/placeholder.svg";
 
   const usableImage =
     productImage.startsWith("http") || productImage.startsWith("/images/")
       ? productImage
       : `${backendBaseUrl}/${productImage.replace(/^\/+/, "")}`;
 
+  const imageAlt =
+    typeof rawFirst === "object" && rawFirst?.alt_text
+      ? rawFirst.alt_text
+      : product.name;
   return (
     <div className="group flex flex-col p-2.5 md:p-3 bg-[#F2F2F2] border-[1.5px] border-[#E3E3E3] rounded-2xl w-full md:max-w-[350px] font-poppins h-full justify-between">
       <div>
@@ -516,7 +522,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
           >
             <Image
               src={usableImage}
-              alt={product.name}
+              alt={imageAlt}
               fill
               sizes="(max-width: 768px) 100vw, 350px"
               className="object-contain group-hover:scale-105 transition-transform duration-300"

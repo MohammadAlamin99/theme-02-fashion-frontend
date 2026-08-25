@@ -22,7 +22,12 @@ interface ExtendedTableColumn<T> {
 interface TableData {
   id: string;
   name: string;
-  images?: string[];
+  images?: {
+    url: string;
+    alt_text?: string;
+    title?: string;
+    caption?: string;
+  }[];
   category?: {
     id?: string;
     name?: string;
@@ -192,10 +197,10 @@ export default function ProductTable() {
       headerClassName: "px-4 py-3 text-left",
       className: "px-4 py-3 align-middle",
       render: (product) => {
-        const rawImg = Array.isArray(product.images) ? product.images[0] : null;
-        const cleanImg = typeof rawImg === "string" ? rawImg.trim() : "";
-        const isValidImg = cleanImg.replace(/^\/+/, "").length > 0;
-        const srcUrl = isValidImg
+        const first = Array.isArray(product.images) ? product.images[0] : null;
+        const imagePath = typeof first === "string" ? first : first?.url || "";
+        const cleanImg = imagePath.trim();
+        const srcUrl = cleanImg
           ? cleanImg.startsWith("http")
             ? cleanImg
             : `${baseStorageUrl}/${cleanImg.replace(/^\/+/, "")}`

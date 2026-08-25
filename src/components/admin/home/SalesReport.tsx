@@ -21,11 +21,14 @@ const baseStorageUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
   "http://localhost:8082";
 
-const getImgUrl = (rawImg: string) => {
+const getImgUrl = (rawImg: string | { url: string } | null | undefined) => {
   if (!rawImg) return "/images/products/product.png";
-  return rawImg.startsWith("http")
-    ? rawImg
-    : `${baseStorageUrl}/${rawImg.replace(/^\/+/, "")}`;
+
+  const imgStr = typeof rawImg === "string" ? rawImg : rawImg?.url || "";
+
+  return imgStr.startsWith("http")
+    ? imgStr
+    : `${baseStorageUrl}/${imgStr.replace(/^\/+/, "")}`;
 };
 
 export default function SalesReport() {
