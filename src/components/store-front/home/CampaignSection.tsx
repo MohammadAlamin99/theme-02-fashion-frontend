@@ -147,7 +147,7 @@ const CampaignSection = () => {
                   <button
                     className="
                     cursor-pointer
-                    bg-[#D75300]
+                    bg-[#7CB640]
                     text-white
                     rounded-full
                     font-inter
