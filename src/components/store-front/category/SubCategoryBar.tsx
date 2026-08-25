@@ -53,8 +53,8 @@ export default function SubCategoryBar({ subcategory = [] }: SubCategoryBarProps
                              font-medium leading-normal rounded-xl whitespace-nowrap transition-colors
                              ${
                                isActive
-                                 ? "bg-[#FF7050] text-white"
-                                 : "bg-[#F5F5F5] text-black hover:bg-[#FF7050] hover:text-white"
+                                 ? "bg-[#103061] text-white"
+                                 : "bg-[#F5F5F5] text-black hover:bg-[#103061] hover:text-white"
                              }`}
                 >
                   {item.name}

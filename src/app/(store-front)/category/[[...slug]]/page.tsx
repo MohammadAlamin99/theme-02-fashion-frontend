@@ -104,8 +104,8 @@ const CategoryPage = () => {
           <Link href="/" className="text-[#727272]">
             Home
           </Link>{" "}
-          <FaChevronRight color="#FF7050" size={15} />
-          <span className="text-[#FF7050]">{category?.name}</span>
+          <FaChevronRight color="#7CB640" size={15} />
+          <span className="text-[#7CB640]">{category?.name}</span>
         </nav>
         <CategoryBanner
           bannerImage={category?.background_image_url}
@@ -134,7 +134,7 @@ const CategoryPage = () => {
             onClick={() => setIsMobileFilterOpen(true)}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#F2F2F2] rounded-lg text-sm font-poppins font-medium  active:scale-95 transition-all"
           >
-            <FaFilter className="text-[#FF7050]" size={14} />
+            <FaFilter className="text-[#7CB640]" size={14} />
             <span className="text-base font-poppins">Filters</span>
           </button>
         </div>
@@ -154,7 +154,7 @@ const CategoryPage = () => {
           <main className="flex-1">
             {filterProductsData?.pages[0]?.pagination?.total_items === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-[#F9F9F9] rounded-[22px] border border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-[#FF7050]/10 rounded-full flex items-center justify-center mb-4 text-[#FF7050]">
+                <div className="w-16 h-16 bg-[#7CB640]/10 rounded-full flex items-center justify-center mb-4 text-[#7CB640]">
                   <FaBoxOpen size={32} />
                 </div>
                 <h3 className="font-poppins text-xl md:text-2xl font-semibold text-black mb-2">

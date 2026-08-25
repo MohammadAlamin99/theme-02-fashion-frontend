@@ -2,6 +2,12 @@ export interface ShippingConfig {
   zone: string;
   charge: number;
 }
+export interface ProductImage {
+  url: string;
+  title?: string;
+  caption?: string;
+  alt_text?: string;
+}
 
 export interface ProductTag {
   id: string;
@@ -20,7 +26,12 @@ export interface TagRelation {
 export interface ProductVariant {
   id: string;
   product_id: string;
-  images: string[];
+  image: {
+    url: string;
+    alt: string;
+    type: string;
+    main: boolean;
+  }[];
   attributes: {
     type: string;
     label: string;
@@ -60,7 +71,7 @@ export interface ProductCard {
   slug: string;
   sell_price: string;
   regular_price: string;
-  images: string[] | undefined;
+  images: ProductImage[];
   avg_rating: number;
   total_reviews: number;
   quantity: number;
@@ -77,7 +88,7 @@ export interface Product {
   name: string;
   slug: string;
 
-  images: string[] | undefined;
+  images: ProductImage[];
 
   brand?: {
     id: string;
@@ -150,4 +161,3 @@ export interface Product {
   meta_tags?: string;
   supplier_ids?: string[];
 }
-

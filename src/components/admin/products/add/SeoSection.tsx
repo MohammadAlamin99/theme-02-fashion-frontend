@@ -4,19 +4,19 @@ import { Input } from "./Input";
 
 export default function SeoSection() {
   return (
-    <SectionWrapper title="SEO Meta Search Info">
+    <SectionWrapper title="SEO Info">
       <div className="space-y-4">
         <div>
-          <Label>Meta Search Keywords</Label>
-          <Input placeholder="samsung, refrigerator, 525 litre, home appliance" />
+          <Label>Meta Title</Label>
+          <Input placeholder="Required for Google ranking" />
         </div>
         <div>
-          <Label>SEO Meta Title</Label>
-          <Input placeholder="Samsung 525 Litre Refrigerator - Best Price" />
+          <Label>Meta Tags</Label>
+          <Input placeholder="Required for Google ranking" />
         </div>
         <div>
-          <Label>SEO Meta Description Layout</Label>
-          <Input placeholder="Buy original Samsung 525 Litre Refrigerator at the best price..." />
+          <Label>Meta description</Label>
+          <Input placeholder="Required for Google ranking" />
         </div>
       </div>
     </SectionWrapper>

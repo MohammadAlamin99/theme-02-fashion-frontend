@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardApi } from "@/services-api/dashboardService";
 import Pagination from "../common/Pagination";
@@ -15,7 +15,7 @@ interface SalesReportRow {
   returned: number;
 }
 
-const LIMIT = 10;
+const LIMIT = 4;
 
 const baseStorageUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
@@ -38,7 +38,6 @@ export default function SalesReport() {
 
   const rows: SalesReportRow[] = data?.data || data || [];
   const totalPages = data?.meta?.lastPage || 1;
-  const total = data?.meta?.total || 0;
 
   return (
     <div className="bg-white rounded-[8px] font-poppins">
@@ -47,11 +46,6 @@ export default function SalesReport() {
         <h2 className="text-[16px] md:text-lg font-bold text-[#23272E] font-lato">
           Sells Report
         </h2>
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
       </div>
 
       {/* Table */}
@@ -135,6 +129,14 @@ export default function SalesReport() {
                 })}
           </tbody>
         </table>
+
+        <div className="py-4">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </div>
 
         {/* Empty State */}
         {!isLoading && rows.length === 0 && (

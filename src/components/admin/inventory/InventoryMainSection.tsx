@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import { StatCard } from "../common/StatCard";
@@ -14,14 +13,44 @@ import ProductIcon from "@/components/store-front/svg/svg/sidebar-icon/ProductIc
 import InventroyGrowIcon from "@/components/store-front/svg/svg/InventroyGrowIcon";
 import { inventoryApi } from "@/services-api/inventoryService";
 
+interface Product {
+  id: string | number;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: string;
+}
+
+interface InventoryAlert {
+  id: string | number;
+  name: string;
+  stock: number;
+}
+
+interface DashboardStats {
+  totalProductsCount: number;
+  totalUnitsOnHand: number;
+  lowStockCount: number;
+  totalCapitalValue: number;
+  totalInventoryValue: number;
+}
+
+interface DashboardData {
+  stats: DashboardStats;
+  productList: Product[];
+  inventoryAlerts: InventoryAlert[];
+  currentThreshold: number;
+}
 const InventoryMainSection = () => {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("stock_low");
   const [thresholdValue, setThresholdValue] = useState(5);
+  const [prevThreshold, setPrevThreshold] = useState(5);
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<DashboardData>({
     queryKey: ["inventory-dashboard", search, sortBy],
     queryFn: () => inventoryApi.getDashboard(search, sortBy),
   });
@@ -52,15 +81,17 @@ const InventoryMainSection = () => {
   const alerts = data?.inventoryAlerts || [];
   const threshold = data?.currentThreshold ?? 5;
 
-  useEffect(() => {
+  // Adjust state during render instead of useEffect (avoids cascading render warning)
+  if (threshold !== prevThreshold) {
+    setPrevThreshold(threshold);
     setThresholdValue(threshold);
-  }, [threshold]);
+  }
 
   const columns = [
     {
       header: "Product",
       key: "name",
-      render: (item: any) => (
+      render: (item: Product) => (
         <span className="text-[13px] font-medium text-gray-800">
           {item.name}
         </span>
@@ -69,28 +100,24 @@ const InventoryMainSection = () => {
     {
       header: "Category",
       key: "category",
-      render: (item: any) => (
+      render: (item: Product) => (
         <span className="text-sm">{item.category}</span>
       ),
     },
     {
       header: "Price",
       key: "price",
-      render: (item: any) => (
-        <span className="text-sm">৳{item.price}</span>
-      ),
+      render: (item: Product) => <span className="text-sm">৳{item.price}</span>,
     },
     {
       header: "Stock",
       key: "stock",
-      render: (item: any) => (
-        <span className="text-sm">{item.stock}</span>
-      ),
+      render: (item: Product) => <span className="text-sm">{item.stock}</span>,
     },
     {
       header: "Status",
       key: "status",
-      render: (item: any) => (
+      render: (item: Product) => (
         <div className="bg-[#C1FFBC] text-[#085E00] text-[11px] font-bold px-3 py-1 rounded-full w-fit">
           {item.status}
         </div>
@@ -99,11 +126,9 @@ const InventoryMainSection = () => {
   ];
 
   return (
-    <div className="w-full bg-[#F9F9F9] font-lato min-h-screen p-6">
+    <div className="w-full bg-[#F9F9F9] font-lato min-h-screen">
       <div className="bg-white p-5 rounded-[8px_8px_0_0] mt-2">
-        <h1 className="text-[22px] font-bold text-[#023337] mb-6">
-          Inventory
-        </h1>
+        <h1 className="text-[22px] font-bold text-[#023337] mb-6">Inventory</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           <StatCard
@@ -158,7 +183,7 @@ const InventoryMainSection = () => {
           <div
             onClick={() =>
               setSortBy((prev) =>
-                prev === "stock_low" ? "stock_high" : "stock_low"
+                prev === "stock_low" ? "stock_high" : "stock_low",
               )
             }
           >
@@ -177,9 +202,7 @@ const InventoryMainSection = () => {
             <input
               type="number"
               value={thresholdValue}
-              onChange={(e) =>
-                setThresholdValue(Number(e.target.value))
-              }
+              onChange={(e) => setThresholdValue(Number(e.target.value))}
               onBlur={() => mutation.mutate(thresholdValue)}
               className="bg-[#F9F9F9] p-2 rounded w-20 text-center text-sm"
             />
@@ -202,20 +225,16 @@ const InventoryMainSection = () => {
         </div>
 
         <div className="lg:col-span-5 bg-white rounded-[8px] p-6 shadow-[0_4px_5px_0_rgba(0,0,0,0.11)]">
-          <h3 className="text-lg font-bold mb-1">
-            Inventory Alerts
-          </h3>
+          <h3 className="text-lg font-bold mb-1">Inventory Alerts</h3>
 
           {alerts.length > 0 ? (
-            alerts.map((a: any) => (
+            alerts.map((a: InventoryAlert) => (
               <div
                 key={a.id}
                 className="py-2 border-b border-gray-200 text-sm flex justify-between"
               >
                 <span>{a.name}</span>
-                <span className="text-red-500 font-bold">
-                  {a.stock} left
-                </span>
+                <span className="text-red-500 font-bold">{a.stock} left</span>
               </div>
             ))
           ) : (

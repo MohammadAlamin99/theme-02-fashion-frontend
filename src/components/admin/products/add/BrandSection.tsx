@@ -29,17 +29,17 @@ export default function BrandSection() {
 
   return (
     <SectionWrapper
-      title="Brand Metadata"
-      description="Connect product rows to system brand indexes."
+      title="Brand"
+      description="Add detailed brand and model information here."
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1">
         <div>
           <Label>Select Brand</Label>
           <div className="relative w-full">
             <select
               value={activeBrandId || ""}
               onChange={(e) => setValue("brand_id", e.target.value)}
-              className="w-full bg-[#F9FAFB] border border-gray-200 text-gray-800 px-4 py-3 text-xs rounded-lg outline-none appearance-none cursor-pointer"
+              className="w-full bg-[#F9F9F9] px-3 py-4 text-sm font-lato rounded-lg outline-none appearance-none cursor-pointer"
             >
               <option value="">Select Brand Mapping</option>
               {brandList.map((brand: { id: string; name: string }) => (
@@ -53,10 +53,6 @@ export default function BrandSection() {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
             />
           </div>
-        </div>
-        <div>
-          <Label>Model Variant Reference String</Label>
-          <Input placeholder="Ex: RT53 Refrigerator" />
         </div>
       </div>
     </SectionWrapper>

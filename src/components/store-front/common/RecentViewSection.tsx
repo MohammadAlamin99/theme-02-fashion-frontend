@@ -14,6 +14,7 @@ import { translations } from "@/locales";
 interface Product {
   _id: string;
   name: string;
+  price?: number;
   sell_price: number;
   images: string | string[];
   total_reviews: number;
@@ -92,13 +93,12 @@ const RecentlyViewed = () => {
             const rawImage = Array.isArray(product?.images)
               ? product.images[0]
               : product?.images;
+            const rowImage = typeof rawImage === "string" ? rawImage : "";
 
-            const rowImage = rawImage || "";
-
-            const iconUrl = rowImage.startsWith("http")
-              ? rowImage
-              : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
-
+            const iconUrl =
+              rowImage && rowImage.startsWith("http")
+                ? rowImage
+                : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
             return (
               <SwiperSlide key={product?._id}>
                 <Link href={`/product/${product?.slug}`}>
@@ -119,12 +119,17 @@ const RecentlyViewed = () => {
                       </h3>
 
                       <p className="text-[#7CB640] font-poppins text-[12px] font-bold mb-1">
-                        {t.product.bdt} {product?.sell_price}
-                        {product?.regular_price && (
-                          <span className="text-[#808080] text-xs line-through ml-2">
+                        {t.product.bdt}{" "}
+                        {product?.sell_price > 0
+                          ? product?.sell_price
+                          : product?.price}
+                        {product?.regular_price > 0 &&
+                          product?.regular_price >
+                            (product?.sell_price || 0) && (
+                            <span className="text-[#808080] text-xs line-through ml-2 font-normal">
                               {t.product.bdt} {product?.regular_price}
-                          </span>
-                        )}
+                            </span>
+                          )}
                       </p>
                       <div className="flex items-center gap-1">
                         <div className="flex text-[#FFB800] text-xs gap-[1px]">

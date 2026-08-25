@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -25,15 +26,13 @@ import { Label } from "./Label";
 import InventorySection from "./AddInventory";
 import VariantsSection from "./VariantsSection";
 import BrandSection from "./BrandSection";
-import GeneralInfoSection from "./GeneralInfoSection";
 import { Input } from "./Input";
 import ShippingSection from "./ShippingSection";
 import SpecificationsSection from "./SpecificationsSection";
 import FaqsSection from "./FaqsSection";
-import VideoUrlsSection from "./VideoUrlsSection";
+import GeneralInfoSection, { ProductImageItem } from "./GeneralInfoSection";
 import SeoSection from "./SeoSection";
 import SidebarCatalogSection from "./SidebarCatalogSection";
-import SidebarBrandSection from "./SidebarBrandSection";
 import SidebarTagSection from "./SidebarTagSection";
 import toast from "react-hot-toast";
 
@@ -56,7 +55,7 @@ export default function ProductUploadMain() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<ProductImageItem[]>([]);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const productId = searchParams.get("id");
@@ -151,6 +150,28 @@ export default function ProductUploadMain() {
       })
       .filter(Boolean) as string[];
   }
+  // Handles both old format (["url1","url2"]) and new format
+  function normalizeImages(source: unknown): ProductImageItem[] {
+    if (!Array.isArray(source)) return [];
+    return source
+      .map((item): ProductImageItem | null => {
+        if (typeof item === "string") {
+          return { url: item, title: "", alt_text: "", caption: "" };
+        }
+        if (item && typeof item === "object" && "url" in item) {
+          const obj = item as Partial<ProductImageItem>;
+          return {
+            url: String(obj.url),
+            title: obj.title ?? "",
+            alt_text: obj.alt_text ?? "",
+            caption: obj.caption ?? "",
+          };
+        }
+        return null;
+      })
+      .filter((x): x is ProductImageItem => x !== null);
+  }
+
   useEffect(() => {
     if (isEditMode && existingProduct) {
       const formattedTags = extractIds(
@@ -203,7 +224,7 @@ export default function ProductUploadMain() {
               ? "CUSTOM"
               : "DEFAULT",
         customShippingRows: Array.isArray(existingProduct.shipping_config)
-          ? existingProduct.shipping_config.map((row) => ({
+          ? existingProduct.shipping_config.map((row: any) => ({
               zone: row.zone || "",
               charge: String(row.charge ?? 0),
             }))
@@ -221,9 +242,7 @@ export default function ProductUploadMain() {
             }))
           : [],
       });
-      if (Array.isArray(existingProduct.images)) {
-        setImages(existingProduct.images);
-      }
+      setImages(normalizeImages(existingProduct.images));
     }
   }, [existingProduct, isEditMode, methods]);
 
@@ -246,7 +265,7 @@ export default function ProductUploadMain() {
         short_description: formPayload.short_description || null,
         description: formPayload.description,
         status: isEditMode ? formPayload.status : targetStatus,
-        images: Array.isArray(images) ? images.map((img) => String(img)) : [],
+        images: Array.isArray(images) ? images : [],
         priority: Number(formPayload.priority) || 100,
         regular_price: Number(formPayload.regular_price) || 0,
         sell_price: Number(formPayload.sell_price) || 0,
@@ -360,14 +379,11 @@ export default function ProductUploadMain() {
         onSubmit={(e) => e.preventDefault()}
         className="w-full min-h-screen font-lato pb-12"
       >
-        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-4 p-4 bg-white border-b border-gray-100 rounded-[8px]">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center my-2 p-4 rounded-[8px]">
           <div>
             <h1 className="text-xl font-bold text-black sm:text-2xl">
               {isEditMode ? "Edit Product Workspace" : "Product Upload"}
             </h1>
-            <p className="text-xs text-gray-400">
-              Integrated server state transactional panel console
-            </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
             {isEditMode && (
@@ -440,15 +456,18 @@ export default function ProductUploadMain() {
             <SectionWrapper title="Pricing">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
-                  <Label required>Sell Price (৳)</Label>
+                  <Label>
+                    Cost Price{" "}
+                    <span className="text-red-500 text-base">*</span>{" "}
+                  </Label>
                   <Input
                     type="number"
                     placeholder="0"
-                    {...methods.register("sell_price", { required: true })}
+                    {...methods.register("cost_price", { required: true })}
                   />
                 </div>
                 <div>
-                  <Label required>Regular Price (৳)</Label>
+                  <Label required>Regular Price</Label>
                   <Input
                     type="number"
                     placeholder="0"
@@ -456,24 +475,23 @@ export default function ProductUploadMain() {
                   />
                 </div>
                 <div>
-                  <Label>Cost Price (Optional) (৳)</Label>
+                  <Label required>Sell Price</Label>
                   <Input
                     type="number"
                     placeholder="0"
-                    {...methods.register("cost_price")}
+                    {...methods.register("sell_price", { required: true })}
                   />
                 </div>
               </div>
             </SectionWrapper>
+            <SeoSection />
 
             <InventorySection Barcode={Barcode} />
             <VariantsSection isEditMode={isEditMode} />
             <BrandSection />
-            <ShippingSection isEditMode={isEditMode} />
             <SpecificationsSection />
             <FaqsSection />
-            <VideoUrlsSection />
-            <SeoSection />
+            <ShippingSection isEditMode={isEditMode} />
           </div>
 
           <div className="lg:col-span-4 flex flex-col gap-4">
@@ -521,7 +539,7 @@ export default function ProductUploadMain() {
             </div>
 
             <SidebarCatalogSection />
-            <SidebarBrandSection />
+            {/* <SidebarBrandSection /> */}
             <SidebarTagSection isEditMode={isEditMode} />
           </div>
         </div>

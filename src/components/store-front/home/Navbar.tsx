@@ -415,10 +415,15 @@ const Navbar = () => {
                   </div>
                 ) : (
                   (searchResults || []).map((product) => {
-                    const rowImage = product.images?.[0] || "";
-                    const iconUrl = rowImage.startsWith("http")
-                      ? rowImage
-                      : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
+                    const firstImg = product.images?.[0];
+                    const rowImage =
+                      typeof firstImg === "string"
+                        ? firstImg
+                        : firstImg?.url || "";
+                    const iconUrl =
+                      rowImage && rowImage.startsWith("http")
+                        ? rowImage
+                        : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
                     return (
                       <div
                         key={product.id}
