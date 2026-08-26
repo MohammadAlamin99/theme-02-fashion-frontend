@@ -16,6 +16,19 @@ interface FlashSaleProps {
   flashSale: FlashSaleData;
 }
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
+
 const FlashSale = ({ flashSale }: FlashSaleProps) => {
   const { language } = useLanguage();
   const t = translations[language];
@@ -39,10 +52,12 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
     if (!flashSale?.products) return [];
 
     return flashSale.products.map((item) => {
-      const rowimage = item?.image || "";
+      const rowimage = extractImageUrl(item?.image).trim();
       const usableImage = rowimage.startsWith("http")
         ? rowimage
-        : `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`;
+        : rowimage
+          ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+          : "/images/placeholder.svg";
 
       return {
         ...item,

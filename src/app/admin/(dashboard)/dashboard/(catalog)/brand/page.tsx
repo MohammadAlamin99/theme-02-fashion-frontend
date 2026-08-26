@@ -4,7 +4,7 @@ import BrandTable from "@/components/admin/catalog/category/BrandTable";
 
 export default function Page() {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex">
       <main className="flex-1">
         <div className="p-2 md:p-0">
           <CatalogHead />

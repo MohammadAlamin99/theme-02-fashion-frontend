@@ -71,7 +71,6 @@ export default function SubCategoryTable() {
 
   const subCategoryList = serverPayload?.data || [];
   const meta = serverPayload?.meta || { totalPages: 1, total: 0 };
-  console.log("serverPayload", meta);
 
   // DELETE TRANSACTION ACTION MUTATION
   const deleteMutation = useMutation({

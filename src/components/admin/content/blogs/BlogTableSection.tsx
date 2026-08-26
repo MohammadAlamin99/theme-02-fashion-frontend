@@ -28,6 +28,18 @@ type RelatedProduct = {
   images?: string[];
 };
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 export default function BlogTableSection({
   blogs,
   isLoading,
@@ -99,9 +111,12 @@ export default function BlogTableSection({
       key: "name",
       render: (item: Blog) => {
         // Safe image URL calculation
-        const imageUrl = item.featured_image?.startsWith("http")
-          ? item.featured_image
-          : `${backendBaseUrl}/${item.featured_image?.replace(/^\/+/, "")}`;
+        const rowimage = extractImageUrl(item.featured_image).trim();
+        const imageUrl = rowimage.startsWith("http")
+          ? rowimage
+          : rowimage
+            ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+            : "/images/placeholder.svg";
 
         return (
           <div className="flex items-center gap-3">
@@ -134,11 +149,13 @@ export default function BlogTableSection({
           <div className="flex flex-col gap-2">
             {products && products.length > 0 ? (
               products.map((product: RelatedProduct, index: number) => {
-                const imageUrl = product.images?.[0]?.startsWith("http")
-                  ? product.images[0]
-                  : product.images?.[0]
-                    ? `${backendBaseUrl}/${product.images[0].replace(/^\/+/, "")}`
-                    : "/placeholder.png";
+                const rowimage = extractImageUrl(product?.images?.[0]).trim();
+                const usableImage = rowimage.startsWith("http")
+                  ? rowimage
+                  : rowimage
+                    ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+                    : "/images/placeholder.svg";
+
 
                 return (
                   <div
@@ -147,7 +164,7 @@ export default function BlogTableSection({
                   >
                     <div className="relative shrink-0 w-10 h-10 rounded-md overflow-hidden">
                       <Image
-                        src={imageUrl}
+                        src={usableImage}
                         alt={product.name || "Product Image"}
                         fill
                         className="object-cover"

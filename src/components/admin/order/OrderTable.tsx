@@ -13,7 +13,6 @@ import {
   Printer,
   FileText,
   RefreshCw,
-  Trash2,
   ChevronLeft,
   X,
   Loader2,
@@ -187,6 +186,19 @@ interface DetailsModalState {
 }
 
 /* ------------------------------------------------------------------ */
+
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 
 const getStatusConfig = (status: string | undefined): StatusConfig => {
   // 🚀 Safe check to prevent "Cannot read properties of undefined (reading 'replace')"
@@ -421,7 +433,8 @@ export default function OrderTable() {
   }, [resolvedModalProducts]);
 
   const getImgUrl = (rawImg: string | undefined | null): string => {
-    const cleanImg = typeof rawImg === "string" ? rawImg.trim() : "";
+    const url = extractImageUrl(rawImg);
+    const cleanImg = typeof url === "string" ? url.trim() : "";
     return cleanImg !== ""
       ? cleanImg.startsWith("http")
         ? cleanImg

@@ -71,7 +71,7 @@ export default function SidebarCatalogSection() {
   const { data: treeResponse, isLoading } = useQuery({
     queryKey: ["categories-nested-tree-upload"],
     queryFn: async () => {
-      const res = await apiFetch("/categories/tree");
+      const res = await apiFetch("/categories/tree?limit=200");
       if (!res.ok) throw new Error("Tree serialization error");
       return res.json();
     },

@@ -7,6 +7,8 @@ import { MoreVertical, Trash2, Edit3, Loader2 } from "lucide-react";
 import { fetchAllBrands, deleteBrand } from "@/services-api/brandService";
 import DataTable from "../../common/DataTable";
 import Pagination from "../../common/Pagination";
+import toast from "react-hot-toast";
+import Image from "next/image";
 
 interface TableColumn<T> {
   header: string;
@@ -15,6 +17,16 @@ interface TableColumn<T> {
   headerRender?: () => React.ReactNode;
   className?: string;
   headerClassName?: string;
+}
+
+interface Brand {
+  id: string;
+  name: string;
+  logo_url: string;
+  priority: number;
+  status: string;
+  products?: number;
+  _count?: { products?: number };
 }
 
 export default function BrandTable() {
@@ -57,10 +69,16 @@ export default function BrandTable() {
     mutationFn: (id: string) => deleteBrand(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["catalog-brands-list"] });
-      alert("Brand removed successfully from database rows.");
+      toast.success("Brand removed successfully from database rows.");
       setActiveMenuId(null);
     },
-    onError: (err: any) => alert(err.message),
+    onError: (err: unknown) => {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while deleting brand",
+      );
+    },
   });
 
   const handlePageChange = (targetPage: number) => {
@@ -79,12 +97,12 @@ export default function BrandTable() {
     if (selectedIds.length === brandList.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(brandList.map((item: any) => item.id));
+      setSelectedIds(brandList.map((item: Brand) => item.id));
     }
   };
 
   // 🚀 FIXED: Added absolute string literals to className and headerClassName definitions to prevent runtime loop extraction errors
-  const columns: TableColumn<any>[] = [
+  const columns: TableColumn<Brand>[] = [
     {
       header: "",
       key: "checkbox-selection",
@@ -138,7 +156,9 @@ export default function BrandTable() {
         const srcUrl = isValidImg ? `${baseUrl}?t=${Date.now()}` : baseUrl;
 
         return (
-          <img
+          <Image
+            width={40}
+            height={40}
             src={srcUrl}
             key={srcUrl} // KEY + srcUrl forces React to re-render when the image changes
             alt={item.name}

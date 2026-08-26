@@ -4,7 +4,6 @@ import { SectionWrapper } from "./SectionWrapper";
 import { Label } from "./Label";
 import { ChevronDown } from "lucide-react";
 import { apiFetch } from "@/utils/api";
-import { Input } from "./Input";
 
 export default function BrandSection() {
   const { setValue, watch } = useFormContext();
@@ -13,7 +12,7 @@ export default function BrandSection() {
   const { data: brandResponse } = useQuery({
     queryKey: ["brands-list-select"],
     queryFn: async () => {
-      const res = await apiFetch("/brand");
+      const res = await apiFetch("/brand?limit=200");
       return res.json();
     },
   });

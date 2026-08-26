@@ -101,7 +101,7 @@ export const updateBrand = async (
     name: string;
     slug: string;
     priority?: number;
-    logo_url?: string; // 🚀 FIXED: Changed from image_url to match UpdateBrandDto
+    logo_url?: string;
     status: "active" | "draft";
   },
 ) => {
@@ -134,7 +134,7 @@ export interface Brand {
   meta_title?: string;
   meta_description?: string;
   meta_tags?: string;
-  status: "active" | "inactive" | string;
+  status: "active" | "draft";
   _count?: { products: number };
 }
 
@@ -156,7 +156,7 @@ export const getBrands = async (
   page = 1,
   limit = 20,
 ): Promise<BrandResponse> => {
-  const res = await apiFetch(`/brand?page=${page}&limit=${limit}`);
+  const res = await apiFetch(`/brand/active?page=${page}&limit=${limit}`);
   if (!res.ok) throw new Error("Failed to fetch brands");
   return res.json();
 };

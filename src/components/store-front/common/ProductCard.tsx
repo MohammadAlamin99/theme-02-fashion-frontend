@@ -31,18 +31,15 @@
 //   const { language } = useLanguage();
 //   const t = translations[language];
 
-//   // get wislist
 //   const { data: wishlistItems = [] } = useQuery({
 //     queryKey: ["wishlist"],
 //     queryFn: getWishlist,
 //   });
 
-//   // check wishli if have ?
 //   const isWishlisted =
 //     Array.isArray(wishlistItems) &&
 //     wishlistItems.some((item) => item.productId === product.id);
 
-//   // wishlist mutation
 //   const { mutate: addToWishlist, isPending: isAdding } = useMutation({
 //     mutationFn: () => createWishlist(product.id.toString()),
 //     onSuccess: () => {
@@ -52,7 +49,6 @@
 //     onError: (error) => toast.error(error.message),
 //   });
 
-//   // revimove from wishlist
 //   const { mutate: removeFromWishlist, isPending: isRemoving } = useMutation({
 //     mutationFn: () => deleteWishlist(product.id.toString()),
 //     onSuccess: () => {
@@ -62,7 +58,6 @@
 //     onError: (error) => toast.error(error.message),
 //   });
 
-//   // handle wishlist toggle
 //   const handleWishlistToggle = (e: React.MouseEvent) => {
 //     e.preventDefault();
 //     if (isAdding || isRemoving) return;
@@ -78,6 +73,7 @@
 //       addToWishlist();
 //     }
 //   };
+
 //   const {
 //     mutateAsync: handleAddToCartAsync,
 //     mutate: handleAddToCart,
@@ -118,7 +114,7 @@
 //       }
 //     },
 //   });
-//   // order handler
+
 //   const handleOrderNow = async (e: React.MouseEvent) => {
 //     e.preventDefault();
 //     if (!inStock) return;
@@ -131,50 +127,87 @@
 //     }
 //   };
 
-//   // Logic for dynamic values
+//   // ===== Pricing Logic =====
 //   const regularPrice = parseFloat(product.regular_price) || 0;
 //   const sellPrice = parseFloat(product.sell_price) || 0;
 
-//   // disoucnt logic
-//   const hasDiscount = regularPrice > sellPrice;
-//   const discountPercentage = hasDiscount
-//     ? Math.round(((regularPrice - sellPrice) / regularPrice) * 100)
+//   const hasCampaignDiscount = !!product.campaign_discount;
+//   const campaignDiscountVal = hasCampaignDiscount
+//     ? Number(product.campaign_discount?.discount_value) || 0
 //     : 0;
+
+//   const computedCampaignPrice =
+//     hasCampaignDiscount && campaignDiscountVal > 0
+//       ? Math.round(sellPrice * (1 - campaignDiscountVal / 100))
+//       : sellPrice;
+
+//   const displayPrice = hasCampaignDiscount
+//     ? product.final_price !== undefined && product.final_price !== null
+//       ? Number(product.final_price)
+//       : computedCampaignPrice
+//     : sellPrice;
+
+//   const hasRegularDiscount = regularPrice > sellPrice;
+
+//   const badgeText =
+//     hasCampaignDiscount && campaignDiscountVal > 0
+//       ? `${campaignDiscountVal}% OFF`
+//       : product.discount_tag
+//         ? product.discount_tag
+//         : hasRegularDiscount
+//           ? `${Math.round(((regularPrice - sellPrice) / regularPrice) * 100)}% OFF`
+//           : null;
+
+//   const showBadge = !!badgeText;
+//   const strikeThroughPrice = hasCampaignDiscount ? sellPrice : regularPrice;
+//   const showStrikeThrough =
+//     (hasCampaignDiscount && sellPrice > displayPrice) ||
+//     (hasRegularDiscount && regularPrice > sellPrice);
 
 //   const inStock = product.quantity > 0;
 //   const ratingValue = Number(product.avg_rating) || 0;
 
-//   // Use first image from array or a placeholder
 //   const backendBaseUrl =
 //     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
 //     "http://localhost:8083";
-//   const firstImage =
-//     product.images && product.images.length > 0 ? product.images[0] : null;
-//   const cleanImg = typeof firstImage === "string" ? firstImage.trim() : "";
-//   const isValidImg = cleanImg.replace(/^\/+/, "").length > 0;
 
-//   const productImage = isValidImg ? cleanImg : "/images/placeholder.svg";
+//   const rawFirst = product.images?.[0];
+//   const imagePath =
+//     typeof rawFirst === "string" ? rawFirst : rawFirst?.url || "";
+//   const cleanImg = imagePath.trim();
+//   const productImage = cleanImg || "/images/placeholder.svg";
 
 //   const usableImage =
 //     productImage.startsWith("http") || productImage.startsWith("/images/")
 //       ? productImage
 //       : `${backendBaseUrl}/${productImage.replace(/^\/+/, "")}`;
 
+//   const imageAlt =
+//     typeof rawFirst === "object" && rawFirst?.alt_text
+//       ? rawFirst.alt_text
+//       : product.name;
 //   return (
 //     <div className="group flex flex-col p-2.5 md:p-3 bg-[#F2F2F2] border-[1.5px] border-[#E3E3E3] rounded-2xl w-full md:max-w-[350px] font-poppins h-full justify-between">
 //       <div>
-//         {/* Product Image Section */}
 //         <div className="relative rounded-[12px] aspect-square mb-2 md:mb-3 overflow-hidden">
-//           {/* Dynamic Discount Badge */}
-//           {(product.discount_tag || hasDiscount) && (
-//             <div className="absolute top-2 left-2 bg-[#7CB640] text-white text-[10px] md:text-[12px] font-medium px-[6px] py-[2px] rounded-[8px] z-10">
-//               {product.discount_tag
-//                 ? product.discount_tag
-//                 : `${discountPercentage}% OFF`}
+//           {/* Discount Badge — campaign discount কে priority দেওয়া হচ্ছে */}
+//           {showBadge && (
+//             <div
+//               className={`absolute top-2 left-2 text-white text-[10px] md:text-[12px] font-medium px-[6px] py-[2px] rounded-[8px] z-10 ${
+//                 hasCampaignDiscount ? "bg-[#E4572E]" : "bg-[#7CB640]"
+//               }`}
+//             >
+//               {badgeText}
 //             </div>
 //           )}
 
-//           {/* Wishlist Button */}
+//           {/* 🆕 Campaign name tag (optional, চাইলে বাদ দিতে পারেন) */}
+//           {hasCampaignDiscount && (
+//             <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] md:text-[10px] px-[6px] py-[2px] rounded-[6px] z-10">
+//               {product.campaign_discount!.campaign_name}
+//             </div>
+//           )}
+
 //           {isShowWishlist && (
 //             <button
 //               onClick={handleWishlistToggle}
@@ -188,14 +221,13 @@
 //               )}
 //             </button>
 //           )}
-//           {/* Clickable Image Area */}
 //           <Link
 //             href={`/product/${product.slug}`}
 //             className="relative block w-full h-full"
 //           >
 //             <Image
 //               src={usableImage}
-//               alt={product.name}
+//               alt={imageAlt}
 //               fill
 //               sizes="(max-width: 768px) 100vw, 350px"
 //               className="object-contain group-hover:scale-105 transition-transform duration-300"
@@ -204,16 +236,13 @@
 //           </Link>
 //         </div>
 
-//         {/* Details Section */}
 //         <div className="flex flex-col gap-1 md:gap-2">
-//           {/* Dynamic Title */}
 //           <Link href={`/product/${product.slug}`}>
 //             <h3 className="text-black font-poppins md:text-[18px] text-[14px] font-medium leading-tight line-clamp-2 min-h-[36px] hover:text-[#7CB640] transition-colors">
 //               {product.name}
 //             </h3>
 //           </Link>
 
-//           {/* Dynamic Rating Section */}
 //           <div className="flex items-center gap-1 flex-wrap">
 //             <div className="flex text-[#EABC01] gap-0.5">
 //               {[...Array(5)].map((_, i) => (
@@ -237,20 +266,19 @@
 //             </span>
 //           </div>
 
-//           {/* Pricing & Stock Section */}
+//           {/* Pricing & Stock Section — Updated */}
 //           <div className="flex flex-col sm:flex-row sm:items-center justify-between md:mt-1 mt-0 gap-1">
 //             <div className="flex items-baseline gap-1.5 flex-wrap">
 //               <span className="text-[#7CB640] font-poppins text-[16px] md:text-[20px] font-semibold">
-//                 TK {product.sell_price}
+//                 TK {displayPrice}
 //               </span>
-//               {hasDiscount && (
+//               {showStrikeThrough && (
 //                 <span className="text-[#727272] font-poppins text-[12px] md:text-[16px] font-medium line-through">
-//                   TK {product.regular_price}
+//                   TK {strikeThroughPrice}
 //                 </span>
 //               )}
 //             </div>
 
-//             {/* Dynamic Stock Status */}
 //             {inStock ? (
 //               <div className="bg-[#113161] text-white text-[10px] md:text-[12px] font-medium px-[6px] py-[2px] rounded-[8px] w-fit">
 //                 In Stock
@@ -264,7 +292,6 @@
 //         </div>
 //       </div>
 
-//       {/* Action Buttons */}
 //       <div className="flex gap-1.5 mt-3 w-full lg:flex-row sm:flex-col flex-col">
 //         <button
 //           className="w-full cursor-pointer bg-[#7CB640] text-white font-poppins md:text-[16px] text-xs font-medium py-1.5 md:py-2 rounded-[8px] transition-all border border-[#E2E2E2] disabled:opacity-50"
@@ -422,7 +449,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
     }
   };
 
-  // ===== Pricing Logic =====
+  // ===== Pricing Logic (অপরিবর্তিত) =====
   const regularPrice = parseFloat(product.regular_price) || 0;
   const sellPrice = parseFloat(product.sell_price) || 0;
 
@@ -466,9 +493,37 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8083";
 
+  // ===== Image Extraction (FIXED — handles string, single-nested, and double-nested url) =====
   const rawFirst = product.images?.[0];
-  const imagePath =
-    typeof rawFirst === "string" ? rawFirst : rawFirst?.url || "";
+
+  function extractImageUrl(val: unknown): string {
+    if (typeof val === "string") return val;
+    if (val && typeof val === "object") {
+      const inner = (val as Record<string, unknown>).url;
+      if (typeof inner === "string") return inner;
+      // handles double-nested case: { url: { url: "...", title: "", ... } }
+      if (inner && typeof inner === "object") {
+        const deepUrl = (inner as Record<string, unknown>).url;
+        if (typeof deepUrl === "string") return deepUrl;
+      }
+    }
+    return "";
+  }
+
+  function extractAltText(val: unknown, fallback: string): string {
+    if (val && typeof val === "object") {
+      const obj = val as Record<string, unknown>;
+      if (typeof obj.alt_text === "string" && obj.alt_text) return obj.alt_text;
+      const inner = obj.url;
+      if (inner && typeof inner === "object") {
+        const innerAlt = (inner as Record<string, unknown>).alt_text;
+        if (typeof innerAlt === "string" && innerAlt) return innerAlt;
+      }
+    }
+    return fallback;
+  }
+
+  const imagePath = extractImageUrl(rawFirst);
   const cleanImg = imagePath.trim();
   const productImage = cleanImg || "/images/placeholder.svg";
 
@@ -477,10 +532,8 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
       ? productImage
       : `${backendBaseUrl}/${productImage.replace(/^\/+/, "")}`;
 
-  const imageAlt =
-    typeof rawFirst === "object" && rawFirst?.alt_text
-      ? rawFirst.alt_text
-      : product.name;
+  const imageAlt = extractAltText(rawFirst, product.name);
+
   return (
     <div className="group flex flex-col p-2.5 md:p-3 bg-[#F2F2F2] border-[1.5px] border-[#E3E3E3] rounded-2xl w-full md:max-w-[350px] font-poppins h-full justify-between">
       <div>
@@ -499,7 +552,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
           {/* 🆕 Campaign name tag (optional, চাইলে বাদ দিতে পারেন) */}
           {hasCampaignDiscount && (
             <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] md:text-[10px] px-[6px] py-[2px] rounded-[6px] z-10">
-              {product.campaign_discount!.campaign_name}
+              {product.campaign_discount?.campaign_name}
             </div>
           )}
 
@@ -561,7 +614,7 @@ const ProductCard = ({ product, isShowWishlist = true }: ProductCardProps) => {
             </span>
           </div>
 
-          {/* Pricing & Stock Section — Updated */}
+          {/* Pricing & Stock Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between md:mt-1 mt-0 gap-1">
             <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className="text-[#7CB640] font-poppins text-[16px] md:text-[20px] font-semibold">

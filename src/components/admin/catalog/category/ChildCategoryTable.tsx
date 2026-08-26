@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { MoreVertical, Trash2, Edit3, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { deleteCategory } from "@/services-api/categoryService";
-import { fetchAllChildCategories } from "@/services-api/childcategoryService";
+import {
+  fetchAllChildCategories,
+  ChildCategoryItem,
+} from "@/services-api/childcategoryService";
 import DataTable from "../../common/DataTable";
 import Pagination from "../../common/Pagination";
 
@@ -40,21 +44,28 @@ export default function ChildCategoryTable() {
       if (status === "PUBLISHED") mappedStatus = "active";
       if (status === "DRAFT") mappedStatus = "draft";
 
-      return fetchAllChildCategories({ page, limit, search, status: mappedStatus });
+      return fetchAllChildCategories({
+        page,
+        limit,
+        search,
+        status: mappedStatus,
+      });
     },
   });
 
-  const childCategoryList = serverPayload?.data || [];
+  const childCategoryList: ChildCategoryItem[] = serverPayload?.data || [];
   const meta = serverPayload?.meta || { totalPages: 1, total: 0 };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["catalog-childcategories-list"] });
-      alert("Child category deleted successfully.");
+      queryClient.invalidateQueries({
+        queryKey: ["catalog-childcategories-list"],
+      });
+      toast.success("Child category deleted successfully.");
       setActiveMenuId(null);
     },
-    onError: (err: any) => alert(err.message),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   const handlePageChange = (targetPage: number) => {
@@ -64,18 +75,20 @@ export default function ChildCategoryTable() {
   };
 
   const handleSelectRow = (id: string) => {
-    setSelectedIds((prev) => prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]);
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
+    );
   };
 
   const handleSelectAll = () => {
     if (selectedIds.length === childCategoryList.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(childCategoryList.map((item: any) => item.id));
+      setSelectedIds(childCategoryList.map((item: ChildCategoryItem) => item.id));
     }
   };
 
-  const columns: TableColumn<any>[] = [
+  const columns: TableColumn<ChildCategoryItem>[] = [
     {
       header: "",
       key: "checkbox-selection",
@@ -84,7 +97,10 @@ export default function ChildCategoryTable() {
         <input
           type="checkbox"
           className="w-5 h-5 rounded border-[#023337]/30 accent-[#1DA1F2] cursor-pointer"
-          checked={selectedIds.length === childCategoryList.length && childCategoryList.length > 0}
+          checked={
+            selectedIds.length === childCategoryList.length &&
+            childCategoryList.length > 0
+          }
           onChange={handleSelectAll}
         />
       ),
@@ -146,11 +162,16 @@ export default function ChildCategoryTable() {
       header: "Status",
       key: "status",
       render: (item) => {
-        const isPublished = item.status === "PUBLISHED" || item.status === "active" || item.status === "Publish";
+        const isPublished =
+          item.status === "PUBLISHED" ||
+          item.status === "active" ||
+          item.status === "Publish";
         return (
           <div
             className={`px-3 py-1 rounded-full text-[12px] font-medium w-fit ${
-              isPublished ? "bg-[#C1FFBC] text-[#085E00]" : "bg-gray-100 text-gray-500"
+              isPublished
+                ? "bg-[#C1FFBC] text-[#085E00]"
+                : "bg-gray-100 text-gray-500"
             }`}
           >
             {isPublished ? "Publish" : "Draft"}
@@ -163,25 +184,34 @@ export default function ChildCategoryTable() {
       key: "action",
       render: (item) => (
         <div className="relative">
-          <button 
-            onClick={() => setActiveMenuId(activeMenuId === item.id ? null : item.id)} 
+          <button
+            onClick={() =>
+              setActiveMenuId(activeMenuId === item.id ? null : item.id)
+            }
             className="text-black p-1 cursor-pointer"
           >
             <MoreVertical size={20} />
           </button>
-          
+
           {activeMenuId === item.id && (
             <div className="absolute right-0 mt-1 w-32 bg-white border rounded-md shadow-lg py-1 z-50">
               <button
                 type="button"
-                onClick={() => router.push(`/admin/dashboard/child-category/add?id=${item.id}`)}
+                onClick={() =>
+                  router.push(
+                    `/admin/dashboard/child-category/add?id=${item.id}`,
+                  )
+                }
                 className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
               >
                 <Edit3 size={12} /> Edit Child
               </button>
               <button
                 type="button"
-                onClick={() => { if (confirm("Delete this child category permanently?")) deleteMutation.mutate(item.id); }}
+                onClick={() => {
+                  if (confirm("Delete this child category permanently?"))
+                    deleteMutation.mutate(item.id);
+                }}
                 className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium"
               >
                 <Trash2 size={12} /> Delete Child
@@ -197,7 +227,9 @@ export default function ChildCategoryTable() {
     return (
       <div className="h-64 w-full bg-white flex flex-col items-center justify-center text-gray-400 gap-2 font-poppins">
         <Loader2 className="animate-spin text-gray-400" size={24} />
-        <span className="text-xs">Synchronizing child categories dataset...</span>
+        <span className="text-xs">
+          Synchronizing child categories dataset...
+        </span>
       </div>
     );
   }

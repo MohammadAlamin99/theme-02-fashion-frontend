@@ -136,6 +136,19 @@ type ShippingState = {
   courier_area_id: number | null;
 };
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
+
 export default function AddOrderMain() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -179,7 +192,8 @@ export default function AddOrderMain() {
     "http://localhost:8082";
 
   const getImgUrl = (rawImg?: string) => {
-    const cleanImg = typeof rawImg === "string" ? rawImg.trim() : "";
+    const url = extractImageUrl(rawImg);
+    const cleanImg = typeof url === "string" ? url.trim() : "";
     return cleanImg !== ""
       ? cleanImg.startsWith("http")
         ? cleanImg

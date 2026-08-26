@@ -15,8 +15,8 @@ export default function BrandSection({
   activeBrandId,
   onUpdate,
 }: Props) {
-      const { language } = useLanguage();
-      const t = translations[language];
+  const { language } = useLanguage();
+  const t = translations[language];
   return (
     <div className="py-4">
       <div className="flex justify-between items-center mb-4">

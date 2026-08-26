@@ -50,7 +50,7 @@ interface NavDropdownProps {
 
 type CartItem = {
   id: string;
-  image?: string | null;
+  image?: string | { url: string; alt_text?: string } | null;
   name?: string;
   variantInfo?:
     | Record<string, unknown>
@@ -370,7 +370,7 @@ const Navbar = () => {
             <div className="relative w-[120px] h-[35px] sm:w-[150px] sm:h-[45px] md:w-[180px] md:h-[50px] lg:w-[200px] lg:h-[55px] xl:w-[230px] xl:h-[64px]">
               <Image
                 src={usableImageUrl}
-                alt="Creass Mart"
+                alt="Overseas Shop"
                 fill
                 priority
                 unoptimized
@@ -666,13 +666,14 @@ const Navbar = () => {
             {cartItems.length > 0 ? (
               <div className="flex flex-col gap-5">
                 {cartItems.map((item: CartItem) => {
-                  const imageValue = item.image || "";
+                  const rawImg = item.image;
+                  const imageValue =
+                    typeof rawImg === "string" ? rawImg : rawImg?.url || "";
                   const usableImg = imageValue
                     ? imageValue.startsWith("http")
                       ? imageValue
                       : `${backendBaseUrl}/${imageValue.replace(/^\/+/, "")}`
                     : "/images/placeholder.svg";
-
                   return (
                     <div
                       key={item.id}

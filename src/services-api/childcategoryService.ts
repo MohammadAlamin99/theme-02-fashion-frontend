@@ -8,54 +8,121 @@ export interface CategoryQuery {
   status?: string;
 }
 
+export interface ChildCategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id?: string | null;
+  status: string;
+  priority?: number;
+  description?: string | null;
+  meta_title?: string | null;
+  meta_tags?: string | null;
+  meta_description?: string | null;
+  parent?: {
+    id: string;
+    name: string;
+    parent_id?: string | null;
+    parent?: {
+      id?: string;
+      name?: string;
+      parent_id?: string | null;
+    };
+  } | null;
+  _count?: {
+    products: number;
+  };
+  created_at?: string;
+  updated_at?: string;
+}
+
 // 🚀 1. FETCH ONLY TRUE LEVEL-3 CHILD CATEGORIES
 export const fetchAllChildCategories = async (query: CategoryQuery) => {
   const queryParams = new URLSearchParams();
-  if (query.page) queryParams.set("page", String(query.page));
-  if (query.limit) queryParams.set("limit", String(query.limit));
+  queryParams.set("limit", "1000"); // Fetch all categories to properly filter level-3 child nodes
   if (query.search) queryParams.set("search", query.search);
   if (query.status) queryParams.set("status", query.status);
 
-  // We bring the list with a deep nested tree parse configuration
   const res = await apiFetch(`/categories?${queryParams.toString()}`);
   if (!res.ok)
     throw new Error("Failed to retrieve child categories collection layout.");
   const json = await res.json();
-  const rawRecords = json?.data?.data || json?.data || json || [];
+  const rawRecords: ChildCategoryItem[] =
+    json?.data?.data || json?.data || (Array.isArray(json) ? json : []);
 
-  // Strict structural filtering: A child category has a parent that ALSO has a parent
-  const childRecords = Array.isArray(rawRecords)
-    ? rawRecords.filter(
-        (item: unknown) =>
-          (item as { parent_id: string })?.parent_id !== null &&
-          (item as { parent: { parent_id: string } })?.parent?.parent_id !==
-            null &&
-          (item as { parent: { parent_id: string } })?.parent?.parent_id !==
-            undefined,
-      )
-    : [];
+  if (!Array.isArray(rawRecords)) {
+    return {
+      data: [],
+      meta: { total: 0, totalPages: 1, page: query.page || 1, limit: query.limit || 10 },
+    };
+  }
 
-  const meta = json?.data?.meta || json?.meta || { totalPages: 1, total: 0 };
-  return { data: childRecords, meta };
+  // Create lookup map for category relationships
+  const categoryMap = new Map<string, ChildCategoryItem>();
+  rawRecords.forEach((cat) => {
+    categoryMap.set(cat.id, cat);
+  });
+
+  // Strict structural filtering: Level 3 child categories have a parent_id,
+  // and their parent has a parent_id (pointing to a root category)
+  const childRecords = rawRecords
+    .filter((item) => {
+      if (!item.parent_id) return false;
+
+      const parent = item.parent || categoryMap.get(item.parent_id);
+      if (!parent) return false;
+
+      const grandParentId = parent.parent_id || parent.parent?.parent_id;
+      return !!grandParentId;
+    })
+    .map((item) => {
+      const parent = item.parent || categoryMap.get(item.parent_id!);
+      return {
+        ...item,
+        parent: parent
+          ? {
+              id: parent.id,
+              name: parent.name,
+              parent_id: parent.parent_id,
+            }
+          : item.parent,
+      };
+    });
+
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const total = childRecords.length;
+  const totalPages = Math.ceil(total / limit) || 1;
+
+  const paginatedData = childRecords.slice((page - 1) * limit, page * limit);
+
+  return {
+    data: paginatedData,
+    meta: { total, totalPages, page, limit },
+  };
 };
 
 // 🚀 2. STRICT FILTER: FETCH ONLY GENUINE LEVEL-2 SUB-CATEGORIES FOR DROPDOWN
-export const fetchSubCategoriesOnly = async () => {
+export const fetchSubCategoriesOnly = async (): Promise<ChildCategoryItem[]> => {
   const res = await apiFetch("/categories?limit=1000");
   if (!res.ok)
     throw new Error("Failed to sync sub-category dependency mappings.");
   const json = await res.json();
-  const rawRecords = json?.data?.data || json?.data || json || [];
+  const rawRecords: ChildCategoryItem[] =
+    json?.data?.data || json?.data || (Array.isArray(json) ? json : []);
+
+  if (!Array.isArray(rawRecords)) return [];
+
+  const categoryMap = new Map<string, ChildCategoryItem>();
+  rawRecords.forEach((cat) => categoryMap.set(cat.id, cat));
 
   // Subcategories have a parent_id, but their parent has NO parent_id (it's root)
-  return Array.isArray(rawRecords)
-    ? rawRecords.filter(
-        (item: unknown) =>
-          (item as { parent_id: string })?.parent_id !== null &&
-          (item as { parent_id: string })?.parent_id !== undefined &&
-          !(item as { parent: { parent_id: string } })?.parent?.parent_id,
-      )
-    : [];
+  return rawRecords.filter((item) => {
+    if (!item.parent_id) return false;
+    const parent = item.parent || categoryMap.get(item.parent_id);
+    if (!parent) return true;
+    return !parent.parent_id && !parent.parent?.parent_id;
+  });
 };
 
 // 🚀 3. CREATE NEW CHILD CATEGORY
