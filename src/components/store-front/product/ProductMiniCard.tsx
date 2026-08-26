@@ -16,7 +16,7 @@ interface ProductMiniCardProps {
 const ProductMiniCard = ({ product }: ProductMiniCardProps) => {
   const { language } = useLanguage();
   const t = translations[language];
-  const rowImage = product?.images?.[0] || "";
+  const rowImage = product?.images?.[0]?.url || "";
   const imageUrl = rowImage.startsWith("http")
     ? rowImage
     : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;

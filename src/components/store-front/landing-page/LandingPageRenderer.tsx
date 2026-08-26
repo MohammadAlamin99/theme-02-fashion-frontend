@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSingleProduct } from "@/services-api/productService";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 // ==========================================
 // 1. TYPES & INTERFACES
@@ -114,6 +113,15 @@ export const getYoutubeThumbnail = (url?: string | null): string | null => {
     return `https://img.youtube.com/vi/${match[2]}/hqdefault.jpg`;
   }
   return null;
+};
+
+const getProductImageAt = (
+  product: SelectedProduct,
+  index: number,
+): string | undefined => {
+  const img = product?.images?.[index];
+  if (!img) return undefined;
+  return typeof img === "string" ? img : img.url;
 };
 
 const parseJsonArray = <T,>(data: unknown): T[] => {
@@ -730,12 +738,13 @@ export default function LandingPageRenderer({
               {/* Main Image using Next.js Image */}
               <div className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden shadow-md">
                 {getImageUrl(
-                  selectedProduct?.images?.[0] || liveData.topImage,
+                  getProductImageAt(selectedProduct, 0) || liveData.topImage,
                 ) ? (
                   <Image
                     src={
                       getImageUrl(
-                        selectedProduct?.images?.[0] || liveData.topImage,
+                        getProductImageAt(selectedProduct, 0) ||
+                          liveData.topImage,
                       )!
                     }
                     alt={selectedProduct?.name || "Product Image"}
@@ -759,12 +768,13 @@ export default function LandingPageRenderer({
                     className="relative aspect-square bg-slate-50 rounded-xl overflow-hidden shadow-sm"
                   >
                     {getImageUrl(
-                      productImages[i] || selectedProduct?.images?.[i],
+                      productImages[i] || getProductImageAt(selectedProduct, i),
                     ) ? (
                       <Image
                         src={
                           getImageUrl(
-                            productImages[i] || selectedProduct?.images?.[i],
+                            productImages[i] ||
+                              getProductImageAt(selectedProduct, i),
                           )!
                         }
                         alt={`Product Thumb ${i + 1}`}

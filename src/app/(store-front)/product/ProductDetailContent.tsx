@@ -12,7 +12,15 @@ import Link from "next/link";
 interface Props {
   slug: string;
 }
-
+function getImageUrl(img: unknown): string {
+  if (typeof img === "string") return img;
+  if (img && typeof img === "object") {
+    const obj = img as Record<string, unknown>;
+    if (typeof obj.url === "string") return obj.url;
+    if (typeof obj.preview === "string") return obj.preview;
+  }
+  return "";
+}
 export default function ProductDetailContent({ slug }: Props) {
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", slug],
@@ -53,13 +61,12 @@ export default function ProductDetailContent({ slug }: Props) {
 
   const galleryItems = imagesList.map((img) => ({
     type: "image" as const,
-    src: img,
+    src: getImageUrl(img),
   }));
-
   const videoItems =
     product.video_urls?.map((v) => ({
       type: "video" as const,
-      src: imagesList[0],
+      src: getImageUrl(imagesList[0]),
       videoId: v,
     })) || [];
 

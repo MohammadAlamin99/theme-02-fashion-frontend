@@ -34,7 +34,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
     ? Number(
         item.variant?.sell_price ?? item.variant?.price ?? item.sell_price ?? 0,
       )
-    : Number(item.sell_price ?? (product as Product)?.sell_price ?? 0);
+    : Number(item.sell_price ?? product?.price ?? 0);
 
   const price = Number(item.price ?? rawSellPrice ?? 0);
 

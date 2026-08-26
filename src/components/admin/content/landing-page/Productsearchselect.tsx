@@ -3,8 +3,11 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Search, Loader2, X, Package } from "lucide-react";
 import { Product } from "@/@types/product.type";
 import { searchProducts } from "@/services-api/productService";
-
-export interface LandingPageProduct extends Product {
+import Image from "next/image";
+export interface LandingPageProduct extends Omit<
+  Product,
+  "images" | "avg_rating"
+> {
   sell_price: string;
   regular_price: string;
   originalPrice?: number;
@@ -14,7 +17,6 @@ export interface LandingPageProduct extends Product {
   total_reviews: number;
   images: string[] | undefined;
 }
-
 interface ProductSearchSelectProps {
   selectedProduct?: LandingPageProduct;
   onSelect: (product: LandingPageProduct) => void;
@@ -67,7 +69,12 @@ export default function ProductSearchSelect({
     try {
       const products = await searchProducts(term);
       setResults(
-        Array.isArray(products) ? (products as LandingPageProduct[]) : [],
+        Array.isArray(products)
+          ? (products.map((p: Product) => ({
+              ...p,
+              images: p.images?.map((img) => img.url),
+            })) as LandingPageProduct[])
+          : [],
       );
     } finally {
       setIsSearching(false);
@@ -136,7 +143,10 @@ export default function ProductSearchSelect({
         <div className="flex items-center gap-2 mt-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5 w-fit max-w-full">
           <div className="h-6 w-6 rounded overflow-hidden bg-white border border-blue-100 shrink-0 flex items-center justify-center">
             {displayImage ? (
-              <img
+              <Image
+                width={12}
+                height={12}
+                unoptimized
                 src={displayImage}
                 alt={selectedProduct.name}
                 className="w-full h-full object-cover"

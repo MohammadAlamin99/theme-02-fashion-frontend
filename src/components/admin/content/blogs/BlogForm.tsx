@@ -1,5 +1,11 @@
 "use client";
-import React, { useRef, ChangeEvent, useState, useEffect, useMemo } from "react";
+import React, {
+  useRef,
+  ChangeEvent,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -11,7 +17,10 @@ import {
 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { uploadBlogImage } from "@/services-api/blogService";
-import { searchProducts, fetchSingleProduct } from "@/services-api/productService";
+import {
+  searchProducts,
+  fetchSingleProduct,
+} from "@/services-api/productService";
 import { BlogFormData } from "@/@types/blogpost.type";
 import toast from "react-hot-toast";
 
@@ -104,7 +113,7 @@ export default function BlogForm({
       setProductCache((prev) => {
         let updated = false;
         const next = { ...prev };
-        
+
         const allSeen = [...products, ...searchAdditions];
         for (const p of allSeen) {
           const id = p.id || p._id;
@@ -121,16 +130,16 @@ export default function BlogForm({
 
   // Fetch missing product details
   const missingProductIds = (formData.product_ids ?? []).filter(
-    (id) => !productCache[id]
+    (id) => !productCache[id],
   );
 
   const { data: missingProducts } = useQuery({
     queryKey: ["missing-products", formData.product_ids],
     queryFn: async () => {
       const results = await Promise.all(
-        missingProductIds.map((id) => fetchSingleProduct(id))
+        missingProductIds.map((id) => fetchSingleProduct(id)),
       );
-      return results.filter(Boolean) as Product[];
+      return results.filter(Boolean) as unknown as Product[];
     },
     enabled: missingProductIds.length > 0,
   });
@@ -210,7 +219,10 @@ export default function BlogForm({
     const product = availableProducts.find(
       (p) => (p.id || p._id) === option.value,
     );
-    const imgPath = product?.featured_image || product?.thumbnail || (product?.images && product.images.length > 0 ? product.images[0] : null);
+    const imgPath =
+      product?.featured_image ||
+      product?.thumbnail ||
+      (product?.images && product.images.length > 0 ? product.images[0] : null);
     const imgSrc = imgPath
       ? imgPath.startsWith("http")
         ? imgPath

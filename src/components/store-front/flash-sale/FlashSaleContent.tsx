@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { FaChevronRight, FaBolt, FaShoppingBag } from "react-icons/fa";
+import { FaChevronRight, FaBolt } from "react-icons/fa";
 import ProductCard from "@/components/store-front/common/ProductCard";
 import { Product } from "@/@types/product.type";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
@@ -180,11 +180,11 @@ export default function FlashSaleContent({ slug }: FlashSaleContentProps) {
             ? toNumber(item.old_price)
             : sellPriceNum;
 
-      const imagesArr: string[] =
+      const imagesArr: { url: string }[] =
         Array.isArray(item.images) && item.images.length > 0
-          ? item.images
+          ? item.images.map((url) => ({ url }))
           : item.image
-            ? [item.image]
+            ? [{ url: item.image }]
             : [];
 
       const hasDiscount = regularPriceNum > sellPriceNum;
