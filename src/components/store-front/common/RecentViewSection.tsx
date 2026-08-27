@@ -27,6 +27,19 @@ interface ApiResponse {
   data: Product[];
 }
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
+
 const RecentlyViewed = () => {
   const { language } = useLanguage();
   const t = translations[language];
@@ -35,7 +48,6 @@ const RecentlyViewed = () => {
     queryKey: ["recentlyViewed"],
     queryFn: () => recentViewProduct(1, 12),
   });
-  console.log(products);
 
   if (isLoading)
     return (
@@ -89,23 +101,19 @@ const RecentlyViewed = () => {
           className="mySwiper"
         >
           {productdata.map((product: Product) => {
-            // FIX: Handle if images is an array or a string
-            const rawImage = Array.isArray(product?.images)
-              ? product.images[0]
-              : product?.images;
-            const rowImage = typeof rawImage === "string" ? rawImage : "";
-
-            const iconUrl =
-              rowImage && rowImage.startsWith("http")
-                ? rowImage
-                : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
+            const rowimage = extractImageUrl(product?.images[0]).trim();
+            const usableImage = rowimage.startsWith("http")
+              ? rowimage
+              : rowimage
+                ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+                : "/images/placeholder.svg";
             return (
               <SwiperSlide key={product?._id}>
                 <Link href={`/product/${product?.slug}`}>
                   <div className="bg-[#F3F3F3] rounded-lg p-4 flex items-center gap-4 h-[130px]">
                     <div className="relative min-w-[100px] h-[100px] rounded-xl flex items-center justify-center p-2">
                       <Image
-                        src={iconUrl}
+                        src={usableImage}
                         alt={product?.name || "Product"}
                         fill
                         className="w-full h-full object-contain rounded-xl"

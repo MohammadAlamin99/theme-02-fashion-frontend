@@ -484,7 +484,6 @@ export default function ProductUploadMain() {
                 </div>
               </div>
             </SectionWrapper>
-            <SeoSection />
 
             <InventorySection Barcode={Barcode} />
             <VariantsSection isEditMode={isEditMode} />
@@ -492,9 +491,10 @@ export default function ProductUploadMain() {
             <SpecificationsSection />
             <FaqsSection />
             <ShippingSection isEditMode={isEditMode} />
+            <SeoSection />
           </div>
 
-          <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
             <div className="bg-white rounded-lg p-5 border border-gray-100">
               <h3 className="text-black font-medium text-[20px] mb-2">
                 Ready To Publish

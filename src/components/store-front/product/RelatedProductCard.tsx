@@ -16,6 +16,18 @@ export interface ProductData {
   images: string[];
   slug: string;
 }
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 
 const RelatedProductCard = ({ product }: { product: ProductData }) => {
   const { language } = useLanguage();
@@ -24,14 +36,12 @@ const RelatedProductCard = ({ product }: { product: ProductData }) => {
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8082";
 
-  const rawFirstImg = product.images?.[0];
-  const isValidImg =
-    typeof rawFirstImg === "string" && rawFirstImg.trim().length > 1;
-  const productImage = isValidImg
-    ? rawFirstImg.startsWith("http") || rawFirstImg.startsWith("/images/")
-      ? rawFirstImg
-      : `${backendBaseUrl}/${rawFirstImg.replace(/^\/+/, "")}`
-    : "/images/placeholder.svg";
+  const rowimage = extractImageUrl(product?.images[0]).trim();
+  const usableImage = rowimage.startsWith("http")
+    ? rowimage
+    : rowimage
+      ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+      : "/images/placeholder.svg";
 
   return (
     <Link href={`/product/${product.slug}`}>
@@ -39,7 +49,7 @@ const RelatedProductCard = ({ product }: { product: ProductData }) => {
         {/* Product Image */}
         <div className="w-[94px] h-[116px] rounded-xl overflow-hidden bg-gray-200 shrink-0">
           <Image
-            src={productImage}
+            src={usableImage}
             alt={product.name}
             width={94}
             height={116}

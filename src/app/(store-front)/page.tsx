@@ -24,8 +24,8 @@ export default async function Page() {
     <>
       <BannerSlider />
       <Features />
-      <PromotionDiscountProduct />
       <FeaturedCategory />
+      <PromotionDiscountProduct />
       <NewArrivals tags={tags} />
       <BestSalesProducts tags={tags} />
       {activeFlashSale && <FlashSale flashSale={activeFlashSale} />}

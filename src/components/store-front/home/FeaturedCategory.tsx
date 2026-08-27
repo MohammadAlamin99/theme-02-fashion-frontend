@@ -22,11 +22,11 @@ export default function FeaturedCategory() {
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8082";
 
-    const { language } = useLanguage();
-    const t = translations[language];
+  const { language } = useLanguage();
+  const t = translations[language];
 
   return (
-    <section className="w-full pb-[40px] md:pb-[80px] px-4 md:px-10">
+    <section className="w-full px-4 md:px-10">
       <div className="max-w-[1720px] mx-auto">
         <SectionHeader title={t.featuredCategory} link="/category" />
 

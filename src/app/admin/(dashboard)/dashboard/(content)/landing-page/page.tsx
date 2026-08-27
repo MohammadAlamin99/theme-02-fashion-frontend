@@ -404,46 +404,6 @@ export default function LandingPagePage() {
             </div>
           </div>
 
-          {/* OFFERS / TRUST BAR */}
-          {/* <div className="bg-white space-y-4">
-            <SectionHeader
-              icon={<Sparkles size={14} />}
-              text="Offers & Trust Highlights"
-              onAdd={() => appendOffer({ title: "", subTitle: "", icon: "" })}
-              addLabel="Add More"
-            />
-            <div className="space-y-3">
-              {offerFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg flex-wrap"
-                >
-                  <IconUploadSlot
-                    imageUrl={getImageUrl(watch(`offers.${index}.icon`))}
-                    onChange={(e) => onImageUpload(e, `offers.${index}.icon`)}
-                  />
-                  <input
-                    {...register(`offers.${index}.title`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Offer Headline"
-                  />
-                  <input
-                    {...register(`offers.${index}.subTitle`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Offer Sub Headline"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeOffer(index)}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div> */}
-
           <div className="bg-white">
             {/* Header Section */}
             <div className="flex justify-between items-center mb-6">
@@ -525,46 +485,6 @@ export default function LandingPagePage() {
               </button>
             </div>
           </div>
-
-          {/* KEY FEATURES */}
-          {/* <div className="bg-white space-y-4">
-            <SectionHeader
-              icon={<CheckCircle2 size={14} />}
-              text="Key Features"
-              onAdd={() => appendFeat({ title: "", subTitle: "", icon: "" })}
-              addLabel="Add Feature"
-            />
-            <div className="space-y-3">
-              {featFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex-wrap"
-                >
-                  <IconUploadSlot
-                    imageUrl={getImageUrl(watch(`features.${index}.icon`))}
-                    onChange={(e) => onImageUpload(e, `features.${index}.icon`)}
-                  />
-                  <input
-                    {...register(`features.${index}.title`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Feature Name"
-                  />
-                  <input
-                    {...register(`features.${index}.subTitle`)}
-                    className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-sm font-normal outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Short feature explanation"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeFeat(index)}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div> */}
 
           <div className="bg-white">
             {/* Header Section - প্রথম কোডের মতো ডিজাইন */}
@@ -729,75 +649,6 @@ export default function LandingPagePage() {
           </div>
 
           {/* CUSTOMER REVIEWS */}
-          {/* <div className="bg-white space-y-4">
-            <SectionHeader
-              icon={<Star size={14} />}
-              text="Customer Reviews"
-              onAdd={() =>
-                appendReview({ name: "", quote: "", rating: 5, image: "" })
-              }
-              addLabel="Add More"
-            />
-            <div className="space-y-4">
-              {reviewFields.map((f, i) => (
-                <div
-                  key={f.id}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 flex-1">
-                      <label className="h-10 w-10 border border-dashed border-slate-300 rounded-full bg-white flex items-center justify-center cursor-pointer shrink-0 overflow-hidden hover:border-orange-400 transition">
-                        {watch(`reviews.${i}.image`) ? (
-                          <img
-                            src={getImageUrl(watch(`reviews.${i}.image`))!}
-                            className="w-full h-full object-cover"
-                            alt="Reviewer"
-                          />
-                        ) : (
-                          <ImageIcon size={16} className="text-slate-400" />
-                        )}
-                        <input
-                          type="file"
-                          className="hidden"
-                          onChange={(e) =>
-                            onImageUpload(e, `reviews.${i}.image`)
-                          }
-                        />
-                      </label>
-                      <input
-                        {...register(`reviews.${i}.name`)}
-                        className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20"
-                        placeholder="Customer Name"
-                      />
-                      <input
-                        type="number"
-                        min={0}
-                        max={5}
-                        {...register(`reviews.${i}.rating`, {
-                          valueAsNumber: true,
-                        })}
-                        className="w-14 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none text-center focus:ring-2 focus:ring-blue-500/20"
-                        placeholder="5"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeReview(i)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition shrink-0"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  <textarea
-                    {...register(`reviews.${i}.quote`)}
-                    className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
-                    placeholder="Customer testimonial quote..."
-                    rows={2}
-                  />
-                </div>
-              ))}
-            </div>
-          </div> */}
 
           <div className="bg-white">
             {/* Header Section */}
@@ -906,43 +757,6 @@ export default function LandingPagePage() {
           </div>
 
           {/* FAQS */}
-          {/* <div className="bg-white space-y-4">
-            <SectionHeader
-              icon={<HelpCircle size={14} />}
-              text="Frequently Asked Questions"
-              onAdd={() => appendFaq({ question: "", answer: "" })}
-              addLabel="Add More"
-            />
-            <div className="space-y-4">
-              {faqFields.map((f, i) => (
-                <div
-                  key={f.id}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2 relative"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <input
-                      {...register(`faqs.${i}.question`)}
-                      className="flex-1 bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500/20"
-                      placeholder="Question (e.g., What is your return policy?)"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFaq(i)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition shrink-0"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  <textarea
-                    {...register(`faqs.${i}.answer`)}
-                    className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
-                    placeholder="Provide a clear answer..."
-                    rows={2}
-                  />
-                </div>
-              ))}
-            </div>
-          </div> */}
 
           <div className="bg-white">
             {/* Header Section */}
