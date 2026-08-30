@@ -12,8 +12,10 @@ import RecentlyViewed from "@/components/store-front/common/RecentViewSection";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getCategory } from "@/services-api/categoryService";
 import { useParams, useSearchParams } from "next/navigation";
-import { filterProducts } from "@/services-api/productService";
-import { getBrands } from "@/services-api/brandService";
+import {
+  filterProducts,
+  fetchFilterBrands,
+} from "@/services-api/productService";
 import { Product } from "@/@types/product.type";
 import React from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -22,28 +24,58 @@ import { translations } from "@/locales";
 const CategoryPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const params = useParams();
+  const slugParam = params.slug;
+  const targetCategorySlug = Array.isArray(slugParam)
+    ? slugParam[slugParam.length - 1]
+    : slugParam || "";
+
   const searchParams = useSearchParams();
   const activeSort = searchParams.get("sort") || "popularity";
 
-  const slug = params.slug as string;
   const activeBrandId = searchParams.get("brand_id") || "";
-  const activeCategoryId = searchParams.get("category_id") || "";
+  const activeBrandSlug =
+    searchParams.get("brand_slug") || searchParams.get("brand") || "";
+  const queryCategoryId = searchParams.get("category_id") || "";
   const maxPrice = searchParams.get("max") || "100000";
   const { language } = useLanguage();
   const t = translations[language];
 
   // category data fetch
   const { data: category, isLoading: categoryLoading } = useQuery({
-    queryKey: ["category", slug],
-    queryFn: () => getCategory(slug),
-    enabled: !!slug,
+    queryKey: ["category", targetCategorySlug],
+    queryFn: () => getCategory(targetCategorySlug),
+    enabled: !!targetCategorySlug,
   });
 
-  // brand data fetch
+  const activeCategoryId =
+    queryCategoryId || (category?.id ? String(category.id) : "");
+
+  // Determine category_id and category_slug for API
+  const finalCategoryId = queryCategoryId;
+  const finalCategorySlug = queryCategoryId ? "" : targetCategorySlug;
+
+  // brand data fetch with consistent brand counts
   const { data: brandsResponse } = useQuery({
-    queryKey: ["brands"],
-    queryFn: () => getBrands(1, 50),
+    queryKey: ["filter-brands"],
+    queryFn: () => fetchFilterBrands(),
   });
+
+  const brandList = Array.isArray(brandsResponse)
+    ? brandsResponse
+    : brandsResponse?.data?.data || brandsResponse?.data || [];
+
+  const selectedBrand = brandList.find(
+    (b: { id: string; slug: string; name: string }) =>
+      b.id === activeBrandId ||
+      b.slug === activeBrandSlug ||
+      (activeBrandSlug && b.id === activeBrandSlug),
+  );
+
+  const displayTitle = selectedBrand?.name
+    ? category?.name
+      ? `${category.name} - ${selectedBrand.name}`
+      : selectedBrand.name
+    : category?.name || "All Products";
 
   // product fetch
   const {
@@ -56,9 +88,11 @@ const CategoryPage = () => {
   } = useInfiniteQuery({
     queryKey: [
       "products",
+      targetCategorySlug,
       category?.id,
-      activeCategoryId,
+      finalCategoryId,
       activeBrandId,
+      activeBrandSlug,
       maxPrice,
       activeSort,
     ],
@@ -69,19 +103,24 @@ const CategoryPage = () => {
         search: "",
         min_price: 0,
         max_price: Number(maxPrice),
-        category_id: activeBrandId ? "" : activeCategoryId || category!.id,
+        category_id: finalCategoryId,
+        category_slug: finalCategorySlug,
         brand_id: activeBrandId,
+        brand_slug: activeBrandSlug,
         sort: activeSort,
       }),
     initialPageParam: 1,
-    enabled: !!category?.id,
+    enabled: true,
     getNextPageParam: (lastPage) => {
       const { current_page, total_pages } = lastPage.pagination;
       return current_page < total_pages ? current_page + 1 : undefined;
     },
   });
 
-  if (categoryLoading || (productsLoading && !filterProductsData)) {
+  if (
+    (targetCategorySlug && categoryLoading) ||
+    (productsLoading && !filterProductsData)
+  ) {
     return (
       <div className="h-screen flex justify-center items-center font-poppins text-xl">
         Loading Products...
@@ -104,13 +143,13 @@ const CategoryPage = () => {
           <Link href="/" className="text-[#727272]">
             Home
           </Link>{" "}
-          <FaChevronRight color="#7CB640" size={15} />
-          <span className="text-[#7CB640]">{category?.name}</span>
+          <FaChevronRight color="#FF7050" size={15} />
+          <span className="text-[#FF7050]">{displayTitle}</span>
         </nav>
         <CategoryBanner
           bannerImage={category?.background_image_url}
           description={category?.description}
-          categoryName={category?.name}
+          categoryName={displayTitle}
         />
       </div>
 
@@ -125,7 +164,7 @@ const CategoryPage = () => {
           totalProducts={
             filterProductsData?.pages[0]?.pagination?.total_items || 0
           }
-          categoryName={category?.name}
+          categoryName={displayTitle}
         />
 
         {/* Mobile Filter Trigger Button (Visible only below lg breakpoint) */}
@@ -134,7 +173,7 @@ const CategoryPage = () => {
             onClick={() => setIsMobileFilterOpen(true)}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#F2F2F2] rounded-lg text-sm font-poppins font-medium  active:scale-95 transition-all"
           >
-            <FaFilter className="text-[#7CB640]" size={14} />
+            <FaFilter className="text-[#FF7050]" size={14} />
             <span className="text-base font-poppins">Filters</span>
           </button>
         </div>
@@ -144,8 +183,13 @@ const CategoryPage = () => {
           <aside className="hidden lg:block w-[390px] shrink-0">
             {/* <FilterSidebar /> */}
             <FilterSidebar
-              brands={brandsResponse?.data?.data}
+              brands={
+                Array.isArray(brandsResponse)
+                  ? brandsResponse
+                  : brandsResponse?.data?.data || brandsResponse?.data || []
+              }
               activeCategoryName={category?.name}
+              activeCategorySlug={targetCategorySlug}
               totalProductCount={
                 filterProductsData?.pages[0]?.pagination?.total_items || 0
               }
@@ -154,7 +198,7 @@ const CategoryPage = () => {
           <main className="flex-1">
             {filterProductsData?.pages[0]?.pagination?.total_items === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-[#F9F9F9] rounded-[22px] border border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-[#7CB640]/10 rounded-full flex items-center justify-center mb-4 text-[#7CB640]">
+                <div className="w-16 h-16 bg-[#FF7050]/10 rounded-full flex items-center justify-center mb-4 text-[#FF7050]">
                   <FaBoxOpen size={32} />
                 </div>
                 <h3 className="font-poppins text-xl md:text-2xl font-semibold text-black mb-2">
@@ -231,7 +275,18 @@ const CategoryPage = () => {
 
           {/* Scrollable Sidebar Wrapper */}
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-            <FilterSidebar />
+            <FilterSidebar
+              brands={
+                Array.isArray(brandsResponse)
+                  ? brandsResponse
+                  : brandsResponse?.data?.data || brandsResponse?.data || []
+              }
+              activeCategoryName={category?.name}
+              activeCategorySlug={targetCategorySlug}
+              totalProductCount={
+                filterProductsData?.pages[0]?.pagination?.total_items || 0
+              }
+            />
           </div>
         </div>
       </div>

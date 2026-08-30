@@ -209,6 +209,9 @@ export interface CategoryDetail extends Category {
   background_image_url?: string | null;
   children?: CategoryDetail[];
   _count?: { products: number };
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_tags?: string | null;
 }
 
 export const getCategory = async (slug: string): Promise<CategoryDetail> => {

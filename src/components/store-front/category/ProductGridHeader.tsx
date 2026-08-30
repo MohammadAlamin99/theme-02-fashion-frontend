@@ -23,17 +23,18 @@ export default function ProductGridHeader({
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const activeSort = searchParams.get("sort") || t.productListing.popularity;
+  const activeSort = searchParams.get("sort") || "popularity";
 
+  // Use stable backend-compatible keys — never translated strings
   const sortOptions = [
-  t.productListing.popularity,
-  t.productListing.newest,
-  t.productListing.trending,
-];
+    { key: "popularity", label: t.productListing.popularity },
+    { key: "newest",     label: t.productListing.newest },
+    { key: "trending",   label: t.productListing.trending },
+  ];
 
-  const handleSort = (option: string) => {
+  const handleSort = (key: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("sort", option);
+    params.set("sort", key);
     params.set("page", "1");
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -75,27 +76,27 @@ export default function ProductGridHeader({
               </span>
 
               <div className="flex items-center gap-3 md:gap-4 flex-wrap">
-                {sortOptions.map((option) => (
+                {sortOptions.map(({ key, label }) => (
                   <button
-                    key={option}
-                    onClick={() => handleSort(option)}
+                    key={key}
+                    onClick={() => handleSort(key)}
                     className="flex items-center gap-1.5 group transition-all cursor-pointer"
                   >
                     <IoCheckmarkCircle
                       className={`text-[18px] sm:text-xl md:text-[28px] transition-colors ${
-                        activeSort === option
+                        activeSort === key
                           ? "text-[#7CB640]"
                           : "text-[#D9D9D9]"
                       }`}
                     />
                     <span
                       className={`font-poppins text-sm sm:text-base md:text-[24px] font-medium transition-colors ${
-                        activeSort === option
+                        activeSort === key
                           ? "text-[#4F4F4F]"
                           : "text-[#828282]"
                       }`}
                     >
-                      {option}
+                      {label}
                     </span>
                   </button>
                 ))}

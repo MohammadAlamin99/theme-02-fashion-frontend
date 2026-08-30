@@ -26,37 +26,65 @@ export default function BrandSection({
         <HiMiniMinusSmall className="text-2xl text-gray-400" />
       </div>
       <ul className="flex flex-col gap-4">
-        {brands.map((brand) => (
-          <li
-            key={brand.id}
-            onClick={() => onUpdate("brand_id", brand.id)}
-            className="flex justify-between items-center cursor-pointer group"
-          >
-            <div className="flex items-center gap-2">
-              <IoCheckmarkCircleSharp
-                className={
-                  activeBrandId === brand.id
-                    ? "text-[#7CB640] text-[24px]"
-                    : "text-[#D9D9D9] text-[24px]"
-                }
-              />
-              <span
-                className={`text-[20px] font-normal transition-colors ${
-                  activeBrandId === brand.id
-                    ? "text-[#7CB640]"
-                    : "text-black group-hover:text-[#7CB640]"
-                }`}
-              >
-                {brand.name}
-              </span>
-            </div>
+        {/* All Option */}
+        <li
+          onClick={() => onUpdate("brand_slug", "")}
+          className="flex justify-between items-center cursor-pointer group"
+        >
+          <div className="flex items-center gap-2">
+            <IoCheckmarkCircleSharp
+              className={
+                !activeBrandId
+                  ? "text-[#7CB640] text-[24px]"
+                  : "text-[#D9D9D9] text-[24px]"
+              }
+            />
             <span
-              className={`text-[20px] font-normal ${activeBrandId === brand.id ? "text-[#7CB640]" : "text-black"}`}
+              className={`text-[20px] font-normal transition-colors ${
+                !activeBrandId
+                  ? "text-[#7CB640]"
+                  : "text-black group-hover:text-[#7CB640]"
+              }`}
             >
-              {brand._count?.products || 0}
+              All
             </span>
-          </li>
-        ))}
+          </div>
+        </li>
+        {brands.map((brand) => {
+          const isSelected =
+            activeBrandId === brand.id || activeBrandId === brand.slug;
+          return (
+            <li
+              key={brand.id}
+              onClick={() => onUpdate("brand_slug", brand.slug || brand.id)}
+              className="flex justify-between items-center cursor-pointer group"
+            >
+              <div className="flex items-center gap-2">
+                <IoCheckmarkCircleSharp
+                  className={
+                    isSelected
+                      ? "text-[#7CB640] text-[24px]"
+                      : "text-[#D9D9D9] text-[24px]"
+                  }
+                />
+                <span
+                  className={`text-[20px] font-normal transition-colors ${
+                    isSelected
+                      ? "text-[#7CB640]"
+                      : "text-black group-hover:text-[#7CB640]"
+                  }`}
+                >
+                  {brand.name}
+                </span>
+              </div>
+              <span
+                className={`text-[20px] font-normal ${isSelected ? "text-[#7CB640]" : "text-black"}`}
+              >
+                {brand.product_count ?? brand._count?.products ?? 0}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

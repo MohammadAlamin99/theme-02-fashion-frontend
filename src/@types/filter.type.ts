@@ -8,6 +8,7 @@ export interface Category {
   slug: string;
   parent_id?: string | null;
   _count?: CategoryCount;
+  product_count?: number;
   image_url?: string | null;
 }
 

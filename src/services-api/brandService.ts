@@ -131,6 +131,7 @@ export interface Brand {
   name: string;
   slug: string;
   logo_url: string;
+  product_count: number;
   meta_title?: string;
   meta_description?: string;
   meta_tags?: string;
