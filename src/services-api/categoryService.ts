@@ -199,6 +199,7 @@ export interface Category {
   image?: File;
   created_at?: string;
   updated_at?: string;
+  product_count?: number;
   _count?: { products: number };
   status?: string;
   sl?: number;
