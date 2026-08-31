@@ -29,17 +29,14 @@ const BlogBanner = () => {
 
   const banner = data?.data;
   const banners = banner ? [banner] : [];
-
-  // লোডিং স্টেট
   if (isLoading) {
     return (
       <div className="w-full h-[450px] md:h-[600px] bg-gray-200 animate-pulse rounded-[35px] container mx-auto mt-10">
-      <span className="text-gray-500">{t.blogBanner.loading}</span>
+        <span className="text-gray-500">{t.blogBanner.loading}</span>
       </div>
     );
   }
 
-  // এরর বা ডাটা না থাকলে হাইড রাখা
   if (isError || banners.length === 0) {
     return null;
   }
@@ -81,19 +78,18 @@ const BlogBanner = () => {
             className="rounded-[20px] md:rounded-[35px] overflow-hidden"
           >
             {banners.map((item, index) => {
-              // ইমেজ ইউআরএল ফরম্যাট করা
               const imageUrl = item.image_url?.startsWith("http")
                 ? item.image_url
                 : `${backendBaseUrl}/${item.image_url?.replace(/^\/+/, "")}`;
 
               return (
                 <SwiperSlide key={index}>
-                  <div className="relative h-[450px] md:h-[600px] w-full">
+                  <div className="relative h-[350px] md:h-[400px] w-full">
                     <Image
                       src={imageUrl}
                       alt="Blog Banner"
                       fill
-                      className="object-cover md:object-fill"
+                      className="object-cover"
                       priority
                       unoptimized
                     />

@@ -11,14 +11,14 @@ export default function BlogHero({ image }: { image: string }) {
     : `${backendBaseUrl}/${image.replace(/^\/+/, "")}`;
 
   return (
-    <section className="w-full">
-      <div className="relative w-full h-[300px] md:h-[500px] lg:h-[724px]">
+    <section className="max-w-[1720px] mx-auto">
+      <div className="relative w-full h-[350px] md:h-[450px]">
         <Image
           src={blogImage}
           alt="Blog Banner"
           fill
           priority
-          className="object-cover"
+          className="object-cover rounded-2xl"
           unoptimized
           sizes="100vw"
         />

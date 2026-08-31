@@ -15,7 +15,7 @@ export default async function BlogDetailsManagement({
   if (!blog) return <div>Loading...</div>;
 
   return (
-    <div>
+    <>
       <BlogHero image={blog.featured_image} />
       <BlogHeader
         title={blog.title}
@@ -26,6 +26,6 @@ export default async function BlogDetailsManagement({
         content={blog.content}
         relatedProducts={blog.related_products}
       />
-    </div>
+    </>
   );
 }

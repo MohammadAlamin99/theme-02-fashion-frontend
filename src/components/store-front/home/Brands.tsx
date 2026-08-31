@@ -56,8 +56,8 @@ const Brands = () => {
           0%   { transform: translateX(-50%); }
           100% { transform: translateX(0); }
         }
-        .brands-track-left { display: flex; width: max-content; animation: scrollLeft 60s linear infinite; }
-        .brands-track-right { display: flex; width: max-content; animation: scrollRight 60s linear infinite; }
+        .brands-track-left { display: flex; width: max-content; animation: scrollLeft 120s linear infinite; }
+        .brands-track-right { display: flex; width: max-content; animation: scrollRight 120s linear infinite; }
         .brands-track-left:hover, .brands-track-right:hover { animation-play-state: paused; }
       `}</style>
 
