@@ -23,12 +23,12 @@ export default function ContentNavigation() {
       path: "/admin/dashboard/faq",
       icon: SubCategroyIcon,
     },
-    // {
-    //   id: "popup",
-    //   label: "Popups",
-    //   path: "/admin/dashboard/popup",
-    //   icon: SubCategroyIcon,
-    // },
+    {
+      id: "popup",
+      label: "Popups",
+      path: "/admin/dashboard/popup",
+      icon: SubCategroyIcon,
+    },
     {
       id: "blog",
       label: "Blogs",
