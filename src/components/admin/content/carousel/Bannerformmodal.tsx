@@ -84,8 +84,7 @@ export const BannerFormModal = ({
                     Supported formats: JPG, PNG, Max size: 4MB.
                   </p>
                   <p className="text-[12px] text-slate-400 leading-tight">
-                    Note: Use images with a 1:1.6 aspect ratio (855×1386
-                    pixels.)
+                    Suggested dimension: 1920 × 720 pixels.
                   </p>
                 </div>
 

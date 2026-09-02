@@ -5,6 +5,7 @@ import { Shapes, Hash } from "lucide-react";
 import TabItem from "./TabItem";
 import SubCategoryIcon from "@/components/store-front/svg/svg/SubCategroyIcon";
 import BrandIcon from "@/components/store-front/svg/svg/BrandIcon";
+import ChildCategoryIcon from "@/components/store-front/svg/svg/ChildCategoryIcon";
 
 const CategoryNavigation = () => {
   const pathname = usePathname();
@@ -28,7 +29,7 @@ const CategoryNavigation = () => {
       id: "child-category",
       label: "Child Category",
       path: "/admin/dashboard/child-category",
-      icon: SubCategoryIcon,
+      icon: ChildCategoryIcon,
     },
     {
       id: "brand",

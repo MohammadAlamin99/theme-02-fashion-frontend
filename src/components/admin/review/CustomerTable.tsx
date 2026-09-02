@@ -38,17 +38,22 @@ export default function CustomerTable() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
 
   // const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const cPage = Number(searchParams.get("c_page")) || 1;
   const cSearch = searchParams.get("c_search") || "";
-   const cSort = searchParams.get("c_sort") || "desc";
+  const cSort = searchParams.get("c_sort") || "desc";
 
   const { data: serverPayload } = useQuery({
     // 2. Add cSort to the queryKey so it refreshes when the button is clicked
-    queryKey: ["admin-users-list", cPage, cSearch, cSort], 
+    queryKey: ["admin-users-list", cPage, cSearch, cSort],
     queryFn: async () => {
       try {
         // 3. Pass the sort parameter to your API service
@@ -237,50 +242,33 @@ export default function CustomerTable() {
       render: (item) => (
         <div className="relative">
           <button
-            onClick={() =>
-              setActiveMenuId(activeMenuId === item.id ? null : item.id)
-            }
-            className="cursor-pointer text-black p-1 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 90; // Estimate for 2 items
+
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - menuHeight : rect.bottom,
+                left: rect.left - 140,
+                opensUpward,
+              });
+
+              setActiveMenuId(activeMenuId === item.id ? null : item.id);
+            }}
+            className="cursor-pointer text-black p-1 transition-colors hover:bg-gray-100 rounded-full"
           >
             <MoreVertical size={20} />
           </button>
-          {activeMenuId === item.id && (
-            <div className="absolute cursor-pointer right-0 mt-1 w-40 bg-white border border-gray-200 rounded-[8px] shadow-lg py-1 z-50 text-xs text-black">
-              {item.status !== "active" && (
-                <button
-                  onClick={() =>
-                    updateStatusMutation.mutate({
-                      id: item.id,
-                      status: "active",
-                    })
-                  }
-                  className="w-full cursor-pointer text-left px-3 py-2 text-emerald-600 hover:bg-gray-50 flex items-center gap-1.5"
-                >
-                  <UserCheck size={14} /> Activate Profile
-                </button>
-              )}
-              {item.status !== "blocked" && (
-                <button
-                  onClick={() =>
-                    updateStatusMutation.mutate({
-                      id: item.id,
-                      status: "blocked",
-                    })
-                  }
-                  className="w-full cursor-pointer text-left px-3 py-2 text-rose-600 hover:bg-gray-50 flex items-center gap-1.5"
-                >
-                  <Ban size={14} /> Block User
-                </button>
-              )}
-            </div>
-          )}
         </div>
       ),
     },
   ];
 
   return (
-    <div className="bg-white font-poppins">
+    <div className="bg-white font-poppins relative">
       <DataTable
         data={customerData}
         columns={columns}
@@ -298,6 +286,54 @@ export default function CustomerTable() {
           }}
         />
       </div>
+
+      {/* 🚀 FIXED: Global Fixed Action Menu UI for Customers */}
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenuId(null)}
+          />
+
+          <div
+            className="fixed bg-white border border-gray-100 rounded-md shadow-xl py-1 z-[9999] w-44 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px", // Requested min-height
+            }}
+          >
+            {customerData.find((c) => c.id === activeMenuId)?.status !==
+              "active" && (
+              <button
+                onClick={() =>
+                  updateStatusMutation.mutate({
+                    id: activeMenuId,
+                    status: "active",
+                  })
+                }
+                className="w-full cursor-pointer text-left px-4 py-2.5 text-[13px] text-emerald-600 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <UserCheck size={14} /> Activate Profile
+              </button>
+            )}
+            {customerData.find((c) => c.id === activeMenuId)?.status !==
+              "blocked" && (
+              <button
+                onClick={() =>
+                  updateStatusMutation.mutate({
+                    id: activeMenuId,
+                    status: "blocked",
+                  })
+                }
+                className="w-full cursor-pointer text-left px-4 py-2.5 text-[13px] text-rose-600 hover:bg-gray-50 flex items-center gap-2 border-t border-gray-50"
+              >
+                <Ban size={14} /> Block User
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

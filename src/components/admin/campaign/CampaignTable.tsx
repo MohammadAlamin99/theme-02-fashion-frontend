@@ -40,7 +40,11 @@ export default function CampaignTable() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
   const page = Number(searchParams.get("page")) || 1;
   const limit = Number(searchParams.get("limit")) || 10;
   const search = searchParams.get("search") || "";
@@ -201,50 +205,35 @@ export default function CampaignTable() {
       render: (item: Campaign) => (
         <div className="relative inline-block">
           <button
-            onClick={() =>
-              setActiveMenuId(activeMenuId === item.id ? null : item.id)
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 90; // Approx height for Edit + Delete
+
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - menuHeight : rect.bottom,
+                left: rect.left - 120,
+                opensUpward,
+              });
+
+              setActiveMenuId(activeMenuId === item.id ? null : item.id);
+            }}
+            className="p-1 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
           >
             <MoreVertical size={20} />
           </button>
-          {activeMenuId === item.id && (
-            <div className="absolute right-0 mt-2 w-36 bg-white rounded shadow-lg z-50 py-1 text-left">
-              <button
-                onClick={() => openEditModal(item)}
-                className="w-full flex items-center cursor-pointer gap-2 px-4 py-2 text-sm hover:bg-gray-50"
-              >
-                <Edit3 size={14} /> Edit Item
-              </button>
-              <button
-                onClick={() => {
-                  if (
-                    confirm("Are you sure you want to delete this campaign?")
-                  ) {
-                    deleteMutation.mutate(item.id);
-                  }
-                }}
-                className="w-full flex items-center cursor-pointer gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-              >
-                <Trash2 size={14} /> Delete Item
-              </button>
-            </div>
-          )}
         </div>
       ),
     },
   ];
 
   return (
-    <div className="w-full bg-white rounded-lg p-5 font-poppins flex flex-col">
+    <div className="w-full bg-white rounded-lg p-5 font-poppins flex flex-col relative">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-lato font-bold text-[#023337]">Campaign</h1>
-        {/* <button
-          onClick={openAddModal}
-          className="bg-[#2EB1FF] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold"
-        >
-          <Plus size={18} /> Add Campaign
-        </button> */}
-
         <PrimaryButton
           label="Add Campaign"
           icon={<CirclePlus />}
@@ -267,7 +256,6 @@ export default function CampaignTable() {
         )}
       </div>
 
-      {/* Reusable Pagination Component */}
       {!isLoading && campaignList.length > 0 && (
         <div className="mt-6">
           <Pagination
@@ -276,6 +264,47 @@ export default function CampaignTable() {
             onPageChange={handlePageChange}
           />
         </div>
+      )}
+
+      {/* 🚀 FIXED: Global Fixed Action Menu UI for Campaigns */}
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenuId(null)}
+          />
+
+          <div
+            className="fixed bg-white rounded-md shadow-xl border border-gray-100 py-1 z-[9999] w-36 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px", // Requested min-height
+            }}
+          >
+            <button
+              onClick={() => {
+                const item = campaignList.find((c) => c.id === activeMenuId);
+                if (item) openEditModal(item);
+                setActiveMenuId(null);
+              }}
+              className="w-full flex items-center cursor-pointer gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <Edit3 size={14} /> Edit Item
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to delete this campaign?")) {
+                  deleteMutation.mutate(activeMenuId);
+                }
+                setActiveMenuId(null);
+              }}
+              className="w-full flex items-center cursor-pointer gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-gray-50"
+            >
+              <Trash2 size={14} /> Delete Item
+            </button>
+          </div>
+        </>
       )}
 
       {isModalOpen && (

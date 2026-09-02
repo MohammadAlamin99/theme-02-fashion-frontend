@@ -53,6 +53,12 @@ export default function BlogTableSection({
   onPageChange,
 }: BlogTableSectionProps) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
+
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8082";
@@ -156,7 +162,6 @@ export default function BlogTableSection({
                     ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
                     : "/images/placeholder.svg";
 
-
                 return (
                   <div
                     key={product.id ?? product._id ?? index}
@@ -220,35 +225,26 @@ export default function BlogTableSection({
       render: (item: Blog) => (
         <div className="relative">
           <button
-            onClick={() =>
-              setActiveMenu(activeMenu === item.id ? null : item.id)
-            }
-            className="p-1 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 90;
+
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - menuHeight : rect.bottom,
+                left: rect.left - 100,
+                opensUpward,
+              });
+
+              setActiveMenu(activeMenu === item.id ? null : item.id);
+            }}
+            className="p-1 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
           >
             <MoreVertical size={20} />
           </button>
-          {activeMenu === item.id && (
-            <div className="absolute right-0 mt-1 w-28 bg-white shadow-lg rounded-md z-50 py-1 border border-gray-100">
-              <button
-                onClick={() => {
-                  onEdit(item);
-                  setActiveMenu(null);
-                }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
-              >
-                <Edit3 size={14} /> Edit
-              </button>
-              <button
-                onClick={() => {
-                  onDelete(item.id);
-                  setActiveMenu(null);
-                }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2 cursor-pointer"
-              >
-                <Trash2 size={14} /> Delete
-              </button>
-            </div>
-          )}
         </div>
       ),
     },
@@ -256,7 +252,7 @@ export default function BlogTableSection({
 
   return (
     <div
-      className={`mt-4 transition-opacity ${isFetching && !isLoading ? "opacity-60" : "opacity-100"}`}
+      className={`mt-4 transition-opacity relative ${isFetching && !isLoading ? "opacity-60" : "opacity-100"}`}
     >
       {isLoading ? (
         <div className="p-10 text-center">
@@ -276,6 +272,45 @@ export default function BlogTableSection({
               totalPages={totalPages}
               onPageChange={onPageChange}
             />
+          </div>
+        </>
+      )}
+
+      {/* 🚀 FIXED: Global Fixed Action Menu UI for Blogs */}
+      {activeMenu && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenu(null)}
+          />
+
+          <div
+            className="fixed bg-white rounded-md shadow-xl border border-gray-100 py-1 z-[9999] w-32 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px",
+            }}
+          >
+            <button
+              onClick={() => {
+                const blog = blogs.find((b) => b.id === activeMenu);
+                if (blog) onEdit(blog);
+                setActiveMenu(null);
+              }}
+              className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
+            >
+              <Edit3 size={14} /> Edit
+            </button>
+            <button
+              onClick={() => {
+                onDelete(activeMenu);
+                setActiveMenu(null);
+              }}
+              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium border-t border-gray-50"
+            >
+              <Trash2 size={14} /> Delete
+            </button>
           </div>
         </>
       )}

@@ -37,7 +37,11 @@ export default function TagTable() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
   const page = Number(searchParams.get("page")) || 1;
   const limit = Number(searchParams.get("limit")) || 10;
   const search = searchParams.get("search") || "";
@@ -211,37 +215,26 @@ export default function TagTable() {
       render: (item) => (
         <div className="relative">
           <button
-            onClick={() =>
-              setActiveMenuId(activeMenuId === item.id ? null : item.id)
-            }
-            className="text-black p-1 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 90; // Approx height for 2 buttons
+
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - menuHeight : rect.bottom,
+                left: rect.left - 100,
+                opensUpward,
+              });
+
+              setActiveMenuId(activeMenuId === item.id ? null : item.id);
+            }}
+            className="text-black p-1 transition-colors cursor-pointer hover:bg-gray-100 rounded-full"
           >
             <MoreVertical size={20} />
           </button>
-
-          {activeMenuId === item.id && (
-            <div className="absolute right-0 mt-1 w-32 bg-white border rounded-md shadow-lg py-1 z-50">
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(`/admin/dashboard/tag/add?id=${item.id}`)
-                }
-                className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
-              >
-                <Edit3 size={12} /> Edit Tag
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm("Delete this campaign tag permanently?"))
-                    deleteMutation.mutate(item.id);
-                }}
-                className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium"
-              >
-                <Trash2 size={12} /> Delete Tag
-              </button>
-            </div>
-          )}
         </div>
       ),
     },
@@ -259,7 +252,7 @@ export default function TagTable() {
   }
 
   return (
-    <div className="bg-white font-poppins">
+    <div className="bg-white font-poppins relative">
       <DataTable data={tagList} columns={columns} rowKey="id" gradiant={true} />
 
       {tagList.length > 0 && (
@@ -270,6 +263,46 @@ export default function TagTable() {
             onPageChange={handlePageChange}
           />
         </div>
+      )}
+
+      {/* 🚀 FIXED: Global Fixed Action Menu UI for Tags */}
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenuId(null)}
+          />
+
+          <div
+            className="fixed bg-white rounded-md shadow-xl border border-gray-100 py-1 z-[9999] w-36 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px",
+            }}
+          >
+            <button
+              onClick={() => {
+                router.push(`/admin/dashboard/tag/add?id=${activeMenuId}`);
+                setActiveMenuId(null);
+              }}
+              className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+            >
+              <Edit3 size={12} /> Edit Tag
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Delete this campaign tag permanently?")) {
+                  deleteMutation.mutate(activeMenuId);
+                }
+                setActiveMenuId(null);
+              }}
+              className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium border-t border-gray-50"
+            >
+              <Trash2 size={12} /> Delete Tag
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

@@ -21,6 +21,18 @@ import { OrderItem } from "@/@types/order.type";
 import { invoiceItem } from "@/@types/invoice.type";
 import { getSettings } from "@/services-api/globalSettingsService";
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 export default function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
@@ -189,9 +201,9 @@ export default function ThankYouContent() {
             <tbody className="divide-y divide-gray-50">
               {apiResponse.order_items?.map(
                 (item: invoiceItem, idx: number) => {
-                  const variantImg = item.variant?.images?.[0];
-                  const productImg = item.product?.images?.[0];
-                  const externalImg = item.external_image;
+                  const variantImg = extractImageUrl(item.variant?.images?.[0]);
+                  const productImg = extractImageUrl(item.product?.images?.[0]);
+                  const externalImg = extractImageUrl(item.external_image);
                   const rawImg = variantImg || productImg || externalImg;
                   const finalImg = rawImg
                     ? rawImg.startsWith("http")

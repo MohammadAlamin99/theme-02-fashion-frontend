@@ -110,10 +110,10 @@ export const sidebarMenu = [
             label: "Faqs",
             href: "/admin/dashboard/faq",
           },
-          // {
-          //   label: "Popups",
-          //   href: "/admin/dashboard/popup",
-          // },
+          {
+            label: "Popups",
+            href: "/admin/dashboard/popup",
+          },
           {
             label: "Blogs",
             href: "/admin/dashboard/blog",

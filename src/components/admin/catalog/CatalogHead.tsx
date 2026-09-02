@@ -49,11 +49,13 @@ const CatalogHead = () => {
   return (
     <div className="w-full bg-white p-5 mt-2 border-b border-gray-100 font-poppins">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-        <h2 className="text-[#023337] text-[22px] font-bold font-lato">Catalog</h2>
+        <h2 className="text-[#023337] text-[22px] font-bold font-lato">
+          Catalog
+        </h2>
 
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 w-full lg:w-auto">
           {/* Search Inputs */}
-          <div className="bg-[#F9F9F9] rounded-[8px] px-4 py-3.5 flex items-center w-full md:w-[320px]">
+          <div className="bg-[#F9F9F9] rounded-lg px-4 py-3.5 flex items-center w-full md:w-[320px]">
             <SearchIcon size={24} color="black" />
             <input
               ref={searchInputRef}

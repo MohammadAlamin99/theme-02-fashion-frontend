@@ -303,6 +303,18 @@ export interface GetMyOrdersResponse {
   };
 }
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 const OrdersPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const limit = 10;
@@ -321,9 +333,9 @@ const OrdersPage = () => {
   const resolveImageUrl = (item: OrderItem): string | null => {
     // Priority: 1. External image > 2. Variant image > 3. Product image
     const raw =
-      item.external_image ||
-      item.variant?.images?.[0] ||
-      item.product?.images?.[0] ||
+      extractImageUrl(item.external_image) ||
+      extractImageUrl(item.variant?.images?.[0]) ||
+      extractImageUrl(item.product?.images?.[0]) ||
       "";
 
     if (!raw) return null;

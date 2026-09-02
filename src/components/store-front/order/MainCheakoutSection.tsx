@@ -26,6 +26,10 @@ import {
 import {
   fetchShippingSettings,
   calculateCartShippingDetails,
+  buildZoneShippingOptions,
+  CartItemWithShipping,
+  ShippingConfigEntry,
+  ZoneShippingOption,
 } from "@/services-api/shippingService";
 import { fetchSingleProduct } from "@/services-api/productService";
 import { getActiveCampaign } from "@/services-api/campaignService";
@@ -38,6 +42,10 @@ import { translations } from "@/locales";
 import { MOHASAGOR_PREFIX } from "@/constants/checkout";
 import debounce from "lodash/debounce";
 import { trackIncompleteOrder } from "@/services-api/incompleteOrderService";
+import {
+  fetchPaymentSettings,
+  PAYMENT_SETTINGS_QUERY_KEY,
+} from "@/services-api/paymentSettingsService";
 
 const MainCheckoutSection: React.FC = () => {
   const queryClient = useQueryClient();
@@ -192,8 +200,17 @@ const MainCheckoutSection: React.FC = () => {
   }, [rawCartItems, productQueries, activeCampaigns]);
 
   const courierConfig = shippingSettings?.courier_config;
+  // Check sub_city availability from new zones-array format OR old flat format
   const isSubCityAvailable = useMemo(() => {
-    if (!courierConfig?.sub_city) return false;
+    const hasSubCity =
+      // new format: zones[0].subcity
+      (courierConfig?.zones &&
+        courierConfig.zones.length > 0 &&
+        Number(courierConfig.zones[0].subcity) > 0) ||
+      // old flat format fallback
+      (courierConfig?.sub_city && Number(courierConfig.sub_city) > 0);
+
+    if (!hasSubCity) return false;
     return cartItems.every((item) => {
       const prod = (item.product || {}) as unknown as Product;
       if (String(prod.shipping_type).toUpperCase() === "CUSTOM") {
@@ -215,23 +232,50 @@ const MainCheckoutSection: React.FC = () => {
 
   useEffect(() => {
     if (!isSubCityAvailable && formData.shippingArea === "sub_city") {
-      setTimeout(() => {
-        setFormData((prev) => ({ ...prev, shippingArea: "outside" }));
-      }, 0);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData((prev) => ({ ...prev, shippingArea: "outside" }));
     }
   }, [isSubCityAvailable, formData.shippingArea]);
 
-  // Dynamic shipping options computation (location & charge)
-  const dynamicShippingOptions = useMemo(() => {
-    // Check if any product in cart has CUSTOM shipping_type with custom shipping_config
-    const customOptions: { key: string; label: string; fee: number }[] = [];
+  const dynamicShippingOptions = useMemo((): (
+    | ZoneShippingOption
+    | {
+        key: string;
+        label: string;
+        fee: number;
+        shippingArea: "inside" | "outside" | "sub_city";
+      }
+  )[] => {
+    if (cartItems.length === 0) {
+      // ✅ items → cartItems
+      return [
+        {
+          key: "inside",
+          label: "Inside Dhaka",
+          fee: 60,
+          shippingArea: "inside",
+          zoneName: "Dhaka",
+        },
+        {
+          key: "outside",
+          label: "Outside Dhaka",
+          fee: 120,
+          shippingArea: "outside",
+          zoneName: "Dhaka",
+        },
+      ];
+    }
 
+    // Priority 1: CUSTOM shipping products override everything
+    const customOptions: ZoneShippingOption[] = [];
     cartItems.forEach((item) => {
-      const prod = (item.product || {}) as Product;
+      // ✅ cartItemsWithShipping → cartItems
+      const prod = (item.product || {}) as Product; // ✅ type-ও checkout-এর মতো
       const sType = String(prod.shipping_type || "DEFAULT").toUpperCase();
-      const rawConfig = prod.shipping_config || item.shipping_config;
+      const rawConfig = prod.shipping_config || item.shipping_config; // ✅ fallback রাখুন, checkout-এ এভাবেই ছিল
+
       if (sType === "CUSTOM" && rawConfig) {
-        let config: ShippingConfig[] = [];
+        let config: ShippingConfig[] = []; // ✅ checkout-এ ShippingConfig টাইপ import করা আছে
         try {
           config =
             typeof rawConfig === "string" ? JSON.parse(rawConfig) : rawConfig;
@@ -246,11 +290,20 @@ const MainCheckoutSection: React.FC = () => {
               const exists = customOptions.find(
                 (opt) => opt.label.toLowerCase() === zoneName.toLowerCase(),
               );
+              const area: "inside" | "outside" | "sub_city" = zoneName
+                .toLowerCase()
+                .includes("sub")
+                ? "sub_city"
+                : zoneName.toLowerCase().includes("outside")
+                  ? "outside"
+                  : "inside";
               if (!exists) {
                 customOptions.push({
                   key: zoneName.toLowerCase().replace(/\s+/g, "_"),
                   label: zoneName,
                   fee: chargeNum,
+                  shippingArea: area,
+                  zoneName,
                 });
               } else {
                 exists.fee = Math.max(exists.fee, chargeNum);
@@ -260,18 +313,46 @@ const MainCheckoutSection: React.FC = () => {
         }
       }
     });
+    if (customOptions.length > 0) return customOptions;
 
-    if (customOptions.length > 0) {
-      return customOptions;
+    // Priority 2: Zone-based courier config
+    const rawZoneOpts = buildZoneShippingOptions(
+      shippingSettings?.courier_config,
+    );
+    if (rawZoneOpts.length > 0) {
+      const seenKeys = new Set<string>();
+      return rawZoneOpts.map((opt) => {
+        let uniqueKey = `${(opt.zoneName || opt.label)
+          .toLowerCase()
+          .replace(/\s+/g, "_")}__${opt.shippingArea}`;
+        if (seenKeys.has(uniqueKey)) uniqueKey = `${uniqueKey}__${opt.key}`;
+        seenKeys.add(uniqueKey);
+
+        return {
+          ...opt,
+          key: uniqueKey,
+          fee: calculateCartShippingDetails(
+            cartItems, // ✅ cartItemsWithShipping → cartItems
+            opt.shippingArea,
+            shippingSettings,
+            opt.fee,
+          ).totalShippingFee,
+        };
+      });
     }
 
-    // Default Fallback Options
-    const options = [
+    // Priority 3: Legacy flat fallback
+    const fallback: ZoneShippingOption[] = [
       {
         key: "inside",
         label: "Inside Dhaka",
-        fee: calculateCartShippingDetails(cartItems, "inside", shippingSettings)
-          .totalShippingFee,
+        fee: calculateCartShippingDetails(
+          cartItems,
+          "inside",
+          shippingSettings, // ✅
+        ).totalShippingFee,
+        shippingArea: "inside",
+        zoneName: "Dhaka",
       },
       {
         key: "outside",
@@ -279,42 +360,43 @@ const MainCheckoutSection: React.FC = () => {
         fee: calculateCartShippingDetails(
           cartItems,
           "outside",
-          shippingSettings,
+          shippingSettings, // ✅
         ).totalShippingFee,
+        shippingArea: "outside",
+        zoneName: "Dhaka",
       },
     ];
-
     if (isSubCityAvailable) {
-      options.push({
+      // ✅ shippingSettings?.courier_config?.sub_city এর বদলে isSubCityAvailable (checkout-এ আগে থেকেই এই variable আছে, সেটাই ব্যবহার করা উচিত)
+      fallback.push({
         key: "sub_city",
         label: "Sub City",
         fee: calculateCartShippingDetails(
           cartItems,
           "sub_city",
-          shippingSettings,
+          shippingSettings, // ✅
         ).totalShippingFee,
+        shippingArea: "sub_city",
+        zoneName: "Dhaka",
       });
     }
+    return fallback;
+  }, [cartItems, shippingSettings, isSubCityAvailable]); // ✅ dependency array-ও ঠিক করুন
 
-    return options;
-  }, [cartItems, shippingSettings, isSubCityAvailable, t]);
-
-  // Set default shippingArea when options load if current is invalid
   useEffect(() => {
     if (dynamicShippingOptions.length > 0) {
       const exists = dynamicShippingOptions.some(
         (opt) => opt.key === formData.shippingArea,
       );
       if (!exists) {
-        setTimeout(() => {
-          setFormData((prev) => ({
-            ...prev,
-            shippingArea: dynamicShippingOptions[0].key,
-          }));
-        }, 0);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormData((prev) => ({
+          ...prev,
+          shippingArea: dynamicShippingOptions[0].key,
+        }));
       }
     }
-  }, [dynamicShippingOptions]);
+  }, [dynamicShippingOptions, formData.shippingArea]);
 
   const calculatedShippingFee = useMemo(() => {
     const selectedOpt = dynamicShippingOptions.find(
@@ -548,6 +630,40 @@ const MainCheckoutSection: React.FC = () => {
     }
   }, [isStoreReady, cartItems, formData, orderSource, guestId, debouncedTrack]);
 
+  const { data: paymentSettings } = useQuery({
+    queryKey: PAYMENT_SETTINGS_QUERY_KEY,
+    queryFn: fetchPaymentSettings,
+  });
+
+  const availablePaymentMethods = useMemo(() => {
+    const methods: { key: string; label: string }[] = [];
+    const settingsObj =
+      paymentSettings?.data ||
+      (paymentSettings as unknown as {
+        cod_enabled?: boolean;
+        online_payment_enabled?: boolean;
+      });
+    if (settingsObj?.cod_enabled !== false) {
+      methods.push({ key: "COD", label: t.checkout.cashOnDelivery });
+    }
+    if (settingsObj?.online_payment_enabled) {
+      methods.push({ key: "Online", label: t.checkout.onlinePayment });
+    }
+    return methods;
+  }, [paymentSettings, t]);
+
+  if (availablePaymentMethods.length > 0) {
+    const exists = availablePaymentMethods.some(
+      (m) => m.key === formData.paymentMethod,
+    );
+    if (!exists) {
+      setFormData((prev) => ({
+        ...prev,
+        paymentMethod: availablePaymentMethods[0].key,
+      }));
+    }
+  }
+
   if (isLoading)
     return (
       <div className="p-20 text-center font-poppins text-lg font-medium">
@@ -604,7 +720,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.deliveryCharge}{" "}
-                <span className="text-[#D75300]">*</span>
+                <span className="text-[#FF7050]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -628,7 +744,7 @@ const MainCheckoutSection: React.FC = () => {
             <div className="flex flex-col gap-2 w-full relative">
               <label className="text-[#727272] font-semibold text-base md:text-lg">
                 {t.checkout.paymentMethod}{" "}
-                <span className="text-[#D75300]">*</span>
+                <span className="text-[#FF7050]">*</span>
               </label>
               <div className="relative w-full">
                 <select
@@ -637,8 +753,11 @@ const MainCheckoutSection: React.FC = () => {
                   onChange={handleInputChange}
                   className="w-full bg-[#F7F7F7] pl-4 md:pl-6 pr-12 py-3.5 md:py-4 rounded-xl outline-none text-base appearance-none cursor-pointer"
                 >
-                  <option value="COD">{t.checkout.cashOnDelivery}</option>
-                  {/* <option value="Online">{t.checkout.onlinePayment}</option> */}
+                  {availablePaymentMethods.map((m) => (
+                    <option key={m.key} value={m.key}>
+                      {m.label}
+                    </option>
+                  ))}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                   <FaCaretDown />

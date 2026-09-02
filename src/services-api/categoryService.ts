@@ -126,6 +126,20 @@ export const uploadCategoryImage = async (file: File) => {
   return res.json();
 };
 
+export const uploadCategoryBannerImage = async (file: File) => {
+  const token = await getAdminTokenAction();
+  const formData = new FormData();
+  formData.append("background", file);
+  const res = await apiFetch("/categories/upload-background", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token || ""}` },
+    body: formData,
+  });
+  if (!res.ok)
+    throw new Error("Failed to process graphic file asset stream upload.");
+  return res.json();
+};
+
 // 🚀 7. CREATE CATEGORY TRANSACTION
 export const createCategory = async (payload: {
   name: string;

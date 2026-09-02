@@ -1,15 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Loader2,
-  ArrowLeft,
-  CheckCircle,
-  ChevronDown,
-} from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle, ChevronDown } from "lucide-react";
 import {
   fetchSingleCategory,
   fetchRootCategoriesOnly,
@@ -55,9 +50,9 @@ export default function AddSubCategoryMain() {
   const subCategoryId = searchParams.get("id");
   const isEditMode = !!subCategoryId;
 
-  const baseStorageUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
+  // const baseStorageUrl =
+  //   process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
+  //   "http://localhost:8082";
 
   const methods = useForm({
     defaultValues: {
@@ -117,8 +112,6 @@ export default function AddSubCategoryMain() {
     queryKey: ["parent-categories-strict-root-nodes-isolated"],
     queryFn: fetchRootCategoriesOnly,
   });
-
-
 
   const subCategoryMutation = useMutation({
     mutationFn: (payload: payload) => {
@@ -186,7 +179,7 @@ export default function AddSubCategoryMain() {
   return (
     <FormProvider {...methods}>
       <div className="w-full min-h-screen font-lato pb-12 bg-[#F9FAFB]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6 p-4 bg-white border border-gray-100 rounded-[8px]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6 p-4 bg-white border border-gray-100 rounded-lg">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -217,7 +210,7 @@ export default function AddSubCategoryMain() {
           }}
           className="grid grid-cols-1 lg:grid-cols-12 gap-6"
         >
-          <div className="lg:col-span-8 bg-white rounded-[8px] p-5 border border-gray-100 space-y-5">
+          <div className="lg:col-span-8 bg-white rounded-lg p-5 border border-gray-100 space-y-5">
             <h3 className="text-[#003032] font-semibold text-lg border-b border-gray-200 pb-2">
               General Info
             </h3>
@@ -231,7 +224,7 @@ export default function AddSubCategoryMain() {
                     required:
                       "Parent category linkage configuration is mandatory",
                   })}
-                  className="w-full bg-[#F9F9F9] rounded-[8px] p-3 text-sm text-black outline-none border border-transparent focus:border-gray-200 cursor-pointer appearance-none"
+                  className="w-full bg-[#F9F9F9] rounded-lg p-3 text-sm text-black outline-none border border-transparent focus:border-gray-200 cursor-pointer appearance-none"
                 >
                   <option value="">Select Parent Category Mapping Node*</option>
                   {Array.isArray(parentCategoriesList) &&
@@ -288,7 +281,7 @@ export default function AddSubCategoryMain() {
                   },
                 })}
                 placeholder="Ex: Kids Toy, Summer Wear"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
               {errors.name && (
                 <p className="text-xs text-red-500 mt-1">
@@ -306,7 +299,7 @@ export default function AddSubCategoryMain() {
                     "Tracking slug pathway index parameters verified required",
                 })}
                 disabled={autoSlugActive}
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
               />
             </div>
 
@@ -315,7 +308,7 @@ export default function AddSubCategoryMain() {
               <textarea
                 {...register("description")}
                 placeholder="Write specific nested scope parameters description summary text..."
-                className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[140px] outline-none text-sm text-black resize-none"
+                className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[140px] outline-none text-sm text-black resize-none"
               />
             </div>
 
@@ -325,7 +318,7 @@ export default function AddSubCategoryMain() {
                 type="text"
                 {...register("meta_title")}
                 placeholder="Ex: Kids Toy Category"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
             </div>
 
@@ -335,7 +328,7 @@ export default function AddSubCategoryMain() {
                 type="text"
                 {...register("meta_tags")}
                 placeholder="Ex: toys, kids, games"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
             </div>
 
@@ -344,7 +337,7 @@ export default function AddSubCategoryMain() {
               <textarea
                 {...register("meta_description")}
                 placeholder="Ex: Find the best toys and games..."
-                className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[100px] outline-none text-sm text-black resize-none"
+                className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[100px] outline-none text-sm text-black resize-none"
               />
             </div>
 
@@ -354,13 +347,13 @@ export default function AddSubCategoryMain() {
                 type="number"
                 {...register("priority", { valueAsNumber: true })}
                 placeholder="Ex: 1"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-gray-800"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-gray-800"
               />
             </div>
           </div>
 
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b border-gray-200 pb-2">
                 Visibility Settings
               </h3>
@@ -370,7 +363,7 @@ export default function AddSubCategoryMain() {
                 </label>
                 <select
                   {...register("status")}
-                  className="w-full bg-[#F9FAFB] border border-gray-200 text-sm px-4 py-3 rounded-[8px] outline-none text-black cursor-pointer"
+                  className="w-full bg-[#F9FAFB] border border-gray-200 text-sm px-4 py-3 rounded-lg outline-none text-black cursor-pointer"
                 >
                   <option value="active">Published</option>
                   <option value="draft">Draft / Inactive</option>
@@ -397,7 +390,6 @@ export default function AddSubCategoryMain() {
                 className={`w-full justify-center bg-[#085E00] hover:bg-[#064400] text-white py-3 font-semibold ${subCategoryMutation.isPending ? "opacity-60 pointer-events-none" : ""}`}
               />
             </div>
-
           </div>
         </form>
       </div>

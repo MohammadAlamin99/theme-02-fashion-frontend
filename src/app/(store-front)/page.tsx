@@ -8,6 +8,7 @@ import FlashSale from "@/components/store-front/home/FlashSale";
 import PromotionDiscountProduct from "@/components/store-front/home/CampaignSection";
 import NewArrivals from "@/components/store-front/home/NewArrivals";
 import WeeklyBestSellerProduct from "@/components/store-front/home/WeeklyBestSellerProduct";
+import StorefrontPopupBanner from "@/components/store-front/home/StorefrontPopupBanner";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
 
 export const revalidate = 60;
@@ -22,6 +23,7 @@ export default async function Page() {
   const activeFlashSale = flashSaleArray[0];
   return (
     <>
+      <StorefrontPopupBanner />
       <BannerSlider />
       <Features />
       <FeaturedCategory />

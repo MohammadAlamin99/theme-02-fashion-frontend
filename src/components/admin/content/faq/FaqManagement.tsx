@@ -128,7 +128,7 @@ const FaqManagement: React.FC = () => {
     );
 
   return (
-    <div className="p-4 font-lato">
+    <div className="p-4 font-lato bg-white rounded-lg">
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         <div>

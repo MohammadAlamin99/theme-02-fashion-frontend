@@ -28,6 +28,7 @@ import {
   XCircle,
   RotateCcw,
   LucideIcon,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { debounce } from "lodash";
@@ -333,7 +334,7 @@ export default function OrderTable() {
     "On Hold": "ON_HOLD",
     Shipped: "SHIPPED",
     "Sent To Courier": "SENT_TO_COURIER",
-    Incomplete: "", // handled separately
+    Incomplete: "",
     Delivered: "DELIVERED",
     "Partial Delivered": "PARTIAL_DELIVERED",
     Canceled: "CANCELED",
@@ -479,7 +480,6 @@ export default function OrderTable() {
   });
 
   // 🚀 Universal Data Extractor
-  // এই লজিক API response এর যেকোনো shape থেকে array [...] বের করে আনে
   const orderList: Order[] = useMemo(() => {
     if (!serverData) return [];
 
@@ -536,7 +536,6 @@ export default function OrderTable() {
     refetchOnWindowFocus: true,
   });
 
-  // এটা array কে Map এ কনভার্ট করে যাতে UI সহজে count খুঁজে পায়
   const counts: Record<string, number> = useMemo(() => {
     return (
       tabCountsData?.reduce<Record<string, number>>(
@@ -589,7 +588,6 @@ export default function OrderTable() {
     },
   });
 
-  // Helper: item list অনুযায়ী মোট subtotal বের করা (order_items বা cart_items)
   const sumLineItems = (items: LineItem[]): number =>
     items.reduce(
       (sum, i) =>
@@ -768,14 +766,16 @@ export default function OrderTable() {
             e.stopPropagation();
             const rect = e.currentTarget.getBoundingClientRect();
             const windowHeight = window.innerHeight;
+            const windowWidth = window.innerWidth;
+            const menuHeight = 450;
             const spaceBelow = windowHeight - rect.bottom;
-            const opensUpward = spaceBelow < 250;
+            const opensUpward = spaceBelow < menuHeight;
 
             setMenuPos({
               ...(opensUpward
                 ? { bottom: windowHeight - rect.top + 8, top: undefined }
                 : { top: rect.bottom + 8, bottom: undefined }),
-              left: rect.left - 165,
+              left: Math.min(rect.left - 165, windowWidth - 220),
               opensUpward,
             });
             setActiveMenuId(activeMenuId === order.id ? null : order.id);
@@ -829,13 +829,15 @@ export default function OrderTable() {
 
         <DataTable data={orderList} columns={columns} rowKey="id" />
 
-        <div className="py-5">
-          <Pagination2
-            currentPage={page}
-            totalPages={meta.totalPages}
-            onPageChange={setPage}
-          />
-        </div>
+        {meta?.total > 0 && (
+          <div className="py-5">
+            <Pagination2
+              currentPage={page}
+              totalPages={meta.totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
       </div>
 
       {/* --- MODIFIED ACTION MENU --- */}
@@ -903,6 +905,22 @@ export default function OrderTable() {
               />
               <span className="font-medium">View Details</span>
             </button>
+
+            {isIncompleteTab && (
+              <button
+                onClick={() => {
+                  const o = orderList.find((x) => x.id === activeMenuId);
+                  if (o) deleteLeadMutation.mutate(o.id);
+                }}
+                className="w-full text-left px-3 py-2 text-[14px] text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg flex items-center gap-3 transition-colors group"
+              >
+                <Trash2
+                  size={16}
+                  className="text-gray-400 group-hover:text-red-500"
+                />
+                <span className="font-medium">Delete Lead</span>
+              </button>
+            )}
           </div>
 
           {/* Group 3: Status Management (Hidden for Incomplete) */}

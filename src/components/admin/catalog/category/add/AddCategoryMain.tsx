@@ -4,12 +4,13 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ArrowLeft, CheckCircle, Trash2 } from "lucide-react";
-import { apiFetch } from "@/utils/api";
+// import { apiFetch } from "@/utils/api";
 import {
   uploadCategoryImage,
   createCategory,
   updateCategory,
   fetchSingleCategory,
+  uploadCategoryBannerImage,
 } from "@/services-api/categoryService";
 import PrimaryButton from "../../../common/PrimaryButton";
 import IamgeIcon from "@/components/store-front/svg/svg/IamgeIcon";
@@ -108,21 +109,21 @@ export default function AddCategoryMain() {
     }
   }, [existingCategory, isEditMode, reset]);
 
-  const { data: treeResponse } = useQuery({
-    queryKey: ["categories-parent-tree-select"],
-    queryFn: async () => {
-      const res = await apiFetch("/categories/tree");
-      return res.json();
-    },
-  });
+  // const { data: treeResponse } = useQuery({
+  //   queryKey: ["categories-parent-tree-select"],
+  //   queryFn: async () => {
+  //     const res = await apiFetch("/categories/tree");
+  //     return res.json();
+  //   },
+  // });
 
-  const flatCategoriesList = (() => {
-    if (!treeResponse) return [];
-    if (Array.isArray(treeResponse)) return treeResponse;
-    if (treeResponse.data && Array.isArray(treeResponse.data))
-      return treeResponse.data;
-    return [];
-  })();
+  // const flatCategoriesList = (() => {
+  //   if (!treeResponse) return [];
+  //   if (Array.isArray(treeResponse)) return treeResponse;
+  //   if (treeResponse.data && Array.isArray(treeResponse.data))
+  //     return treeResponse.data;
+  //   return [];
+  // })();
 
   const handleImageFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -152,9 +153,10 @@ export default function AddCategoryMain() {
     if (!file) return;
     try {
       setUploadingBanner(true);
-      const data = await uploadCategoryImage(file);
-      if (data.image_url) setBannerUrl(data.image_url);
-      else if (data.data?.image_url) setBannerUrl(data.data.image_url);
+      const data = await uploadCategoryBannerImage(file);
+      console.log(data);
+      if (data.background_image_url) setBannerUrl(data.background_image_url);
+      else if (data.data?.background_image_url) setBannerUrl(data.data.background_image_url);
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(`Upload Failure: ${err.message}`);
@@ -273,7 +275,7 @@ export default function AddCategoryMain() {
           onSubmit={handleSubmit(onSubmitFormHandler)}
           className="grid grid-cols-1 lg:grid-cols-12 gap-4"
         >
-          <div className="lg:col-span-8 bg-white rounded-[8px] p-5 border border-gray-100 space-y-5">
+          <div className="lg:col-span-8 bg-white rounded-lg p-5 border border-gray-100 space-y-5">
             <h3 className="text-[#003032] font-semibold text-lg border-b border-gray-200 pb-2">
               General Info
             </h3>
@@ -311,7 +313,7 @@ export default function AddCategoryMain() {
                   },
                 })}
                 placeholder="Ex: Electronics"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
               {errors.name && (
                 <p className="text-xs text-red-500 mt-1">
@@ -326,7 +328,7 @@ export default function AddCategoryMain() {
                 type="text"
                 {...register("slug", { required: "Slug mapping is required" })}
                 disabled={autoSlugActive}
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
               />
             </div>
 
@@ -335,7 +337,7 @@ export default function AddCategoryMain() {
               <textarea
                 {...register("description")}
                 placeholder="Ex: Narrative scopes tracking profiles..."
-                className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[140px] outline-none text-sm text-black resize-none"
+                className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[140px] outline-none text-sm text-black resize-none"
               />
             </div>
 
@@ -345,7 +347,7 @@ export default function AddCategoryMain() {
                 type="text"
                 {...register("meta_title")}
                 placeholder="Ex: Electronics Category"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
             </div>
 
@@ -355,7 +357,7 @@ export default function AddCategoryMain() {
                 type="text"
                 {...register("meta_tags")}
                 placeholder="Ex: electronics, gadgets, devices"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black"
               />
             </div>
 
@@ -364,7 +366,7 @@ export default function AddCategoryMain() {
               <textarea
                 {...register("meta_description")}
                 placeholder="Ex: Discover the latest electronics and gadgets..."
-                className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[100px] outline-none text-sm text-black resize-none"
+                className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[100px] outline-none text-sm text-black resize-none"
               />
             </div>
 
@@ -374,7 +376,7 @@ export default function AddCategoryMain() {
                 type="number"
                 {...register("priority", { valueAsNumber: true })}
                 placeholder="Ex: 0"
-                className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-gray-800"
+                className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-gray-800"
               />
             </div>
 
@@ -382,7 +384,7 @@ export default function AddCategoryMain() {
               <Label>Parent Category Node Mapping Selection</Label>
               <select
                 {...register("parent_id")}
-                className="w-full bg-[#F9FAFB] p-3 rounded-[8px] text-sm border border-gray-200 text-black outline-none cursor-pointer"
+                className="w-full bg-[#F9FAFB] p-3 rounded-lg text-sm border border-gray-200 text-black outline-none cursor-pointer"
               >
                 <option value="">None (Treat as Top Root Node)</option>
                 {flatCategoriesList
@@ -397,7 +399,7 @@ export default function AddCategoryMain() {
           </div>
 
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b border-gray-200 pb-2">
                 Visibility Settings
               </h3>
@@ -407,7 +409,7 @@ export default function AddCategoryMain() {
                 </label>
                 <select
                   {...register("status")}
-                  className="w-full bg-[#F9FAFB] border border-gray-200 text-sm px-4 py-3 rounded-[8px] outline-none text-black cursor-pointer"
+                  className="w-full bg-[#F9FAFB] border border-gray-200 text-sm px-4 py-3 rounded-lg outline-none text-black cursor-pointer"
                 >
                   <option value="active">Published</option>
                   <option value="draft">Draft / Inactive</option>
@@ -434,20 +436,20 @@ export default function AddCategoryMain() {
               />
             </div>
 
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b pb-2 border-gray-200">
                 Category Icon Media
               </h3>
-              <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-[8px] p-6 text-center relative flex flex-col items-center justify-center min-h-[180px]">
+              <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-lg p-6 text-center relative flex flex-col items-center justify-center min-h-[180px]">
                 {imageUrl ? (
-                  <div className="relative group w-24 h-24 rounded-[8px] border overflow-hidden bg-white shadow-xs">
+                  <div className="relative group w-24 h-24 rounded-lg border overflow-hidden bg-white shadow-xs">
                     <Image
                       src={
                         imageUrl.startsWith("http")
                           ? imageUrl
                           : `${baseStorageUrl}${imageUrl}`
                       }
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       alt="category image"
                       width={100}
                       height={100}
@@ -470,6 +472,11 @@ export default function AddCategoryMain() {
                     <p className="text-xs text-[#A2A2A2] mt-2 font-medium">
                       Click to select asset photo
                     </p>
+                    <p className="text-xs text-[#A2A2A2] mt-2 font-medium">
+                      Best quality is{" "}
+                      <span className="font-semibold">128x84px</span> (2MB max)
+                      and format must be PNG or JPG.
+                    </p>
                   </div>
                 )}
                 <input
@@ -488,20 +495,20 @@ export default function AddCategoryMain() {
               </div>
             </div>
 
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b pb-2 border-gray-200">
                 Category Banner Media
               </h3>
-              <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-[8px] p-6 text-center relative flex flex-col items-center justify-center min-h-[180px]">
+              <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-lg p-6 text-center relative flex flex-col items-center justify-center min-h-[180px]">
                 {bannerUrl ? (
-                  <div className="relative group w-full h-32 rounded-[8px] border overflow-hidden bg-white shadow-xs">
+                  <div className="relative group w-full h-32 rounded-lg border overflow-hidden bg-white shadow-xs">
                     <Image
                       src={
                         bannerUrl.startsWith("http")
                           ? bannerUrl
                           : `${baseStorageUrl}${bannerUrl}`
                       }
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       alt="banner image"
                       width={400}
                       height={128}
@@ -523,6 +530,11 @@ export default function AddCategoryMain() {
                     <IamgeIcon size="54" color="#A2A2A2" />
                     <p className="text-xs text-[#A2A2A2] mt-2 font-medium">
                       Click to select banner photo
+                    </p>
+                    <p className="text-xs text-[#A2A2A2] mt-2 font-medium">
+                      Best quality is{" "}
+                      <span className="font-semibold">1720x200px</span> (2MB
+                      max) and format must be PNG or JPG.
                     </p>
                   </div>
                 )}

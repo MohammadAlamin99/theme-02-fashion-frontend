@@ -46,9 +46,9 @@ const BannerManager = () => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 font-lato">
+    <div className="flex flex-col lg:flex-row gap-4 font-lat">
       {/* LEFT: MANAGEMENT PANEL */}
-      <div className="flex-1 rounded-3xl p-4">
+      <div className="flex-1 mt-2 rounded-lg p-4 bg-white">
         <header className="flex justify-between items-center mb-10">
           <div>
             <h2 className="text-xl font-bold text-[#023337]">Carousel</h2>
@@ -88,10 +88,10 @@ const BannerManager = () => {
       </div>
 
       {/* RIGHT: REAL-TIME PREVIEW MOCKUP */}
-      <div className="w-full lg:w-[420px] mt-2">
+      <div className="w-full lg:w-[420px] mt-2 bg-white rounded-lg">
         <div className="sticky top-6">
           <div className="flex items-center justify-between mb-4 px-2">
-            <span className="text-[20px] font-semibold text-[#023337] ">
+            <span className="text-[20px] font-semibold text-[#023337] ml-2 mt-2">
               Preview
             </span>
           </div>

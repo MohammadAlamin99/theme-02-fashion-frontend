@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Trash2,
   ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,11 @@ export default function ReviewTable() {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [activeSubMenu, setActiveSubMenu] = useState<boolean>(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
-
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
   // Modal Controlled local states
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
@@ -362,69 +367,27 @@ export default function ReviewTable() {
       render: (item) => (
         <div className="relative">
           <button
-            onClick={() =>
-              setActiveMenuId(activeMenuId === item.id ? null : item.id)
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 180; // Main menu + sub menu estimate
+
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - 140 : rect.bottom,
+                left: rect.left - 180,
+                opensUpward,
+              });
+
+              setActiveMenuId(activeMenuId === item.id ? null : item.id);
+              setActiveSubMenu(false);
+            }}
             className="text-black p-1 transition-colors hover:bg-gray-100 rounded-full cursor-pointer"
           >
             <MoreVertical size={20} />
           </button>
-          {activeMenuId === item.id && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-[12px] shadow-xl py-2 z-50 text-sm font-medium text-[#1E293B]">
-              <button
-                onClick={() => openEditModal(item)}
-                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 border-b border-gray-50 cursor-pointer"
-              >
-                <Edit3 size={16} className="text-gray-400" /> <span>Edit</span>
-              </button>
-              <div
-                className="relative w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-50"
-                onMouseEnter={() => setActiveSubMenu(true)}
-                onMouseLeave={() => setActiveSubMenu(false)}
-              >
-                <div className="flex items-center gap-3">
-                  <ShieldAlert size={16} className="text-gray-400" />{" "}
-                  <span>Status</span>
-                </div>
-                <ChevronRight size={14} className="text-gray-400" />
-                {activeSubMenu && (
-                  <div className="absolute top-0 right-full mr-1 w-36 bg-white border border-gray-100 rounded-[10px] shadow-xl py-1 z-50">
-                    <button
-                      onClick={() =>
-                        updateStatusMutation.mutate({
-                          id: item.id,
-                          status: "APPROVED",
-                        })
-                      }
-                      className="w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-emerald-600 cursor-pointer"
-                    >
-                      Publish
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateStatusMutation.mutate({
-                          id: item.id,
-                          status: "PENDING",
-                        })
-                      }
-                      className="w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-amber-600 cursor-pointer"
-                    >
-                      Draft
-                    </button>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  if (confirm("Delete this review?"))
-                    deleteMutation.mutate(item.id);
-                }}
-                className="w-full text-left px-4 py-2 hover:bg-rose-50 text-rose-600 flex items-center gap-3 cursor-pointer"
-              >
-                <Trash2 size={16} /> <span>Delete</span>
-              </button>
-            </div>
-          )}
         </div>
       ),
     },
@@ -438,6 +401,7 @@ export default function ReviewTable() {
         rowKey="id"
         gradiant={true}
       />
+
       <div className="py-5">
         <Pagination
           currentPage={rPage}
@@ -445,6 +409,86 @@ export default function ReviewTable() {
           onPageChange={(p) => router.push(`${pathname}?r_page=${p}`)}
         />
       </div>
+
+      {/* 🚀 FIXED: Global Fixed Action Menu */}
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => {
+              setActiveMenuId(null);
+              setActiveSubMenu(false);
+            }}
+          />
+
+          <div
+            className="fixed bg-white border border-gray-100 rounded-[12px] shadow-xl py-2 z-[9999] w-48 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px",
+            }}
+          >
+            <button
+              onClick={() => {
+                const item = reviewData.find((r) => r.id === activeMenuId);
+                if (item) openEditModal(item);
+              }}
+              className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 border-b border-gray-50 cursor-pointer text-sm font-medium"
+            >
+              <Edit3 size={16} className="text-gray-400" /> <span>Edit</span>
+            </button>
+
+            <div
+              className="relative w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 text-sm font-medium"
+              onMouseEnter={() => setActiveSubMenu(true)}
+            >
+              <div className="flex items-center gap-3">
+                <ShieldAlert size={16} className="text-gray-400" />{" "}
+                <span>Status</span>
+              </div>
+              <ChevronLeft size={14} className="text-gray-400" />
+
+              {activeSubMenu && (
+                <div className="absolute top-0 right-full mr-1 w-36 bg-white border border-gray-100 rounded-[10px] shadow-xl py-1 z-[10000]">
+                  <button
+                    onClick={() =>
+                      updateStatusMutation.mutate({
+                        id: activeMenuId,
+                        status: "APPROVED",
+                      })
+                    }
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-emerald-600 cursor-pointer text-xs"
+                  >
+                    Publish
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateStatusMutation.mutate({
+                        id: activeMenuId,
+                        status: "PENDING",
+                      })
+                    }
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 hover:text-amber-600 cursor-pointer text-xs"
+                  >
+                    Draft
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                if (confirm("Delete this review?"))
+                  deleteMutation.mutate(activeMenuId);
+              }}
+              className="w-full text-left px-4 py-2 hover:bg-rose-50 text-rose-600 flex items-center gap-3 cursor-pointer text-sm font-medium"
+            >
+              <Trash2 size={16} /> <span>Delete</span>
+            </button>
+          </div>
+        </>
+      )}
 
       {isEditModalOpen && activeReviewItem && (
         <ReviewModal
@@ -458,8 +502,8 @@ export default function ReviewTable() {
           setEditRating={setEditRating}
           editComment={editComment}
           setEditComment={setEditComment}
-          editDate={editDate} // 🚀 Passed to Modal
-          setEditDate={setEditDate} // 🚀 Passed to Modal
+          editDate={editDate}
+          setEditDate={setEditDate}
           updateReviewMutation={updateReviewMutation}
           modalImages={modalImages}
           editingReviewId={editingReviewId}

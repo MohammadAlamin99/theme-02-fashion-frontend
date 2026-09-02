@@ -6,8 +6,8 @@ import PopupMainSection from "@/components/admin/content/popup/PopupMainSection"
 
 export default function Page() {
   return (
-    <div className="flex h-screen overflow-hidden">
-      <main className="flex-1 overflow-y-auto focus:outline-none">
+    <div className="flex">
+      <main className="flex-1">
         <div className="p-2 md:p-0">
           <div className="bg-white">
             <ContentHead />

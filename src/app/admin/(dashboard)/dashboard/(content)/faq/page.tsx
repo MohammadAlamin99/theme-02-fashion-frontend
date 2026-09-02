@@ -4,7 +4,7 @@ import ContentNavigation from "@/components/admin/content/ContentNavigation";
 
 export default function Page() {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex overflow-hidden">
       <main className="flex-1">
         <div className="p-2 md:p-0">
           <div className="bg-white">

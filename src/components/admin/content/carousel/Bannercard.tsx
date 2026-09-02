@@ -41,7 +41,7 @@ export const BannerCard = ({
             src={thumbSrc}
             alt={banner.meta_title || "Banner"}
             fill
-            className="object-cover rounded-[12px_12px_0_0]"
+            className="object-contain rounded-[12px_12px_0_0]"
             unoptimized
           />
         ) : (
@@ -49,11 +49,11 @@ export const BannerCard = ({
             <ImageOff className="text-slate-200" size={28} />
           </div>
         )}
-        <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur text-white text-[10px] px-3 py-1 rounded-full font-black">
-          POS: {banner.position}
+        <div className="absolute top-4 left-4 bg-[#E5522D] text-white text-sm font-poppins px-3 py-1 rounded-full font-medium">
+          Priority: {banner.position}
         </div>
         <div
-          className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black shadow-sm uppercase tracking-widest ${
+          className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-poppins font-medium ${
             banner.status === "active"
               ? "bg-emerald-500 text-white"
               : "bg-white text-slate-600"

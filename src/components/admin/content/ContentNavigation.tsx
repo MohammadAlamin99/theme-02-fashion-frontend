@@ -1,8 +1,10 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
-import { Shapes } from "lucide-react";
 import TabItem from "../catalog/TabItem";
 import SubCategroyIcon from "@/components/store-front/svg/svg/SubCategroyIcon";
+import CarouselIcon from "@/components/store-front/svg/CarouselIcon";
+import ImageIcon from "@/components/store-front/svg/svg/ImageIcon";
+import LandingPageIcon from "@/components/store-front/svg/svg/LandingPageIcon";
 
 export default function ContentNavigation() {
   const pathname = usePathname();
@@ -13,7 +15,7 @@ export default function ContentNavigation() {
       id: "carousel",
       label: "Carousel",
       path: "/admin/dashboard/carousel",
-      icon: Shapes,
+      icon: CarouselIcon,
     },
     {
       id: "faq",
@@ -31,13 +33,13 @@ export default function ContentNavigation() {
       id: "blog",
       label: "Blogs",
       path: "/admin/dashboard/blog",
-      icon: SubCategroyIcon,
+      icon: ImageIcon,
     },
     {
       id: "landingPage",
       label: "Landing Page",
       path: "/admin/dashboard/landing-page",
-      icon: SubCategroyIcon,
+      icon: LandingPageIcon,
     },
   ];
 

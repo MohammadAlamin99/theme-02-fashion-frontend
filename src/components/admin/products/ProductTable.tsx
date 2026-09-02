@@ -50,6 +50,12 @@ export default function ProductTable() {
   const search = searchParams.get("search") || "";
   const category_id = searchParams.get("category_id") || "";
   const status = searchParams.get("status") || "";
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
+  const menuRef = React.useRef(null);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -296,36 +302,25 @@ export default function ProductTable() {
       render: (product) => (
         <div className="relative inline-block text-left">
           <button
-            onClick={() =>
-              setActiveMenuId(activeMenuId === product.id ? null : product.id)
-            }
-            className="text-black p-1 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 80;
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - menuHeight : rect.bottom,
+                left: rect.left - 100,
+                opensUpward,
+              });
+
+              setActiveMenuId(activeMenuId === product.id ? null : product.id);
+            }}
+            className="text-black p-1 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
           >
             <MoreVertical size={20} />
           </button>
-          {activeMenuId === product.id && (
-            <div className="absolute right-0 mt-1 w-32 bg-white  rounded-md shadow-lg py-1 z-50 text-left">
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(`/admin/dashboard/products/add?id=${product.id}`)
-                }
-                className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
-              >
-                <Edit3 size={12} /> Edit Item
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm("Delete this product?"))
-                    deleteMutation.mutate(product.id);
-                }}
-                className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium"
-              >
-                <Trash2 size={12} /> Delete Item
-              </button>
-            </div>
-          )}
         </div>
       ),
     },
@@ -341,13 +336,14 @@ export default function ProductTable() {
   }
 
   return (
-    <div className="bg-white font-poppins">
+    <div className="bg-white font-poppins relative">
       <DataTable
         data={productList}
         columns={productColumns}
         rowKey="id"
         gradiant={true}
       />
+
       {productList.length > 0 && (
         <div className="py-5 md:mx-10 mx-2">
           <Pagination
@@ -356,6 +352,45 @@ export default function ProductTable() {
             onPageChange={handlePageChange}
           />
         </div>
+      )}
+
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setActiveMenuId(null)}
+          />
+
+          <div
+            ref={menuRef}
+            className="fixed bg-white rounded-md shadow-xl border border-gray-100 py-1 z-[9999] w-32 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+            }}
+          >
+            <button
+              onClick={() => {
+                router.push(`/admin/dashboard/products/add?id=${activeMenuId}`);
+                setActiveMenuId(null);
+              }}
+              className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+            >
+              <Edit3 size={12} /> Edit Item
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Delete this product?")) {
+                  deleteMutation.mutate(activeMenuId);
+                }
+                setActiveMenuId(null);
+              }}
+              className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer font-medium"
+            >
+              <Trash2 size={12} /> Delete Item
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

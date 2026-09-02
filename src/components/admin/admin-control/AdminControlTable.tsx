@@ -9,6 +9,7 @@ import {
   Clock,
   ChevronRight,
   Loader2,
+  ChevronLeft,
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/utils/api";
@@ -43,7 +44,11 @@ export default function AdminControlTable() {
   const queryClient = useQueryClient();
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [isStatusSubMenuOpen, setIsStatusSubMenuOpen] = useState(false);
-
+  const [menuPos, setMenuPos] = useState({
+    top: 0,
+    left: 0,
+    opensUpward: false,
+  });
   // Derive Backend URL exactly as you did in CustomerTable
   const baseApiUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8082/api/v1";
@@ -192,80 +197,36 @@ export default function AdminControlTable() {
     {
       header: "Action",
       key: "action",
-      render: (item: { id: string }) => (
+      render: (item) => (
         <div className="relative flex justify-end">
           <button
             onClick={(e) => {
               e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              const menuHeight = 150;
+              const opensUpward = windowHeight - rect.bottom < menuHeight;
+
+              setMenuPos({
+                top: opensUpward ? rect.top - 145 : rect.bottom,
+                left: rect.left - 170,
+                opensUpward,
+              });
+
               setActiveMenuId(activeMenuId === item.id ? null : item.id);
+              setIsStatusSubMenuOpen(false);
             }}
             className="p-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <MoreVertical size={18} className="text-gray-600" />
           </button>
-
-          {activeMenuId === item.id && (
-            <>
-              <div
-                className="inset-0 z-40"
-                onClick={() => setActiveMenuId(null)}
-              />
-              <div className="absolute right-0 mt-8 w-48 bg-white border border-gray-100 shadow-2xl rounded-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/admin/dashboard/admin-control/edit/${item.id}`,
-                    )
-                  }
-                  className="w-full px-4 py-2.5 text-xs flex items-center gap-3 hover:bg-gray-50 font-medium text-gray-700 cursor-pointer"
-                >
-                  <Edit3 size={14} /> Edit
-                </button>
-                <div
-                  className="relative w-full"
-                  onMouseEnter={() => setIsStatusSubMenuOpen(true)}
-                  onMouseLeave={() => setIsStatusSubMenuOpen(false)}
-                >
-                  <button className="w-full px-4 py-2.5 text-xs flex items-center justify-between hover:bg-gray-50 font-medium text-gray-700 cursor-pointer">
-                    <span className="flex items-center gap-3">
-                      <Clock size={14} /> Status
-                    </span>
-                    <ChevronRight size={14} />
-                  </button>
-                  {isStatusSubMenuOpen && (
-                    <div className="absolute right-full top-0 mr-0.5 w-32 bg-white border border-gray-100 shadow-2xl rounded-xl py-1 z-50">
-                      <button
-                        onClick={() => handleStatusUpdate(item.id, "PUBLISH")}
-                        className="w-full px-4 py-2 text-xs hover:bg-gray-50 text-left cursor-pointer"
-                      >
-                        Publish
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(item.id, "DRAFT")}
-                        className="w-full px-4 py-2 text-xs hover:bg-gray-50 text-left cursor-pointer"
-                      >
-                        Draft
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="h-[1px] bg-gray-100 my-1" />
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="w-full px-4 py-2.5 text-xs flex items-center gap-3 text-red-600 hover:bg-red-50 font-medium cursor-pointer"
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
-              </div>
-            </>
-          )}
         </div>
       ),
     },
   ];
 
   return (
-    <div className="bg-white py-4 rounded-lg">
+    <div className="bg-white py-4 rounded-lg relative">
       {isLoading ? (
         <div className="flex justify-center p-10">
           <Loader2 className="animate-spin" />
@@ -276,6 +237,76 @@ export default function AdminControlTable() {
           columns={columns}
           rowKey="id"
         />
+      )}
+
+      {/* 🚀 FIXED: Global Fixed Action Menu UI for Admin Control */}
+      {activeMenuId && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => {
+              setActiveMenuId(null);
+              setIsStatusSubMenuOpen(false);
+            }}
+          />
+
+          <div
+            className="fixed bg-white border border-gray-100 shadow-2xl rounded-xl py-1 z-[9999] w-48 animate-in fade-in zoom-in duration-100"
+            style={{
+              top: menuPos.top,
+              left: menuPos.left,
+              minHeight: "80px",
+            }}
+          >
+            <button
+              onClick={() => {
+                router.push(
+                  `/admin/dashboard/admin-control/edit/${activeMenuId}`,
+                );
+                setActiveMenuId(null);
+              }}
+              className="w-full px-4 py-2.5 text-[13px] flex items-center gap-3 hover:bg-gray-50 font-medium text-gray-700 cursor-pointer"
+            >
+              <Edit3 size={14} /> Edit
+            </button>
+
+            <div
+              className="relative w-full"
+              onMouseEnter={() => setIsStatusSubMenuOpen(true)}
+            >
+              <button className="w-full px-4 py-2.5 text-[13px] flex items-center justify-between hover:bg-gray-50 font-medium text-gray-700 cursor-pointer border-t border-gray-50">
+                <span className="flex items-center gap-3">
+                  <Clock size={14} /> Status
+                </span>
+                <ChevronLeft size={14} />
+              </button>
+
+              {isStatusSubMenuOpen && (
+                <div className="absolute right-full top-0 mr-1 w-32 bg-white border border-gray-100 shadow-2xl rounded-xl py-1 z-[10000]">
+                  <button
+                    onClick={() => handleStatusUpdate(activeMenuId, "PUBLISH")}
+                    className="w-full px-4 py-2 text-xs hover:bg-gray-50 text-left cursor-pointer"
+                  >
+                    Publish
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate(activeMenuId, "DRAFT")}
+                    className="w-full px-4 py-2 text-xs hover:bg-gray-50 text-left cursor-pointer border-t border-gray-50"
+                  >
+                    Draft
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => handleDelete(activeMenuId)}
+              className="w-full px-4 py-2.5 text-[13px] flex items-center gap-3 text-red-600 hover:bg-red-50 font-medium cursor-pointer border-t border-gray-50"
+            >
+              <Trash2 size={14} /> Delete
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

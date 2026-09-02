@@ -7,17 +7,29 @@ import toast from "react-hot-toast";
 import { WishlistProduct } from "@/@types/wishlist.type";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";
-
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
 export default function WishlistItem({ item }: { item: WishlistProduct }) {
   const queryClient = useQueryClient();
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8082";
-
-  const rowImage = item?.product?.images?.[0] || "";
-  const useableImage = rowImage.startsWith("http")
+  const rowImage = extractImageUrl(item?.product?.images[0]).trim();
+  const usableImage = rowImage.startsWith("http")
     ? rowImage
-    : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
+    : rowImage
+      ? `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`
+      : "/images/placeholder.svg";
 
   // revimove from wishlist
   const { mutate: handleRemoveFromWishlist, isPending: isRemoving } =
@@ -40,7 +52,7 @@ export default function WishlistItem({ item }: { item: WishlistProduct }) {
         <div className="rounded-[12px] aspect-square flex items-center justify-center relative overflow-hidden">
           <div className="w-full h-full relative group-hover:scale-110 transition-transform duration-500">
             <Image
-              src={useableImage}
+              src={usableImage}
               alt={item?.product?.name || "product name"}
               fill
               className="object-contain"
