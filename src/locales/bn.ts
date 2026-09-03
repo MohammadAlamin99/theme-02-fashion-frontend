@@ -223,23 +223,38 @@ export default {
 
     address: "ঠিকানা",
 
+    changePasswordTitle: "পাসওয়ার্ড পরিবর্তন করুন",
+    changeBtn: "পরিবর্তন",
+    cancelBtn: "বাতিল",
+    currentPassword: "বর্তমান পাসওয়ার্ড",
+    newPassword: "নতুন পাসওয়ার্ড",
+    confirmNewPassword: "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+    updatePassword: "পাসওয়ার্ড আপডেট করুন",
+
     validation: {
       blankName: "নামের ঘর খালি রাখা যাবে না।",
       shortName: "নাম কমপক্ষে ২ অক্ষরের হতে হবে।",
       invalidEmail: "সঠিক ইমেইল ঠিকানা লিখুন।",
       imageSize: "ছবির আকার ২MB এর কম হতে হবে।",
+      fillAllPasswordFields: "অনুগ্রহ করে সকল পাসওয়ার্ড এর ঘর পূরণ করুন।",
+      newPasswordLength: "নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+      passwordsDoNotMatch:
+        "নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মিলছে না।",
+      samePasswordError:
+        "নতুন পাসওয়ার্ডটি বর্তমান পাসওয়ার্ড থেকে ভিন্ন হতে হবে।",
     },
 
     success: {
       profileUpdated: "প্রোফাইল সফলভাবে আপডেট হয়েছে।",
       avatarUpdated: "প্রোফাইল ছবি সফলভাবে পরিবর্তন হয়েছে।",
       addressAdded: "নতুন ঠিকানা সফলভাবে যোগ হয়েছে।",
+      passwordChanged: "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে।",
     },
-
     error: {
       saveFailed: "পরিবর্তন সংরক্ষণ করা যায়নি।",
       uploadFailed: "ছবি আপলোড করা যায়নি।",
       addressFailed: "ঠিকানা যোগ করা যায়নি।",
+      changePasswordFailed: "পাসওয়ার্ড পরিবর্তন করা সম্ভব হয়নি।",
     },
   },
 

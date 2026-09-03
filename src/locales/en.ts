@@ -199,23 +199,38 @@ export default {
 
     address: "Address",
 
+    changePasswordTitle: "Change Password",
+    changeBtn: "Change",
+    cancelBtn: "Cancel",
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    confirmNewPassword: "Confirm New Password",
+    updatePassword: "Update Password",
+
     validation: {
       blankName: "Name field cannot be left blank.",
       shortName: "Name must be at least 2 characters long.",
       invalidEmail: "Please enter a valid email address format.",
       imageSize: "Image file size must be under 2MB.",
+      fillAllPasswordFields: "Please fill in all password fields.",
+      newPasswordLength: "New password must be at least 6 characters.",
+      passwordsDoNotMatch: "New password and confirm password do not match.",
+      samePasswordError:
+        "New password must be different from the current password.",
     },
 
     success: {
       profileUpdated: "Profile modifications synchronized successfully!",
       avatarUpdated: "Profile image changed successfully!",
       addressAdded: "New address record appended.",
+      passwordChanged: "Password changed successfully.",
     },
 
     error: {
       saveFailed: "Could not save adjustments.",
       uploadFailed: "Failed to upload image.",
       addressFailed: "Could not append address.",
+      changePasswordFailed: "Failed to change password.",
     },
   },
 

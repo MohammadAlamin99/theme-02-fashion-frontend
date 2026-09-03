@@ -288,3 +288,25 @@ export function useAdminUpdateProfileMutation() {
     },
   });
 }
+
+export function useChangePasswordMutation() {
+  return useMutation({
+    mutationFn: async (payload: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
+      const res = await apiFetch("/users/change-password", {
+        method: "PATCH",
+        headers: { "X-Customer-Request": "true" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok)
+        throw new Error(data?.message || "Failed to change password.");
+
+      return data;
+    },
+  });
+}
