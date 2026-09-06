@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useSyncExternalStore } from "react";
+import React, { useSyncExternalStore } from "react";
 import { Clock, XCircle, Loader2 } from "lucide-react";
 import {
   BarChart,
@@ -20,7 +20,6 @@ import ConfirmIcon from "@/components/store-front/svg/svg/ConfirmIcon";
 import TruckIcon from "@/components/store-front/svg/svg/TruckIcon";
 import DeliverdIcon from "@/components/store-front/svg/svg/DeliverdIcon";
 import ReturnIcon from "@/components/store-front/svg/svg/ReturnIcon";
-import dayjs from "dayjs";
 
 interface VisitorStats {
   onlineNow: number;

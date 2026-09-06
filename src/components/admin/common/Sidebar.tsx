@@ -1,11 +1,31 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { sidebarMenu } from "@/config/sidebar";
 import { SidebarHeader } from "./SidebarHeader";
 import { NavMenuGroup } from "./NavMenuGroup";
 import { NavSingleItem } from "./NavSingleItem";
 import { useAdminProfileData } from "@/hooks/useProfile";
+
+interface SidebarSubItem {
+  label: string;
+  href: string;
+}
+
+interface SidebarItem {
+  label: string;
+  permission: string;
+  icon: React.ElementType;
+  activeIcon?: React.ElementType;
+  href?: string;
+  matchPrefix?: string;
+  submenu?: SidebarSubItem[];
+}
+
+interface SidebarSection {
+  section: string;
+  items: SidebarItem[];
+}
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -22,63 +42,47 @@ const activeItemStyle: React.CSSProperties = {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
 
-  // Update this line inside the component:
   const { data: userData } = useAdminProfileData();
-
-  // The rest of the logic remains the same...
   const user = userData?.data || userData;
 
-  const filteredMenu = useMemo(() => {
+  const filteredMenu = useMemo<SidebarSection[]>(() => {
     if (!user) return [];
-    return sidebarMenu
+    return (sidebarMenu as SidebarSection[])
       .map((section) => ({
         ...section,
-        items: section.items.filter((item: { permission: string }) => {
-          // if (user.role === "ADMIN") return true;
-          return user.permissions?.includes(item.permission);
-        }),
+        items: section.items.filter((item) =>
+          user.permissions?.includes(item.permission),
+        ),
       }))
       .filter((section) => section.items.length > 0);
   }, [user]);
 
-  // User toggles for submenus
-  const [userToggledMenus, setUserToggledMenus] = useState<
-    Record<string, boolean>
-  >({});
-
-  // Derived state: calculate which submenus contain the active route
-  const activeMenus = useMemo(() => {
-    const active: Record<string, boolean> = {};
+  const activeLabel = useMemo(() => {
+    let label: string | null = null;
     filteredMenu.forEach((section) => {
       section.items.forEach((item) => {
         if (item.submenu) {
           const isActive = item.submenu.some(
-            (sub: { href: string }) =>
+            (sub) =>
               pathname === sub.href || pathname.startsWith(`${sub.href}/`),
           );
-          if (isActive) {
-            active[item.label] = true;
-          }
+          if (isActive) label = item.label;
         }
       });
     });
-    return active;
+    return label;
   }, [pathname, filteredMenu]);
 
-  useEffect(() => {
-    if (onClose) onClose();
-  }, [pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const [openMenu, setOpenMenu] = useState<string | null>(activeLabel);
+  const syncKey = `${pathname}|${filteredMenu.length}`;
+  const [lastSyncKey, setLastSyncKey] = useState(syncKey);
+  if (syncKey !== lastSyncKey) {
+    setLastSyncKey(syncKey);
+    setOpenMenu(activeLabel);
+  }
 
   const toggleMenu = (menuName: string) => {
-    const currentlyOpen = userToggledMenus[menuName] ?? !!activeMenus[menuName];
-    setUserToggledMenus((prev) => ({ ...prev, [menuName]: !currentlyOpen }));
+    setOpenMenu((current) => (current === menuName ? null : menuName));
   };
 
   const sidebarContent = (
@@ -86,7 +90,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <SidebarHeader onClose={onClose} />
 
       <nav className="flex-1 mt-2 font-poppins">
-        {/* 3. Render the filteredMenu instead of the raw sidebarMenu */}
         {filteredMenu.map((section) => (
           <div key={section.section}>
             <p className="px-6 mt-6 mb-2 text-base font-normal text-[#777]">
@@ -95,8 +98,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             {section.items.map((item) => {
               if (item.submenu) {
-                const isMenuOpen =
-                  userToggledMenus[item.label] ?? !!activeMenus[item.label];
+                const isMenuOpen = openMenu === item.label;
                 return (
                   <NavMenuGroup
                     key={item.label}

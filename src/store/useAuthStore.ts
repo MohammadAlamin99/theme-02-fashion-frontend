@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -20,6 +19,7 @@ interface User {
 }
 
 interface AuthState {
+  clearAdminAuth: () => void;
   user: User | null;
 
   adminUser: User | null;
@@ -67,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
       setIsChatOpen: (open) => set({ isChatOpen: open }),
 
       clearAuth: () => set({ user: null, adminUser: null, isChatOpen: false }),
+      clearAdminAuth: () => set({ adminUser: null }),
     }),
 
     {

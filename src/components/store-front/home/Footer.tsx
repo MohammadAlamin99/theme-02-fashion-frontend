@@ -13,6 +13,9 @@ import {
   FaYoutube,
   FaLinkedin,
   FaTelegramPlane,
+  FaWhatsapp,
+  FaTwitter,
+  FaTiktok,
 } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSettings } from "@/services-api/settingsService";
@@ -27,6 +30,16 @@ const Footer = () => {
   });
 
   const info = settings?.data || settings;
+  const socialIcons: Record<string, JSX.Element> = {
+    facebook: <FaFacebook />,
+    instagram: <FaInstagram />,
+    youtube: <FaYoutube />,
+    linkedin: <FaLinkedin />,
+    telegram: <FaTelegramPlane />,
+    whatsapp: <FaWhatsapp />,
+    twitter: <FaTwitter />,
+    tiktok: <FaTiktok />,
+  };
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
     "http://localhost:8082";
@@ -35,13 +48,6 @@ const Footer = () => {
     ? rowImage
     : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
 
-  const socialIcons: Record<string, JSX.Element> = {
-    facebook: <FaFacebook />,
-    instagram: <FaInstagram />,
-    youtube: <FaYoutube />,
-    linkedin: <FaLinkedin />,
-    telegram: <FaTelegramPlane />,
-  };
 
   const { language } = useLanguage();
   const t = translations[language];

@@ -14,7 +14,6 @@ import WebsiteIcon from "@/components/store-front/svg/svg/sidebar-icon/WebsiteIc
 import AwebsiteIcon from "@/components/store-front/svg/svg/AwebsiteIcon";
 import SettingsIcon from "@/components/store-front/svg/svg/sidebar-icon/SettingsIcon";
 import AdminShildIcon from "@/components/store-front/svg/svg/sidebar-icon/AdminShildIcon";
-import { permission } from "process";
 import InactiveCampaign from "@/components/store-front/svg/svg/sidebar-icon/InactiveCampaign";
 import ActiveCampaign from "@/components/store-front/svg/svg/sidebar-icon/ActiveCampaign";
 
@@ -143,9 +142,11 @@ export const sidebarMenu = [
   {
     section: "System",
     items: [
+
       {
         label: "Settings",
         href: "/admin/dashboard/settings/information",
+        matchPrefix: "/admin/dashboard/settings",
         icon: SettingsIcon,
         permission: "Settings",
         activeIcon: Settings2,

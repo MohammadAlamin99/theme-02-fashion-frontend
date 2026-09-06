@@ -11,8 +11,6 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchSettings, updateSettings } from "@/services-api/settingsService";
 import { RotateCcw, Plus, User, Trash2 } from "lucide-react";
-
-// Components
 import CrystalOrangeButton from "./CrystalOrangeButton";
 import { LogoUploadCard } from "./LogoUploadCard";
 import { RichTextSection } from "./RichTextSection";
@@ -71,6 +69,15 @@ interface SettingsData {
   address: string;
 }
 
+const SOCIAL_PLATFORMS = [
+  { label: "Facebook", value: "facebook" },
+  { label: "Instagram", value: "instagram" },
+  { label: "WhatsApp", value: "whatsapp" },
+  { label: "Twitter (X)", value: "twitter" },
+  { label: "LinkedIn", value: "linkedin" },
+  { label: "YouTube", value: "youtube" },
+  { label: "TikTok", value: "tiktok" },
+];
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -251,7 +258,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Social Links Section - Full Width */}
+          {/* Social Links Section */}
           <div className="flex flex-col gap-4 mt-2">
             <h3 className="text-[15px] font-bold text-[#000000] font-lato">
               Social Links
@@ -260,27 +267,51 @@ export default function SettingsPage() {
             {fields.map((f, i) => (
               <div
                 key={f.id}
-                className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end"
+                className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-[#FDFDFD] rounded-lg"
               >
-                <div className="md:col-span-5">
-                  <InputGroup
+                {/* Platform Selection */}
+                <div className="md:col-span-5 flex flex-col gap-2">
+                  <label className="text-sm font-bold text-gray-500">
+                    Platform
+                  </label>
+                  <Controller
+                    control={control}
                     name={`social_links.${i}.platform`}
-                    label=""
-                    placeholder="Platform"
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-base outline-none border-none font-poppins appearance-none"
+                      >
+                        <option value="">Select Platform</option>
+                        {SOCIAL_PLATFORMS.map((platform) => (
+                          <option key={platform.value} value={platform.value}>
+                            {platform.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   />
                 </div>
-                <div className="md:col-span-5">
-                  <InputGroup
-                    name={`social_links.${i}.url`}
-                    label=""
-                    placeholder="URL"
+
+                {/* URL Input */}
+                <div className="md:col-span-5 flex flex-col gap-2">
+                  <label className="text-sm font-bold text-gray-500">
+                    URL / Link
+                  </label>
+                  <input
+                    {...methods.register(`social_links.${i}.url`)}
+                    placeholder="https://..."
+                    className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-base outline-none border-none font-poppins"
                   />
                 </div>
+
+                {/* Remove Button */}
                 <div className="md:col-span-2">
                   <button
                     type="button"
                     onClick={() => remove(i)}
                     className="w-full h-[48px] flex items-center justify-center bg-[#FFF1F1] text-[#FF4D4D] rounded-[8px] hover:bg-[#ffe0e0] transition-colors"
+                    title="Remove link"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -290,10 +321,12 @@ export default function SettingsPage() {
 
             <div className="mt-2">
               <CrystalOrangeButton
-                label="Add New Link"
+                label="Add New Social Link"
                 type="button"
                 icon={<Plus size={20} />}
-                onClick={() => append({ id: "", platform: "", url: "" })}
+                onClick={() =>
+                  append({ id: Date.now().toString(), platform: "", url: "" })
+                }
               />
             </div>
           </div>

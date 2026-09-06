@@ -8,6 +8,7 @@ import {
   useAdminUpdateAvatarMutation,
 } from "@/hooks/useProfile";
 import { User, Phone, Mail, Shield, Camera, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 const AdminProfilePage = () => {
   const { data: profile, isLoading, isError, error } = useAdminProfileData();
@@ -27,6 +28,7 @@ const AdminProfilePage = () => {
   useEffect(() => {
     if (profile) {
       const rawUser = profile.user || profile.data || profile;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(rawUser.name || "");
       setEmail(rawUser.email || "");
 
@@ -65,10 +67,13 @@ const AdminProfilePage = () => {
             text: "Admin avatar changed successfully!",
           });
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           setStatus({
             type: "error",
-            text: err.message || "Failed to upload avatar image file.",
+            text:
+              err instanceof Error
+                ? err.message
+                : "Failed to upload avatar image file.",
           });
         },
       });
@@ -101,10 +106,13 @@ const AdminProfilePage = () => {
             text: "Profile modifications synchronized successfully!",
           });
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           setStatus({
             type: "error",
-            text: err.message || "Could not save adjustments.",
+            text:
+              err instanceof Error
+                ? err.message
+                : "Failed could not update profile",
           });
         },
       },
@@ -134,10 +142,12 @@ const AdminProfilePage = () => {
           <div className="relative group w-20 h-20 shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FF6A00] to-[#FF9F1C] flex items-center justify-center text-white text-3xl font-bold shadow-xs overflow-hidden border-2 border-orange-100 relative">
               {avatarPreview ? (
-                <img
+                <Image
                   src={avatarPreview}
                   alt="Avatar"
                   className="w-full h-full object-cover"
+                  width={80}
+                  height={80}
                 />
               ) : (
                 name.charAt(0).toUpperCase() || "A"
@@ -181,7 +191,7 @@ const AdminProfilePage = () => {
         <form onSubmit={handleSaveChanges} className="p-6 flex flex-col gap-6">
           {(status || isError) && (
             <div
-              className={`flex items-center gap-3 text-sm font-medium p-4 rounded-[8px] border transition-all ${
+              className={`flex items-center gap-3 text-sm font-medium p-4 rounded-lg border transition-all ${
                 status?.type === "success"
                   ? "bg-green-50 border-green-200 text-green-700"
                   : "bg-red-50 border-red-200 text-red-700"
@@ -201,7 +211,7 @@ const AdminProfilePage = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-lg border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
               <User className="text-[#FF7050] shrink-0" size={20} />
               <div className="flex-1">
                 <label className="text-sm  text-gray-400 block font-medium">
@@ -217,7 +227,7 @@ const AdminProfilePage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent opacity-70 cursor-not-allowed">
+            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-lg border border-transparent opacity-70 cursor-not-allowed">
               <Phone className="text-gray-400 shrink-0" size={20} />
               <div className="flex-1">
                 <label className="text-sm  text-gray-400 block font-medium">
@@ -232,7 +242,7 @@ const AdminProfilePage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
+            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-lg border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
               <Mail className="text-[#FF7050] shrink-0" size={20} />
               <div className="flex-1">
                 <label className="text-sm  text-gray-400 block font-medium">
@@ -247,7 +257,7 @@ const AdminProfilePage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-[8px] border border-transparent opacity-80">
+            <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-lg border border-transparent opacity-80">
               <Shield className="text-[#FF7050] shrink-0" size={20} />
               <div>
                 <span className="text-sm  text-gray-400 block font-medium">
@@ -264,7 +274,7 @@ const AdminProfilePage = () => {
             <button
               type="submit"
               disabled={isPendingState}
-              className="text-white px-6 py-3 rounded-[8px] text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-all hover:brightness-105"
+              className="text-white px-6 py-3 rounded-lg text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-all hover:brightness-105"
               style={{
                 background: "linear-gradient(180deg, #FF6A00 0%, #FF9F1C 100%)",
               }}
