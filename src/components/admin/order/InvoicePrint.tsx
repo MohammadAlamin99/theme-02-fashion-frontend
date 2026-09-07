@@ -40,12 +40,7 @@ interface Order {
   order_items?: OrderItem[];
 }
 
-interface InvoiceProps {
-  order: Order | null;
-  baseStorageUrl: string;
-}
-
-export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoiceProps>(
+export const InvoicePrint = React.forwardRef<HTMLDivElement, any>(
   ({ order, baseStorageUrl }, ref) => {
     const { data: settingResponse } = useQuery({
       queryKey: ["global-settings"],
