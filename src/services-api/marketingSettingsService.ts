@@ -24,24 +24,25 @@ export interface MarketingSettingsResponse {
 
 export type UpdateMarketingSettingsPayload = Partial<MarketingSettingsData>;
 
-export const fetchMarketingSettings = async (): Promise<MarketingSettingsData> => {
-  const res = await apiFetch("/marketing-settings", { method: "GET" });
-  if (!res.ok) {
-    let message = "Failed to load marketing settings";
-    try {
-      const errJson = await res.json();
-      message = errJson?.message || message;
-    } catch {
-      // ignore JSON parse error
+export const fetchMarketingSettings =
+  async (): Promise<MarketingSettingsData> => {
+    const res = await apiFetch("/marketing-settings", { method: "GET" });
+    if (!res.ok) {
+      let message = "Failed to load marketing settings";
+      try {
+        const errJson = await res.json();
+        message = errJson?.message || message;
+      } catch {
+        // ignore JSON parse error
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
-  }
-  const json: MarketingSettingsResponse = await res.json();
-  return json.data;
-};
+    const json: MarketingSettingsResponse = await res.json();
+    return json.data;
+  };
 
 export const updateMarketingSettings = async (
-  payload: UpdateMarketingSettingsPayload
+  payload: UpdateMarketingSettingsPayload,
 ): Promise<MarketingSettingsData> => {
   const res = await apiFetch("/marketing-settings", {
     method: "PATCH",

@@ -1,7 +1,4 @@
-
-"use client";
-
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
@@ -249,6 +246,7 @@ export default function AddRoleMain() {
                   className="w-full px-4 py-4 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg outline-none"
                 >
                   <option value="ADMIN">Admin</option>
+                  {/* <option value="MANAGER">Manager</option> */}
                 </select>
               </div>
 

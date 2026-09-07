@@ -12,7 +12,6 @@ import PaymentGatewayContent from "./PaymentGatewayContent";
 import MarketingIntegrationsContent from "./MarketingIntegrationsContent";
 import ShopDomainContent from "./ShopDomainContent";
 import SMSSupportContent from "./SMSSupportContent";
-import OTPVerificationContent from "./OTPVerificationContent";
 import CupponContent from "./CupponContent";
 
 export default function ShopSettingsPage() {

@@ -10,7 +10,7 @@ import {
   sendTestSms,
   SmsProvider,
   SmsTriggers,
-} from "../../products/add/smsSettingsService";
+} from "@/services-api/smsSettingsService";
 
 const AVAILABLE_PROVIDERS = [
   { id: "bdbulksms", name: "BDBULKSMS.NET", logo: "/images/admin/smsbd.png" },

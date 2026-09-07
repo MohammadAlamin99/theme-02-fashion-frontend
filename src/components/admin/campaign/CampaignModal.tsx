@@ -10,7 +10,6 @@ import {
   Campaign,
   CreateCampaignInput,
   uploadCampaignImage,
-  ImageUploadResponse,
 } from "@/services-api/campaignService";
 import { searchProducts } from "@/services-api/productService";
 import Image from "next/image";
@@ -222,10 +221,10 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
     if (formData.product_ids.length === 0)
       return toast.error("Select at least one product");
 
-    const { selected_products_info, ...restFormData } = formData;
+    const { selected_products_info, ...restFormData } = formData; // নতুন
 
     const finalPayload: CreateCampaignInput = {
-      ...restFormData,
+      ...restFormData, // formData এর বদলে restFormData
       slug:
         formData.slug ||
         formData.name.toLowerCase().trim().replace(/\s+/g, "-"),
@@ -271,6 +270,7 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-[#023337] mb-1.5">
@@ -423,63 +423,7 @@ export default function CampaignModal({ mode, data, onClose }: ModalProps) {
                   <option value="draft">Draft</option>
                 </select>
               </div>
-              {/* <div>
-                <label className="block text-sm font-semibold text-[#023337] mb-1.5">
-                  Minimum Order
-                </label>
-                <input
-                  type="text"
-                  value={formData.min_order_amount}
-                  placeholder="BDT 500"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      min_order_amount: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
-                />
-              </div> */}
             </div>
-
-            {/* <div className="grid grid-cols-2 gap-4 items-end"> */}
-            {/* <div>
-                <label className="block text-sm font-semibold text-[#023337] mb-1.5">
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      status: e.target.value as "active" | "draft",
-                    })
-                  }
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm outline-none"
-                >
-                  <option value="active">Active</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </div> */}
-            {/* <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg px-4 py-2.5">
-                <span className="text-sm font-semibold text-[#023337]">
-                  Free Delivery
-                </span>
-                <div
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      is_free_delivery: !prev.is_free_delivery,
-                    }))
-                  }
-                  className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${formData.is_free_delivery ? "bg-blue-500" : "bg-gray-300"}`}
-                >
-                  <div
-                    className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${formData.is_free_delivery ? "left-[22px]" : "left-0.5"}`}
-                  />
-                </div>
-              </div> */}
-            {/* </div> */}
 
             <div className="relative" ref={dropdownRef}>
               <label className="block text-sm font-semibold text-[#023337] mb-1.5">

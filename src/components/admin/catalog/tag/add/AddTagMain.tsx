@@ -17,6 +17,7 @@ import {
   createTag,
   updateTag,
   fetchSingleTag,
+  uploadBannerTagMedia,
 } from "@/services-api/tagService";
 import PrimaryButton from "../../../common/PrimaryButton";
 import IamgeIcon from "@/components/store-front/svg/svg/IamgeIcon";
@@ -143,6 +144,29 @@ export default function AddTagMain() {
     }
   };
 
+  const handleBannerUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    target: "image" | "banner",
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingType(target);
+      const uploadedPath = await uploadBannerTagMedia(file);
+      if (target === "banner")
+        setBannerUrl(uploadedPath); // ✅ ঠিক
+      else setImageUrl(uploadedPath); // ✅ ঠিক
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(`Upload Failure: ${err.message}`);
+      } else {
+        toast.error("Upload Failure: An unknown error occurred");
+      }
+    } finally {
+      setUploadingType(null);
+    }
+  };
+
   const tagMutation = useMutation({
     mutationFn: (payload: {
       name: string;
@@ -242,7 +266,7 @@ export default function AddTagMain() {
   return (
     <FormProvider {...methods}>
       <div className="w-full min-h-screen font-lato pb-12 bg-[#F9FAFB]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6 p-4 bg-white border border-gray-100 rounded-[8px]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6 p-4 bg-white border border-gray-100 rounded-lg">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -272,7 +296,7 @@ export default function AddTagMain() {
         >
           <div className="lg:col-span-8 space-y-4">
             {/* General Information */}
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-5">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-5">
               <h3 className="text-[#003032] font-semibold text-lg border-b border-gray-200 pb-2">
                 General Info
               </h3>
@@ -310,7 +334,7 @@ export default function AddTagMain() {
                     },
                   })}
                   placeholder="Ex: Black Friday, Summer Deal"
-                  className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black border border-transparent focus:border-gray-200"
+                  className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black border border-transparent focus:border-gray-200"
                 />
                 {errors.name && (
                   <p className="text-xs text-red-500 mt-1">
@@ -327,7 +351,7 @@ export default function AddTagMain() {
                     required: "Slug unique token required",
                   })}
                   disabled={autoSlugActive}
-                  className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
+                  className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-gray-800 disabled:opacity-60"
                 />
               </div>
 
@@ -336,13 +360,13 @@ export default function AddTagMain() {
                 <textarea
                   {...register("description")}
                   placeholder="Describe the campaign coverage..."
-                  className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[100px] outline-none text-sm text-black resize-none"
+                  className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[100px] outline-none text-sm text-black resize-none"
                 />
               </div>
             </div>
 
             {/* 🚀 FLASH SALE CAMPAIGN CHANNELS MAPPING */}
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <div className="flex items-center justify-between border-b border-gray-200 pb-2">
                 <h3 className="text-[#003032] font-semibold text-lg">
                   Flash Sale Configuration
@@ -373,7 +397,7 @@ export default function AddTagMain() {
                   <input
                     type="date"
                     {...register("start_date", { required: isFlashSaleActive })}
-                    className="w-full bg-[#F9F9F9] rounded-[8px] p-3 text-sm text-black outline-none border focus:border-gray-200"
+                    className="w-full bg-[#F9F9F9] rounded-lg p-3 text-sm text-black outline-none border focus:border-gray-200 border-gray-200"
                   />
                 </div>
                 <div>
@@ -383,14 +407,14 @@ export default function AddTagMain() {
                   <input
                     type="date"
                     {...register("end_date", { required: isFlashSaleActive })}
-                    className="w-full bg-[#F9F9F9] rounded-[8px] p-3 text-sm text-black outline-none border focus:border-gray-200"
+                    className="w-full bg-[#F9F9F9] rounded-lg p-3 text-sm text-black outline-none border focus:border-gray-200 border-gray-200"
                   />
                 </div>
               </div>
             </div>
 
             {/* SEO Metadata Config */}
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100">
+            <div className="bg-white rounded-lg p-5 border border-gray-100">
               <div
                 className="flex justify-between items-center cursor-pointer select-none"
                 onClick={() => setIsSeoExpanded(!isSeoExpanded)}
@@ -413,7 +437,7 @@ export default function AddTagMain() {
                     type="text"
                     {...register("meta_title", { maxLength: 255 })}
                     placeholder="Meta title snippet line..."
-                    className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black border"
+                    className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black border border-gray-200"
                   />
                 </div>
                 <div>
@@ -422,7 +446,7 @@ export default function AddTagMain() {
                     type="text"
                     {...register("meta_tags")}
                     placeholder="Keywords list separation via commas..."
-                    className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-3 text-sm outline-none text-black border"
+                    className="w-full bg-[#F9F9F9] rounded-lg px-4 py-3 text-sm outline-none text-black border border-gray-200"
                   />
                 </div>
                 <div>
@@ -430,7 +454,7 @@ export default function AddTagMain() {
                   <textarea
                     {...register("meta_description")}
                     placeholder="Conclude structural descriptive overview summaries..."
-                    className="w-full bg-[#F9F9F9] rounded-[8px] p-4 min-h-[90px] outline-none text-sm text-black border resize-none"
+                    className="w-full bg-[#F9F9F9] rounded-lg p-4 min-h-[90px] outline-none text-sm text-black border resize-none border-gray-200"
                   />
                 </div>
               </div>
@@ -439,7 +463,7 @@ export default function AddTagMain() {
 
           {/* RIGHT PANELS CONTROL MATRIX */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b border-gray-200 pb-2">
                 Visibility Settings
               </h3>
@@ -449,14 +473,14 @@ export default function AddTagMain() {
                 </label>
                 <select
                   {...register("status")}
-                  className="w-full bg-[#F9FAFB] border text-sm border-gray-200 px-4 py-3 rounded-[8px] outline-none text-black cursor-pointer"
+                  className="w-full bg-[#F9FAFB] border text-sm border-gray-200 px-4 py-3 rounded-lg outline-none text-black cursor-pointer"
                 >
                   <option value="active">Published</option>
                   <option value="draft">Draft / Inactive</option>
                 </select>
               </div>
 
-              <div className="flex items-center justify-between bg-[#F9FAFB] p-3 rounded-[8px] border border-gray-200">
+              <div className="flex items-center justify-between bg-[#F9FAFB] p-3 rounded-lg border border-gray-200">
                 <span className="text-xs font-medium text-gray-700">
                   Show On Homepage
                 </span>
@@ -474,7 +498,7 @@ export default function AddTagMain() {
                 <input
                   type="number"
                   {...register("display_order")}
-                  className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-2.5 text-sm outline-none text-black border border-gray-200"
+                  className="w-full bg-[#F9F9F9] rounded-lg px-4 py-2.5 text-sm outline-none text-black border border-gray-200"
                 />
               </div>
 
@@ -483,7 +507,7 @@ export default function AddTagMain() {
                 <input
                   type="number"
                   {...register("priority")}
-                  className="w-full bg-[#F9F9F9] rounded-[8px] px-4 py-2.5 text-sm outline-none text-black border border-gray-200"
+                  className="w-full bg-[#F9F9F9] rounded-lg px-4 py-2.5 text-sm outline-none text-black border border-gray-200"
                 />
               </div>
 
@@ -508,7 +532,7 @@ export default function AddTagMain() {
             </div>
 
             {/* 🚀 MULTI MEDIA MEDIA UPLOAD COMPARTMENTS */}
-            <div className="bg-white rounded-[8px] p-5 border border-gray-100 space-y-4">
+            <div className="bg-white rounded-lg p-5 border border-gray-100 space-y-4">
               <h3 className="text-black font-semibold text-lg border-b pb-2 border-gray-200">
                 Media Campaign Files
               </h3>
@@ -518,16 +542,16 @@ export default function AddTagMain() {
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">
                   Tag Listing Square Icon
                 </label>
-                <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-[8px] p-4 text-center relative flex flex-col items-center justify-center min-h-[130px]">
+                <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-lg p-4 text-center relative flex flex-col items-center justify-center min-h-[130px]">
                   {imageUrl ? (
-                    <div className="relative group w-20 h-20 rounded-[8px] border overflow-hidden bg-white">
+                    <div className="relative group w-20 h-20 rounded-lg border overflow-hidden bg-white">
                       <Image
                         src={
                           imageUrl.startsWith("http")
                             ? imageUrl
                             : `${baseStorageUrl}${imageUrl}`
                         }
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         width={100}
                         height={100}
                         alt="tag image"
@@ -548,7 +572,7 @@ export default function AddTagMain() {
                     >
                       <IamgeIcon size="36" color="#A2A2A2" />
                       <p className="text-[11px] text-[#A2A2A2] mt-1 font-medium">
-                        Upload Icon square
+                        Upload Icon square — Recommended Size: 400 × 400 px
                       </p>
                     </div>
                   )}
@@ -561,7 +585,7 @@ export default function AddTagMain() {
                     disabled={!!uploadingType}
                   />
                   {uploadingType === "image" && (
-                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-[8px]">
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
                       <Loader2 className="animate-spin text-sky-500" />
                     </div>
                   )}
@@ -573,17 +597,19 @@ export default function AddTagMain() {
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">
                   Tag Campaign Horizontal Banner
                 </label>
-                <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-[8px] p-4 text-center relative flex flex-col items-center justify-center min-h-[130px]">
+                <div className="border-2 border-dashed border-gray-200 bg-[#F9F9F9] rounded-lg p-4 text-center relative flex flex-col items-center justify-center min-h-[130px]">
                   {bannerUrl ? (
-                    <div className="relative group w-full h-20 rounded-[8px] border overflow-hidden bg-white">
-                      <img
+                    <div className="relative group w-full h-20 rounded-lg border overflow-hidden bg-white">
+                      <Image
                         src={
                           bannerUrl.startsWith("http")
                             ? bannerUrl
                             : `${baseStorageUrl}${bannerUrl}`
                         }
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         alt=""
+                        width={1200}
+                        height={80}
                       />
                       <button
                         type="button"
@@ -600,7 +626,8 @@ export default function AddTagMain() {
                     >
                       <IamgeIcon size="36" color="#A2A2A2" />
                       <p className="text-[11px] text-[#A2A2A2] mt-1 font-medium">
-                        Upload Campaign Banner (Landscape)
+                        Upload Campaign Banner (Landscape) — Recommended Size:
+                        1920 × 200 px
                       </p>
                     </div>
                   )}
@@ -609,11 +636,11 @@ export default function AddTagMain() {
                     ref={bannerInputRef}
                     className="hidden"
                     accept="image/*"
-                    onChange={(e) => handleMediaUpload(e, "banner")}
+                    onChange={(e) => handleBannerUpload(e, "banner")}
                     disabled={!!uploadingType}
                   />
                   {uploadingType === "banner" && (
-                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-[8px]">
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
                       <Loader2 className="animate-spin text-sky-500" />
                     </div>
                   )}

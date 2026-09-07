@@ -1,38 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  CheckCircle2,
-  ImagePlus,
-  ChevronDown,
-  Info,
-  Type,
-  Bold,
-  Italic,
-  Underline,
-  Link2,
-  List,
-  ListOrdered,
-  Quote,
-} from "lucide-react";
+import { useState } from "react";
 import PrimaryButton from "../../common/PrimaryButton";
 
 const PaymentGatewayContent = () => {
-  const [codActive, setCodActive] = useState(true);
   const [aamarPayActive, setAamarPayActive] = useState(false);
   const [bkashActive, setBkashActive] = useState(true);
-  const [selfMfsActive, setSelfMfsActive] = useState(true);
   const [advancePaymentActive, setAdvancePaymentActive] = useState(true);
-  const [selectedMfs, setSelectedMfs] = useState("bkash");
   const [advanceType, setAdvancePaymentType] = useState("percentage");
-
-  const mfsProviders = [
-    { id: "bkash", name: "bKash", img: "/images/admin/bkashpayment.png" },
-    { id: "nagad", name: "Nagad", img: "/images/admin/nagad.png" },
-    { id: "rocket", name: "Rocket", img: "/images/admin/rocket.png" },
-    { id: "ucash", name: "UCash", img: "/images/admin/ucash.png" },
-    { id: "mcash", name: "mCash", img: "/images/admin/mcash.png" },
-  ];
 
   return (
     <div className="space-y-6 pb-20 font-lato text-gray-800 bg-white p-4.5 rounded-lg">

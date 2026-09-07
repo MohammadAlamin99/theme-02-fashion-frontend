@@ -27,8 +27,6 @@ import {
   fetchShippingSettings,
   calculateCartShippingDetails,
   buildZoneShippingOptions,
-  CartItemWithShipping,
-  ShippingConfigEntry,
   ZoneShippingOption,
 } from "@/services-api/shippingService";
 import { fetchSingleProduct } from "@/services-api/productService";
@@ -269,13 +267,13 @@ const MainCheckoutSection: React.FC = () => {
     // Priority 1: CUSTOM shipping products override everything
     const customOptions: ZoneShippingOption[] = [];
     cartItems.forEach((item) => {
-      // ✅ cartItemsWithShipping → cartItems
-      const prod = (item.product || {}) as Product; // ✅ type-ও checkout-এর মতো
+      // cartItemsWithShipping → cartItems
+      const prod = (item.product || {}) as Product; 
       const sType = String(prod.shipping_type || "DEFAULT").toUpperCase();
-      const rawConfig = prod.shipping_config || item.shipping_config; // ✅ fallback রাখুন, checkout-এ এভাবেই ছিল
+      const rawConfig = prod.shipping_config || item.shipping_config; 
 
       if (sType === "CUSTOM" && rawConfig) {
-        let config: ShippingConfig[] = []; // ✅ checkout-এ ShippingConfig টাইপ import করা আছে
+        let config: ShippingConfig[] = [];
         try {
           config =
             typeof rawConfig === "string" ? JSON.parse(rawConfig) : rawConfig;
@@ -332,7 +330,7 @@ const MainCheckoutSection: React.FC = () => {
           ...opt,
           key: uniqueKey,
           fee: calculateCartShippingDetails(
-            cartItems, // ✅ cartItemsWithShipping → cartItems
+            cartItems,
             opt.shippingArea,
             shippingSettings,
             opt.fee,
@@ -360,28 +358,27 @@ const MainCheckoutSection: React.FC = () => {
         fee: calculateCartShippingDetails(
           cartItems,
           "outside",
-          shippingSettings, // ✅
+          shippingSettings,
         ).totalShippingFee,
         shippingArea: "outside",
         zoneName: "Dhaka",
       },
     ];
     if (isSubCityAvailable) {
-      // ✅ shippingSettings?.courier_config?.sub_city এর বদলে isSubCityAvailable (checkout-এ আগে থেকেই এই variable আছে, সেটাই ব্যবহার করা উচিত)
       fallback.push({
         key: "sub_city",
         label: "Sub City",
         fee: calculateCartShippingDetails(
           cartItems,
           "sub_city",
-          shippingSettings, // ✅
+          shippingSettings,
         ).totalShippingFee,
         shippingArea: "sub_city",
         zoneName: "Dhaka",
       });
     }
     return fallback;
-  }, [cartItems, shippingSettings, isSubCityAvailable]); // ✅ dependency array-ও ঠিক করুন
+  }, [cartItems, shippingSettings, isSubCityAvailable]);
 
   useEffect(() => {
     if (dynamicShippingOptions.length > 0) {
@@ -830,7 +827,7 @@ const MainCheckoutSection: React.FC = () => {
           <button
             onClick={handlePlaceOrder}
             disabled={placeOrderMutation.isPending}
-            className="bg-[#D75300] text-white py-4 rounded-[12px] text-lg md:text-xl font-semibold cursor-pointer"
+            className="bg-[#D75300] text-white py-4 rounded-xl text-lg md:text-xl font-semibold cursor-pointer"
           >
             {placeOrderMutation.isPending
               ? "Placing Order..."

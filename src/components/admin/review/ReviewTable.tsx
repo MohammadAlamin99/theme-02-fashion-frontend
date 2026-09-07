@@ -7,7 +7,6 @@ import {
   Edit3,
   ShieldAlert,
   Trash2,
-  ChevronRight,
   ChevronLeft,
 } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -39,12 +38,12 @@ interface ReviewItem {
   status: string;
   comment: string;
   createdAt: string;
-  rawDate: string; // For the date picker state
+  rawDate: string;
   productName: string;
   productImage: string;
   rawImages: string[];
-  isEdited: boolean; // 🚀 Added to detect edits
-  lastUpdated: string; // 🚀 Added for edit info
+  isEdited: boolean;
+  lastUpdated: string;
 }
 
 const FALLBACK_AVATAR =
@@ -82,7 +81,7 @@ export default function ReviewTable() {
   const rSort = searchParams.get("r_sort") || "desc";
 
   const { data: serverPayload } = useQuery({
-    // 🚀 2. ADD rSort TO THE QUERY KEY
+    //QUERY KEY
     queryKey: [
       "admin-reviews-list",
       rPage,
@@ -92,13 +91,13 @@ export default function ReviewTable() {
       forceBypass,
     ],
     queryFn: async () => {
-      // 🚀 3. PASS THE SORT TO THE API SERVICE
+      // API SERVICE
       const res = await reviewApi.getAll(
         rPage,
         5,
         statusFilter,
         cSearch,
-        rSort, // Added this
+        rSort,
         forceBypass,
       );
       if (forceBypass) setForceBypass(false);
@@ -262,7 +261,7 @@ export default function ReviewTable() {
     setEditingReviewId(review.id);
     setEditRating(review.star);
     setEditComment(review.comment);
-    setEditDate(review.rawDate); // 🚀 Load raw date for picker
+    setEditDate(review.rawDate);
     setModalImages(review.rawImages);
     setIsEditModalOpen(true);
     setActiveMenuId(null);

@@ -65,7 +65,7 @@ export const fetchSmsSettings = async (): Promise<SmsSettingsData> => {
 };
 
 export const updateSmsSettings = async (
-  payload: UpdateSmsSettingsPayload
+  payload: UpdateSmsSettingsPayload,
 ): Promise<SmsSettingsData> => {
   const res = await apiFetch("/admin/sms-settings", {
     method: "POST",
@@ -87,7 +87,7 @@ export const updateSmsSettings = async (
 };
 
 export const saveSmsProviderCredentials = async (
-  payload: SaveSmsProviderPayload
+  payload: SaveSmsProviderPayload,
 ): Promise<SmsSettingsData> => {
   const res = await apiFetch("/admin/sms-settings/provider", {
     method: "PATCH",
@@ -109,7 +109,7 @@ export const saveSmsProviderCredentials = async (
 };
 
 export const sendTestSms = async (
-  payload: SendTestSmsPayload
+  payload: SendTestSmsPayload,
 ): Promise<{ success: boolean; message: string }> => {
   const res = await apiFetch("/admin/sms-settings/send-test", {
     method: "POST",

@@ -8,7 +8,7 @@ export interface TagQuery {
   status?: string;
 }
 
-// 🚀 1. FETCH ALL TAGS PAGINATED
+// FETCH ALL TAGS PAGINATED
 export const fetchAllTags = async (query: TagQuery) => {
   const queryParams = new URLSearchParams();
   if (query.page) queryParams.set("page", String(query.page));
@@ -26,7 +26,7 @@ export const fetchAllTags = async (query: TagQuery) => {
   return { data: Array.isArray(records) ? records : [], meta };
 };
 
-// 🚀 2. FETCH SINGLE TAG BY ID
+// FETCH SINGLE TAG BY ID
 export const fetchSingleTag = async (id: string) => {
   const res = await apiFetch(`/tags/${id}`);
   if (!res.ok) throw new Error("Could not load tag entity details.");
@@ -34,7 +34,7 @@ export const fetchSingleTag = async (id: string) => {
   return json?.data || json;
 };
 
-// 🚀 3. DELETE SINGLE TAG
+// DELETE SINGLE TAG
 export const deleteTag = async (id: string) => {
   const token = await getAdminTokenAction();
   const res = await apiFetch(`/tags/${id}`, {
@@ -45,14 +45,12 @@ export const deleteTag = async (id: string) => {
   return res.json();
 };
 
-// 🚀 4. UPLOAD MEDIA ASSETS (FIXED ROUTING PATHWAY TO THE VALID CONTROLLER MAPPING)
+// UPLOAD MEDIA ASSETS
 export const uploadTagMedia = async (file: File) => {
   const token = await getAdminTokenAction();
   const formData = new FormData();
   formData.append("image", file);
-
-  // 🚀 FIXED: Pointed directly to the generic category file interceptor matrix endpoint
-  const res = await apiFetch("/categories/upload-image", {
+  const res = await apiFetch("/tags/upload-image", {
     method: "POST",
     headers: { Authorization: `Bearer ${token || ""}` },
     body: formData,
@@ -60,10 +58,27 @@ export const uploadTagMedia = async (file: File) => {
 
   if (!res.ok) throw new Error("Failed to upload graphic asset.");
   const data = await res.json();
-  return data?.image_url || data?.data?.image_url || "";
+  return data?.data?.image_url || data?.image_url || "";
 };
 
-// 🚀 5. CREATE NEW TAG
+// UPLOAD BANNER MEDIA IMAGE
+export const uploadBannerTagMedia = async (file: File) => {
+  const token = await getAdminTokenAction();
+  const formData = new FormData();
+  formData.append("banner", file);
+
+  const res = await apiFetch("/tags/upload-banner", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token || ""}` },
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Failed to upload graphic asset.");
+  const data = await res.json();
+  return data?.data?.banner_url || data?.banner_url || "";
+};
+
+// CREATE NEW TAG
 export const createTag = async (payload: Record<string, unknown>) => {
   const token = await getAdminTokenAction();
   const res = await apiFetch("/tags", {
@@ -82,8 +97,7 @@ export const createTag = async (payload: Record<string, unknown>) => {
   }
   return res.json();
 };
-
-// 🚀 6. UPDATE EXISTING TAG RECORD
+// UPDATE EXISTING TAG RECORD
 export const updateTag = async (
   id: string,
   payload: Record<string, unknown>,

@@ -58,19 +58,6 @@ interface UploadResponse {
   };
 }
 
-function extractImageUrl(val: unknown): string {
-  if (typeof val === "string") return val;
-  if (val && typeof val === "object") {
-    const inner = (val as Record<string, unknown>).url;
-    if (typeof inner === "string") return inner;
-    if (inner && typeof inner === "object") {
-      const deepUrl = (inner as Record<string, unknown>).url;
-      if (typeof deepUrl === "string") return deepUrl;
-    }
-  }
-  return "";
-}
-
 export default function BlogForm({
   editingId,
   formData,
@@ -232,13 +219,10 @@ export default function BlogForm({
     const product = availableProducts.find(
       (p) => (p.id || p._id) === option.value,
     );
-    const imgPath = extractImageUrl(
+    const imgPath =
       product?.featured_image ||
-        product?.thumbnail ||
-        (product?.images && product.images.length > 0
-          ? product.images[0]
-          : null),
-    ).trim();
+      product?.thumbnail ||
+      (product?.images && product.images.length > 0 ? product.images[0] : null);
     const imgSrc = imgPath
       ? imgPath.startsWith("http")
         ? imgPath

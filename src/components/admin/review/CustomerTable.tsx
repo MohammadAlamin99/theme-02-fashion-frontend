@@ -300,7 +300,7 @@ export default function CustomerTable() {
             style={{
               top: menuPos.top,
               left: menuPos.left,
-              minHeight: "80px", // Requested min-height
+              // minHeight: "80px",
             }}
           >
             {customerData.find((c) => c.id === activeMenuId)?.status !==

@@ -156,7 +156,8 @@ export default function AddCategoryMain() {
       const data = await uploadCategoryBannerImage(file);
       console.log(data);
       if (data.background_image_url) setBannerUrl(data.background_image_url);
-      else if (data.data?.background_image_url) setBannerUrl(data.data.background_image_url);
+      else if (data.data?.background_image_url)
+        setBannerUrl(data.data.background_image_url);
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(`Upload Failure: ${err.message}`);

@@ -25,7 +25,7 @@ export const getActivePopupBanner = async (): Promise<PopupBanner | null> => {
     const result = await res.json();
     // Handle both nested and flat response shapes
     const banner = result?.data?.data || result?.data || result || null;
-    return banner && typeof banner === "object" && banner.id ? banner : null;
+    return banner && typeof banner === "ob\ject" && banner.id ? banner : null;
   } catch (error) {
     console.error("getActivePopupBanner error:", error);
     return null;

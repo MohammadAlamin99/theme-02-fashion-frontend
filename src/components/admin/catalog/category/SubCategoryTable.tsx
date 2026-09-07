@@ -274,7 +274,7 @@ export default function SubCategoryTable() {
             style={{
               top: menuPos.top,
               left: menuPos.left,
-              minHeight: "80px", 
+              minHeight: "80px",
             }}
           >
             <button

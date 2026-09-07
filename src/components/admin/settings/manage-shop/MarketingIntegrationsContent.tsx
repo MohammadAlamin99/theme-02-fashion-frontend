@@ -5,10 +5,10 @@ import { Copy, Globe, Code, Loader2 } from "lucide-react";
 import PrimaryButton from "../../common/PrimaryButton";
 import toast from "react-hot-toast";
 import {
+  fetchMarketingSettings,
   updateMarketingSettings,
   MarketingSettingsData,
-  fetchMarketingSettings,
-} from "../../products/add/marketingSettingsService";
+} from "@/services-api/marketingSettingsService";
 
 const MarketingIntegrationsContent = () => {
   const [loading, setLoading] = useState<boolean>(true);

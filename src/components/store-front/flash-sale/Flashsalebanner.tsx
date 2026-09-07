@@ -31,7 +31,7 @@ export default function FlashSaleBanner({
 
   return (
     <div
-      className="relative overflow-hidden flex flex-col justify-center rounded-lg p-6 sm:p-10 md:p-14 mb-10 text-white transition-all min-h-[480px] sm:min-h-[420px] md:h-[60vh]"
+      className="relative overflow-hidden flex flex-col justify-center rounded-lg p-6 sm:p-10 md:p-14 mb-10 text-white transition-all h-[200px]"
       style={{
         backgroundImage: bannerImgUrl ? `url("${bannerImgUrl}")` : undefined,
         backgroundSize: "cover",

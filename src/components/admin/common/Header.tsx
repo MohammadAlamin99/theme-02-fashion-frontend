@@ -90,8 +90,7 @@ const Header = ({ onMenuToggle }: HeaderProps) => {
 
   const rawUser = profile?.user || profile?.data || profile;
   const adminName = rawUser?.name || "Admin";
-  const adminRole =
-    rawUser?.role === "CUSTOMER" ? "MANAGER" : rawUser?.role || "ADMIN";
+  const adminRole = rawUser?.role || "ADMIN";
 
   const backendBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||

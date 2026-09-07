@@ -9,7 +9,6 @@ import ChatInterfaceIcon from "@/components/store-front/svg/svg/ChatInterfaceIco
 import ShopSettingsIcon from "@/components/store-front/svg/svg/ShopSettingsIcon";
 import { Profile, Tab } from "@/@types/profile.type";
 import ProfileForm from "@/components/admin/settings/profile/Profileform";
-
 const tabs: Tab[] = [
   {
     id: "web",
