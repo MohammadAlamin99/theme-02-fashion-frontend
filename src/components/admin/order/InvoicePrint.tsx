@@ -24,20 +24,17 @@ interface OrderItem {
   };
   external_image?: string;
 }
-
-interface Order {
-  order_number?: string | number;
-  invoice_number?: string | number;
-  customer_name: string;
-  customer_phone: string;
-  customer_address: string;
-  created_at: string;
-  discount_amount: number | string;
-  shipping_fee: number | string;
-  total_amount_due: number | string;
-  total_bill?: number | string;
-  advance_amount?: number | string;
-  order_items?: OrderItem[];
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
 }
 
 export const InvoicePrint = React.forwardRef<HTMLDivElement, any>(
@@ -72,7 +69,9 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, any>(
     const logoUrl = settingsdata?.primary_logo
       ? settingsdata.primary_logo.startsWith("http")
         ? settingsdata.primary_logo
-        : `${backendBaseUrl}${settingsdata.primary_logo.startsWith("/") ? "" : "/"}${settingsdata.primary_logo}`
+        : `${backendBaseUrl}${
+            settingsdata.primary_logo.startsWith("/") ? "" : "/"
+          }${settingsdata.primary_logo}`
       : "/images/admin/logo.png";
 
     return (
@@ -174,17 +173,17 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, any>(
           </thead>
           <tbody className="divide-y divide-gray-100">
             {order.order_items?.map((item: OrderItem, idx: number) => {
-              // --- Image Logic (Same as ThankYou Page) ---
-              const variantImg = item.variant?.images?.[0];
-              const productImg = item.product?.images?.[0];
-              const externalImg = item.external_image;
-              const rawImg = variantImg || productImg || externalImg;
+              const variantImg = extractImageUrl(item.variant?.images?.[0]);
+              const productImg = extractImageUrl(item.product?.images?.[0]);
+              const externalImg = extractImageUrl(item.external_image);
 
-              const finalImg = rawImg
-                ? rawImg.startsWith("http")
-                  ? rawImg
-                  : `${baseStorageUrl}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`
-                : "/images/placeholder.svg";
+              const rowimage = (variantImg || productImg || externalImg).trim();
+
+              const finalImg = rowimage.startsWith("http")
+                ? rowimage
+                : rowimage
+                  ? `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+                  : "/images/placeholder.svg";
 
               return (
                 <tr key={item.id} className="text-[14px]">
