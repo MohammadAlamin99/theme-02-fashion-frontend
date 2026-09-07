@@ -23,6 +23,7 @@ import {
 import {
   fetchShippingSettings,
   calculateCartShippingDetails,
+  buildZoneShippingOptions,
   CartItemWithShipping,
   ShippingConfigEntry,
 } from "@/services-api/shippingService";
@@ -148,7 +149,7 @@ function extractImageUrl(val: unknown): string {
   }
   return "";
 }
-
+const SAVED_SHIPPING_KEY = "__saved_shipping__";
 export default function AddOrderMain() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -244,6 +245,16 @@ export default function AddOrderMain() {
   // Compute Dynamic Shipping Options for Admin Select Dropdown
   const dynamicShippingOptions = useMemo(() => {
     if (items.length === 0) {
+      const realZoneOptions = buildZoneShippingOptions(
+        shippingSettings?.courier_config,
+      );
+      if (realZoneOptions.length > 0) {
+        return realZoneOptions.map((z) => ({
+          key: z.key,
+          label: z.label,
+          fee: z.fee,
+        }));
+      }
       return [
         { key: "inside", label: "Inside Dhaka", fee: 60 },
         { key: "outside", label: "Outside Dhaka", fee: 120 },
@@ -294,7 +305,19 @@ export default function AddOrderMain() {
       return customOptions;
     }
 
-    // Default global settings options if no custom options
+    // 🔥 Real zones configured by admin in Settings — actual list
+    const realZoneOptions = buildZoneShippingOptions(
+      shippingSettings?.courier_config,
+    );
+    if (realZoneOptions.length > 0) {
+      return realZoneOptions.map((z) => ({
+        key: z.key,
+        label: z.label,
+        fee: z.fee,
+      }));
+    }
+
+    // Fallback only if admin hasn't configured any zones at all
     const insideFee = calculateCartShippingDetails(
       cartItemsWithShipping,
       "inside",
@@ -324,63 +347,10 @@ export default function AddOrderMain() {
     return options;
   }, [items, cartItemsWithShipping, shippingSettings]);
 
-  // // Keep shippingArea state valid whenever the available options change.
-  // const [lastShippingOptionKeys, setLastShippingOptionKeys] = useState("");
-  // const shippingOptionKeys = dynamicShippingOptions
-  //   .map((opt) => opt.key)
-  //   .join(",");
-
-  // if (
-  //   dynamicShippingOptions.length > 0 &&
-  //   shippingOptionKeys !== lastShippingOptionKeys
-  // ) {
-  //   setLastShippingOptionKeys(shippingOptionKeys);
-
-  //   const exists = dynamicShippingOptions.some(
-  //     (opt) => opt.key === shipping.shippingArea,
-  //   );
-
-  //   if (!shipping.shippingArea || !exists) {
-  //     setShipping((prev) => ({
-  //       ...prev,
-  //       shippingArea: dynamicShippingOptions[0].key,
-  //     }));
-  //   }
-  // }
-
-  // Tracks whether the user has manually picked a shipping option. Once true,
-  // we should never silently overwrite it just because the async product
-  // shipping-type queries (DEFAULT -> CUSTOM) recompute the option list.
   const userSelectedShippingRef = useRef(false);
-
-  // Wait until every item's product-shipping data has actually resolved
-  // before trusting dynamicShippingOptions — otherwise we swap from
-  // default (inside/outside) to custom zones mid-interaction and the
-  // dropdown "jumps" out from under the user.
   const isShippingDataLoading =
     !shippingSettings ||
     itemProductQueries.some((q) => q.isLoading || q.isFetching);
-
-  // useEffect(() => {
-  //   if (dynamicShippingOptions.length === 0 || isShippingDataLoading) return;
-
-  //   const exists = dynamicShippingOptions.some(
-  //     (opt) => opt.key === shipping.shippingArea,
-  //   );
-
-  //   // Only auto-pick a default when there's no selection yet, or when the
-  //   // user hasn't manually chosen one themselves and the key has genuinely
-  //   // become invalid.
-  //   if (
-  //     !shipping.shippingArea ||
-  //     (!exists && !userSelectedShippingRef.current)
-  //   ) {
-  //     setShipping((prev) => ({
-  //       ...prev,
-  //       shippingArea: dynamicShippingOptions[0].key,
-  //     }));
-  //   }
-  // }, [dynamicShippingOptions, isShippingDataLoading, shipping.shippingArea]);
 
   // auto-select effect
   useEffect(() => {
@@ -394,12 +364,13 @@ export default function AddOrderMain() {
       const matched = dynamicShippingOptions.find(
         (opt) => Number(opt.fee) === Number(shipping.actualShippingFee),
       );
-      if (matched) {
-        userSelectedShippingRef.current = true;
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setShipping((prev) => ({ ...prev, shippingArea: matched.key }));
-        return;
-      }
+      userSelectedShippingRef.current = true;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShipping((prev) => ({
+        ...prev,
+        shippingArea: matched ? matched.key : SAVED_SHIPPING_KEY,
+      }));
+      return;
     }
 
     const exists = dynamicShippingOptions.some(
@@ -1079,11 +1050,18 @@ export default function AddOrderMain() {
                         Calculating shipping fee...
                       </option>
                     ) : (
-                      dynamicShippingOptions.map((opt) => (
-                        <option key={opt.key} value={opt.key}>
-                          {opt.label} (৳{opt.fee})
-                        </option>
-                      ))
+                      <>
+                        {shipping.shippingArea === SAVED_SHIPPING_KEY && (
+                          <option value={SAVED_SHIPPING_KEY}>
+                            Saved Shipping (৳{shipping.actualShippingFee})
+                          </option>
+                        )}
+                        {dynamicShippingOptions.map((opt) => (
+                          <option key={opt.key} value={opt.key}>
+                            {opt.label} (৳{opt.fee})
+                          </option>
+                        ))}
+                      </>
                     )}
                   </select>
                 </div>

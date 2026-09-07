@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lato, Poppins, Syne, Montserrat } from "next/font/google";
+import { Inter, Lato, Poppins } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 import { fetchSettings } from "@/services-api/settingsService";
@@ -22,18 +22,6 @@ const lato = Lato({
   variable: "--font-lato",
   weight: ["400", "700", "900"],
   subsets: ["latin"],
-});
-
-const syne = Syne({
-  variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
