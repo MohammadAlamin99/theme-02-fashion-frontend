@@ -169,24 +169,28 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
             >
               {processedProducts.map((item) => (
                 <SwiperSlide key={item.id}>
-                  <div
-                    className="relative min-h-[380px] sm:min-h-[447px] rounded-[24px] overflow-hidden p-4 sm:p-6 flex flex-col justify-end"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.73) 100%)",
-                    }}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10 mb-28 sm:mb-20">
+                  <div className="relative min-h-[380px] sm:min-h-[447px] rounded-[24px] overflow-hidden p-4 sm:p-6 flex flex-col justify-end">
+                    {/* Product image - pushed further up, no inline gradient here anymore */}
+                    <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10 mb-32 sm:mb-28">
                       <Image
                         src={item.usableImage}
                         alt={item.name}
                         width={260}
                         height={260}
-                        className="object-contain max-h-[180px] sm:max-h-full"
+                        className="object-contain max-h-[160px] sm:max-h-[220px]"
                         priority={false}
                         unoptimized
                       />
                     </div>
+
+                    {/* Dedicated shadow overlay — sits ABOVE image, BELOW text */}
+                    <div
+                      className="absolute inset-0 z-[5] pointer-events-none"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.9) 100%)",
+                      }}
+                    />
 
                     <div className="relative z-10 space-y-2 sm:space-y-3">
                       <h3 className="text-white font-poppins text-[16px] md:text-[24px] font-semibold leading-tight line-clamp-2">
