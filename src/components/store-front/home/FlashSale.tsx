@@ -103,7 +103,7 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
 
   return (
     <section
-      className="w-full md:pt-20 pt-10 px-4 md:px-10 bg-white overflow-hidden"
+      className="w-full md:pt-20 pt-10 md:pb-20 pb-10 px-4 md:px-10 bg-white overflow-hidden"
       aria-label={flashSale.meta_title}
     >
       <meta name="description" content={flashSale.meta_description} />
@@ -112,10 +112,10 @@ const FlashSale = ({ flashSale }: FlashSaleProps) => {
       <div className="max-w-[1720px] mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-0">
         <div className="w-full lg:w-[35%] flex flex-col shrink-0">
           <h2 className="text-black font-poppins text-[32px] md:text-[56px] font-semibold leading-tight mb-3">
-            {flashSale.meta_title || flashSale.title}
+            {flashSale.title}
           </h2>
           <p className="text-[#8C8C8C] font-poppins text-[14px] md:text-[16px] font-normal leading-relaxed mb-6 md:mb-10 max-w-[566px]">
-            {flashSale.meta_description || flashSale.description}
+            {flashSale.description}
           </p>
 
           <div className="bg-[#14305F] rounded-[12px] p-3 md:p-4 flex items-center justify-center gap-3 md:gap-6 mb-6 md:mb-8 w-fit">
