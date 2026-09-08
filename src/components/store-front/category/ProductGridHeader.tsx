@@ -85,7 +85,7 @@ export default function ProductGridHeader({
                     <IoCheckmarkCircle
                       className={`text-[18px] sm:text-xl md:text-[28px] transition-colors ${
                         activeSort === key
-                          ? "text-[#7CB640]"
+                          ? "text-[#000000]"
                           : "text-[#D9D9D9]"
                       }`}
                     />

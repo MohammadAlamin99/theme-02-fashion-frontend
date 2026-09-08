@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/utils/api";
-import ProductCard from "@/components/store-front/common/ProductCard";
+import {ProductCard} from "@/components/store-front/common/ProductCard";
 
 import { Product } from "@/@types/product.type";
 
@@ -27,7 +27,7 @@ export default function SearchPage() {
     <div className="max-w-[1720px] mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-6">
         Search results for:{" "}
-        <span className="text-[#7CB640]">&quot;{query}&quot;</span>
+        <span className="text-[#000000]">&quot;{query}&quot;</span>
       </h1>
 
       {isLoading ? (

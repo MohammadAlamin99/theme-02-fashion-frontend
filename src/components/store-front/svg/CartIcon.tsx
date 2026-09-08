@@ -1,36 +1,46 @@
-interface CartIconProps {
-  className?: string;
-}
-
-export default function CartIcon({ className = "" }: CartIconProps) {
+export default function CartIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 28 28"
-      fill="none"
-      className={className}
-    >
-      <path
-        d="M11.1407 24.2083C12.2368 24.2083 13.1252 23.3198 13.1252 22.2238C13.1252 21.1277 12.2368 20.2393 11.1407 20.2393C10.0447 20.2393 9.15625 21.1277 9.15625 22.2238C9.15625 23.3198 10.0447 24.2083 11.1407 24.2083Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M19.7853 24.2083C20.8813 24.2083 21.7698 23.3198 21.7698 22.2238C21.7698 21.1277 20.8813 20.2393 19.7853 20.2393C18.6893 20.2393 17.8008 21.1277 17.8008 22.2238C17.8008 23.3198 18.6893 24.2083 19.7853 24.2083Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6.53968 6.48116L8.88468 13.9058C9.24518 15.0468 9.42485 15.6173 9.77135 16.0397C10.0747 16.413 10.4702 16.7012 10.917 16.8797C11.4245 17.0815 12.0218 17.0815 13.2188 17.0815H17.7163C18.9133 17.0815 19.5107 17.0815 20.017 16.8797C20.465 16.7012 20.8593 16.413 21.1638 16.0397C21.5092 15.6173 21.6888 15.0468 22.0505 13.9058L22.5277 12.3938L22.8077 11.5002L23.1938 10.2752C23.3317 9.83824 23.3646 9.37501 23.29 8.92299C23.2154 8.47097 23.0354 8.04287 22.7646 7.67339C22.4937 7.30391 22.1396 7.00343 21.731 6.79629C21.3223 6.58916 20.8706 6.4812 20.4125 6.48116H6.53968ZM6.53968 6.48116L6.52685 6.43799C6.47758 6.27298 6.42311 6.10956 6.36352 5.94799C6.12732 5.35012 5.72679 4.83128 5.2082 4.45142C4.6896 4.07156 4.07411 3.84618 3.43285 3.80133C3.31268 3.79199 3.18085 3.79199 2.91602 3.79199"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M2 2H3.74001C4.82001 2 5.67 2.93 5.58 4L4.75 13.96C4.61 15.59 5.89999 16.99 7.53999 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82001"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M16.25 22C16.9404 22 17.5 21.4404 17.5 20.75C17.5 20.0596 16.9404 19.5 16.25 19.5C15.5596 19.5 15 20.0596 15 20.75C15 21.4404 15.5596 22 16.25 22Z"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.25 22C8.94036 22 9.5 21.4404 9.5 20.75C9.5 20.0596 8.94036 19.5 8.25 19.5C7.55964 19.5 7 20.0596 7 20.75C7 21.4404 7.55964 22 8.25 22Z"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 8H21"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeMiterlimit="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }

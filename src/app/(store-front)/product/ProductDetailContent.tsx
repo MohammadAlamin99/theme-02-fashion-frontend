@@ -75,7 +75,13 @@ export default function ProductDetailContent({ slug }: Props) {
   return (
     <div className="w-full bg-white pb-20">
       <div className="max-w-[1720px] mx-auto px-4">
-        <Breadcrumbs paths={["Home", "Products"]} activePath={product.name} />
+        <Breadcrumbs
+          paths={[
+            { label: "Home", href: "/" },
+            { label: "Products", href: `/category` },
+          ]}
+          activePath={product.name}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-[40px] xl:gap-[72px] mt-4">
           <div>

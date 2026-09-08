@@ -83,7 +83,8 @@ const ReviewSection = ({ productId }: { productId: string }) => {
         queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
       }
     },
-    onError: (err: Error) => toast.error(err.message || t.review.validation.submitFailed),
+    onError: (err: Error) =>
+      toast.error(err.message || t.review.validation.submitFailed),
   });
 
   // --- Handle File Selection ---
@@ -96,8 +97,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
   // --- Submit Function with Validation ---
   const handleSubmit = async () => {
     if (!name.trim()) return toast.error(t.review.validation.enterName);
-    if (!phoneNumber.trim())
-      return toast.error(t.review.validation.enterPhone);
+    if (!phoneNumber.trim()) return toast.error(t.review.validation.enterPhone);
     const bdPhoneRegex = /^(?:\+88|88)?(01[3-9]\d{8})$/;
     const sanitizedPhone = phoneNumber.replace(/\s/g, "");
 
@@ -135,7 +135,9 @@ const ReviewSection = ({ productId }: { productId: string }) => {
       });
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error ? error.message : t.review.validation.processFailed;
+        error instanceof Error
+          ? error.message
+          : t.review.validation.processFailed;
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -183,7 +185,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
           </p>
         </div>
         <div className="text-center shrink-0">
-          <div className="text-[64px] font-semibold text-[#77AF3D] leading-none mb-2">
+          <div className="text-[64px] font-semibold text-[#000000] leading-none mb-2">
             {avgRating}
           </div>
           <div className="flex justify-center text-[#FDCC0D] text-2xl gap-1 mb-1">
@@ -263,30 +265,34 @@ const ReviewSection = ({ productId }: { productId: string }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t.review.yourName}
-                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
+                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#000000]"
               />
             </div>
             {/* Number Input */}
             <div className="flex flex-col">
-              <label className="text-black font-semibold mb-3">{t.review.phone}*</label>
+              <label className="text-black font-semibold mb-3">
+                {t.review.phone}*
+              </label>
               <input
                 type="text"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder={t.review.phonePlaceholder}
-                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
+                className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#000000]"
               />
             </div>
           </div>
 
           {/* Review Textarea */}
           <div className="flex flex-col">
-            <label className="text-black font-semibold mb-3">{t.review.review}*</label>
+            <label className="text-black font-semibold mb-3">
+              {t.review.review}*
+            </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={t.review.reviewPlaceholder}
-              className="flex-1 bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] p-6 outline-none focus:border-[#77AF3D] min-h-[174px] resize-none"
+              className="flex-1 bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] p-6 outline-none focus:border-[#000000] min-h-[174px] resize-none"
             />
           </div>
         </div>
@@ -294,13 +300,15 @@ const ReviewSection = ({ productId }: { productId: string }) => {
         <div className="flex items-center gap-5 md:flex-row flex-col mt-8">
           {/* Email Input */}
           <div className="flex flex-col md:w-1/2 w-full">
-            <label className="text-black font-semibold mb-3">{t.review.email}</label>
+            <label className="text-black font-semibold mb-3">
+              {t.review.email}
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.review.yourEmail}
-              className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#77AF3D]"
+              className="bg-[#F9F9F9] border border-[#D2D2D2] rounded-[12px] py-5 px-5 outline-none focus:border-[#000000]"
             />
           </div>
 
@@ -319,11 +327,11 @@ const ReviewSection = ({ productId }: { productId: string }) => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className={`p-2.5 border-[#77AF3D] border w-fit rounded-[12px] relative transition-colors ${selectedFiles.length > 0 ? "bg-orange-100" : ""}`}
+              className={`p-2.5 border-[#000000] border w-fit rounded-[12px] relative transition-colors ${selectedFiles.length > 0 ? "bg-orange-100" : ""}`}
             >
               <ViewIcon />
               {selectedFiles.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#77AF3D] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-[#000000] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
                   {selectedFiles.length}
                 </span>
               )}
@@ -334,7 +342,7 @@ const ReviewSection = ({ productId }: { productId: string }) => {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full bg-[#77AF3D] rounded-[12px] text-xl font-semibold uppercase text-white py-4 disabled:bg-gray-400 transition-all active:scale-95"
+              className="w-full bg-[#000000] rounded-[12px] text-xl font-semibold uppercase text-white py-4 disabled:bg-gray-400 transition-all active:scale-95"
             >
               {isSubmitting ? t.review.processing : t.review.submit}
             </button>

@@ -24,7 +24,7 @@ export default function NotFound() {
 
         <Link
           href="/"
-          className="mt-6 rounded-lg bg-[#7FB740] px-6 py-3 text-white hover:bg-[#7FB740] transition"
+          className="mt-6 rounded-lg bg-[#000000] px-6 py-3 text-white hover:bg-[#000000] transition"
         >
           Go Home
         </Link>

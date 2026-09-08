@@ -150,7 +150,7 @@ const TrackOrder: React.FC = () => {
                   value={orderInput}
                   onChange={(e) => setOrderInput(e.target.value)}
                   placeholder={t.trackPlaceholder}
-                  className="w-full bg-white border border-[#E5E5E5] rounded-[15px] py-4 px-6 pr-12 outline-none focus:border-[#7CB640] transition-all text-sm"
+                  className="w-full bg-white border border-[#E5E5E5] rounded-[15px] py-4 px-6 pr-12 outline-none focus:border-[#000000] transition-all text-sm"
                 />
                 {orderInput && (
                   <FaTrashAlt
@@ -162,7 +162,7 @@ const TrackOrder: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-[#7CB640] hover:bg-[#ff5d39] text-white px-10 py-4 rounded-[15px] font-semibold transition-all active:scale-95 cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 disabled:opacity-60"
+                className="bg-[#000000] hover:bg-[#ff5d39] text-white px-10 py-4 rounded-[15px] font-semibold transition-all active:scale-95 cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {loading ? (
                   <>
@@ -202,7 +202,7 @@ const TrackOrder: React.FC = () => {
                 <p className="text-xs font-semibold text-gray-400 mb-1">
                   {t.orderIdReference}
                 </p>
-                <h3 className="text-lg font-bold text-[#7CB640]">
+                <h3 className="text-lg font-bold text-[#000000]">
                   #{orderIdText}
                 </h3>
               </div>
@@ -235,7 +235,7 @@ const TrackOrder: React.FC = () => {
               </h2>
               {timelineItems.length > 0 ? (
                 <div className="relative">
-                  <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#7CB640]" />
+                  <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#000000]" />
                   <div className="flex flex-col gap-10">
                     {timelineItems.map((item, idx) => (
                       <TimelineItem
@@ -300,7 +300,7 @@ interface TimelineItemProps {
 
 const TimelineItem: React.FC<TimelineItemProps> = ({ status, date, desc }) => (
   <div className="relative pl-10">
-    <div className="absolute left-0 top-1.5 w-4 h-4 bg-[#7CB640] rounded-full border-4 border-white ring-1 ring-[#7CB640]" />
+    <div className="absolute left-0 top-1.5 w-4 h-4 bg-[#000000] rounded-full border-4 border-white ring-1 ring-[#000000]" />
     <div className="flex justify-between items-start mb-1 flex-wrap gap-2">
       <h4 className="text-base font-semibold text-black">{status}</h4>
       <span className="text-xs text-gray-400 font-medium">{date}</span>

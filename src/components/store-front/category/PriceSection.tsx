@@ -28,9 +28,9 @@ export default function PriceSection({
       <p className="text-[#828282] text-[16px] mb-3">0 {t.product.bdt} – {value} {t.product.bdt}</p>
 
       <div className="relative h-8 flex items-center mb-6">
-        <div className="absolute left-0 right-0 h-[5px] rounded-full border border-[#7CB640] bg-gray-100" />
+        <div className="absolute left-0 right-0 h-[5px] rounded-full border border-[#000000] bg-gray-100" />
         <div
-          className="absolute left-0 h-[8px] rounded-full bg-[#7CB640]"
+          className="absolute left-0 h-[8px] rounded-full bg-[#000000]"
           style={{ width: `${(value / 100000) * 100}%` }}
         />
         <input
@@ -64,8 +64,8 @@ export default function PriceSection({
               }}
               className={`px-4 py-2 border rounded-full md:text-[20px] text-base transition-all ${
                 activeMaxPrice === price.toString()
-                  ? "bg-[#7CB640] text-white border-[#7CB640]"
-                  : "border-[#7CB640] text-[#7CB640] bg-transparent"
+                  ? "bg-[#000000] text-white border-[#000000]"
+                  : "border-[#000000] text-[#000000] bg-transparent"
               }`}
             >
               {price} {t.product.bdt}

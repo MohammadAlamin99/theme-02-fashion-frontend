@@ -1,15 +1,13 @@
-import BannerSlider from "@/components/store-front/home/BannerSlider";
-import BestSalesProducts from "@/components/store-front/home/BestSalesProducts";
 import Blog from "@/components/store-front/home/Blog";
 import Brands from "@/components/store-front/home/Brands";
 import FeaturedCategory from "@/components/store-front/home/FeaturedCategory";
-import Features from "@/components/store-front/home/Features";
 import FlashSale from "@/components/store-front/home/FlashSale";
 import PromotionDiscountProduct from "@/components/store-front/home/CampaignSection";
 import NewArrivals from "@/components/store-front/home/NewArrivals";
 import WeeklyBestSellerProduct from "@/components/store-front/home/WeeklyBestSellerProduct";
 import StorefrontPopupBanner from "@/components/store-front/home/StorefrontPopupBanner";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
+import BestSalesProducts from "@/components/store-front/home/BestSalesProducts";
 
 export const revalidate = 60;
 export default async function Page() {
@@ -24,8 +22,8 @@ export default async function Page() {
   return (
     <>
       <StorefrontPopupBanner />
-      <BannerSlider />
-      <Features />
+      {/* <BannerSlider /> */}
+      {/* <Features /> */}
       <FeaturedCategory />
       <PromotionDiscountProduct />
       <NewArrivals tags={tags} />

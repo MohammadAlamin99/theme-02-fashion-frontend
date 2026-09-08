@@ -46,7 +46,7 @@ export default function WishlistItem({ item }: { item: WishlistProduct }) {
   const t = translations[language];
 
   return (
-    <div className="bg-[#F9F9F9] rounded-[16px] p-4 flex flex-col gap-4 group border border-transparent hover:border-[#7CB640]/20 hover:shadow-lg hover:shadow-gray-100 transition-all duration-300">
+    <div className="bg-[#F9F9F9] rounded-[16px] p-4 flex flex-col gap-4 group border border-transparent hover:border-[#000000]/20 hover:shadow-lg hover:shadow-gray-100 transition-all duration-300">
       {/* Product Image Container */}
       <Link href={`/product/${item?.product?.slug}`}>
         <div className="rounded-[12px] aspect-square flex items-center justify-center relative overflow-hidden">
@@ -72,7 +72,7 @@ export default function WishlistItem({ item }: { item: WishlistProduct }) {
         <div className="flex items-center justify-between">
           {/* Price */}
           <div className="flex items-center gap-3">
-            <span className="text-[15px] font-bold text-[#7CB640]">
+            <span className="text-[15px] font-bold text-[#000000]">
               {item?.product?.sell_price} BDT
             </span>
             <span className="text-[12px] text-[#A0A0A0] line-through font-medium">
@@ -84,7 +84,7 @@ export default function WishlistItem({ item }: { item: WishlistProduct }) {
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5 mt-1">
           <Link href={`/product/${item?.product?.slug}`} className="flex-1">
-            <button className="w-full bg-[#7CB640] hover:bg-[#ff5d39] text-white py-3 rounded-[10px] text-sm font-bold transition-all cursor-pointer active:scale-95 shadow-sm shadow-orange-50">
+            <button className="w-full bg-[#000000] hover:bg-[#ff5d39] text-white py-3 rounded-[10px] text-sm font-bold transition-all cursor-pointer active:scale-95 shadow-sm shadow-orange-50">
               {t.placeOrder}
             </button>
           </Link>

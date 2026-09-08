@@ -268,9 +268,9 @@ const MainCheckoutSection: React.FC = () => {
     const customOptions: ZoneShippingOption[] = [];
     cartItems.forEach((item) => {
       // cartItemsWithShipping → cartItems
-      const prod = (item.product || {}) as Product; 
+      const prod = (item.product || {}) as Product;
       const sType = String(prod.shipping_type || "DEFAULT").toUpperCase();
-      const rawConfig = prod.shipping_config || item.shipping_config; 
+      const rawConfig = prod.shipping_config || item.shipping_config;
 
       if (sType === "CUSTOM" && rawConfig) {
         let config: ShippingConfig[] = [];
@@ -827,7 +827,7 @@ const MainCheckoutSection: React.FC = () => {
           <button
             onClick={handlePlaceOrder}
             disabled={placeOrderMutation.isPending}
-            className="bg-[#D75300] text-white py-4 rounded-xl text-lg md:text-xl font-semibold cursor-pointer"
+            className="bg-[#000000] text-white py-4 rounded-xl text-lg md:text-xl font-semibold cursor-pointer"
           >
             {placeOrderMutation.isPending
               ? "Placing Order..."

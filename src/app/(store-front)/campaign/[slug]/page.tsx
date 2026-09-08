@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { FaChevronRight, FaTag, FaClock } from "react-icons/fa";
 import { fetchCampaignByIdOrSlug } from "@/services-api/campaignService";
-import ProductCard from "@/components/store-front/common/ProductCard";
+import {ProductCard} from "@/components/store-front/common/ProductCard";
 import { Product } from "@/@types/product.type";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { translations } from "@/locales";

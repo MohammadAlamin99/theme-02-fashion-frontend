@@ -212,7 +212,7 @@ const ProfileSidebar = () => {
             onClick={handleEditAvatarClick}
             disabled={uploading}
             type="button"
-            className="absolute bottom-0 right-0 bg-[#7CB640] text-white p-2 rounded-full border-2 border-white shadow-md hover:bg-[#e66345] transition-all cursor-pointer flex items-center justify-center z-20 disabled:opacity-50"
+            className="absolute bottom-0 right-0 bg-[#000000] text-white p-2 rounded-full border-2 border-white shadow-md hover:bg-[#e66345] transition-all cursor-pointer flex items-center justify-center z-20 disabled:opacity-50"
             title={t.profileSidebar.updateProfilePicture}
           >
             <FaCamera size={12} />
@@ -244,12 +244,12 @@ const ProfileSidebar = () => {
             >
               <Icon
                 size={18}
-                className={`${isActive ? "text-[#7CB640]" : "text-[#727272]"}`}
+                className={`${isActive ? "text-[#000000]" : "text-[#727272]"}`}
               />
 
               <span className="text-base">{link.name}</span>
               {isActive && (
-                <div className="absolute right-0 top-1/4 h-1/2 w-[3px] bg-[#7CB640] rounded-l-full" />
+                <div className="absolute right-0 top-1/4 h-1/2 w-[3px] bg-[#000000] rounded-l-full" />
               )}
             </Link>
           );

@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
     : "/favicon.ico";
 
   return {
-    title: "Overseas",
+    title: "Fashion",
     description: "Premium E-Commerce Platform",
     icons: {
       icon: [

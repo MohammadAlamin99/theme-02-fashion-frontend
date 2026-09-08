@@ -1,52 +1,35 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  FiMenu,
-  FiX,
-  FiSearch,
-  FiChevronDown,
-  FiMinus,
-  FiPlus,
-  FiTrash2,
-} from "react-icons/fi";
-import { LuUserRound as UserIcon } from "react-icons/lu";
-import WishIcon from "../svg/WishIcon";
-import CartIcon from "../svg/CartIcon";
-import ChatIcon from "../svg/ChatIcon";
-import { useAuthStore } from "@/store/useAuthStore";
-import CategoryDropdown from "./CategoryDropdown";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { HeartIcon, Menu, X, Minus, Plus, Trash2 } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 import { fetchSettings } from "@/services-api/settingsService";
 import { Category, getCategoryTree } from "@/services-api/categoryService";
-import { apiFetch } from "@/utils/api";
-import { Product } from "@/@types/product.type";
-import { useDebounce } from "@/hooks/useDebounce";
+import { getWishlist } from "@/services-api/wishlistService";
 import {
   deleteCartItem,
   fetchCart,
   updateCartItem,
 } from "@/services-api/cartService";
-import toast from "react-hot-toast";
+import { getPublicBanners } from "@/services-api/bannerService";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { translations } from "@/locales";
-import { getWishlist } from "@/services-api/wishlistService";
-import { Campaign, getActiveCampaign } from "@/services-api/campaignService";
+import { getActiveCampaign, Campaign } from "@/services-api/campaignService";
 import { getProductCampaignInfo } from "@/utils/campaign";
-import { House } from "lucide-react";
-
-interface SearchResponse {
-  data: {
-    data: Product[];
-  };
-}
-
-interface NavDropdownProps {
-  items: Category[];
-  isRoot?: boolean;
-}
+import { Product } from "@/@types/product.type";
+import LanguageIcon from "../svg/LanguageIcon";
+import SearchBar from "@/components/admin/common/SearchBar";
+import CartIcon from "../svg/CartIcon";
+import UserIcon from "../svg/svg/UsersIcon";
+const fallbackSlides = [
+  { id: "f1", image: "/images/bannerImage.png", alt: "Banner 1", link: "#" },
+  { id: "f2", image: "/images/bannerImage2.jpeg", alt: "Banner 2", link: "#" },
+  { id: "f3", image: "/images/bannerImage3.jpeg", alt: "Banner 3", link: "#" },
+];
 
 type CartItem = {
   id: string;
@@ -59,212 +42,122 @@ type CartItem = {
   quantity: number;
 };
 
-export interface CampaignApiResponse {
-  data: {
-    data: Campaign[];
-  };
+interface CampaignApiResponse {
+  data: { data: Campaign[] };
 }
 
-// ─────────────────────────────────────────────────────────
-// Mobile Sub-Category Accordion (Level 2 + Level 3)
-// ─────────────────────────────────────────────────────────
-interface MobileSubCategoryListProps {
-  items: Category[];
-  onClose: () => void;
-}
-
-const MobileSubCategoryList = ({
-  items,
-  onClose,
-}: MobileSubCategoryListProps) => {
-  const [openSub, setOpenSub] = useState<string | null>(null);
-
-  return (
-    <div className="pb-2">
-      {items.map((sub) => {
-        const hasChildren = sub.children && sub.children.length > 0;
-        const isOpen = openSub === sub.id;
-
-        return (
-          <div key={sub.id} className="border-t border-gray-50">
-            {/* Sub-category row */}
-            <div className="flex items-center pl-4 pr-2 py-3">
-              {/* Name: navigates to category page */}
-              <Link
-                href={`/category/${sub.slug}`}
-                onClick={onClose}
-                className="text-[13px] font-medium text-gray-600 hover:text-[#7CB640] transition-colors flex-1"
-              >
-                {sub.name}
-              </Link>
-              {/* Chevron: only toggles accordion — no navigation */}
-              {hasChildren && (
-                <button
-                  type="button"
-                  onClick={() => setOpenSub(isOpen ? null : sub.id)}
-                  className="p-2 -mr-1 shrink-0 cursor-pointer"
-                  aria-label={`Toggle ${sub.name} children`}
-                >
-                  <FiChevronDown
-                    className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180 text-[#7CB640]" : ""}`}
-                    size={14}
-                  />
-                </button>
-              )}
-            </div>
-
-            {/* Child categories (Level 3) */}
-            {isOpen && hasChildren && (
-              <div className="pl-8 pb-3 space-y-2">
-                {sub.children!.map((child) => (
-                  <Link
-                    key={child.id}
-                    href={`/category/${child.slug}`}
-                    onClick={onClose}
-                    className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-[#7CB640] transition-colors py-1"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0" />
-                    {child.name}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const Navbar = () => {
-  const { language } = useLanguage();
-  const t = translations[language];
+export default function Header({
+  showSlider = true,
+}: {
+  showSlider?: boolean;
+}) {
   const router = useRouter();
+  const { language, setLanguage } = useLanguage();
+  const queryClient = useQueryClient();
   const pathname = usePathname();
+  const [current, setCurrent] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const langRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const backendBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
+    "http://localhost:8082";
 
+  // banner data fetch
+  const { data: bannersData = [] } = useQuery({
+    queryKey: ["public-banners"],
+    queryFn: getPublicBanners,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // convert into slide this banner
+  const dynamicSlides = bannersData.flatMap((banner) =>
+    (banner.image_url || []).map((imgUrl, imgIndex) => ({
+      id: `${banner.id}-${imgIndex}`,
+      image: imgUrl.startsWith("http")
+        ? imgUrl
+        : `${backendBaseUrl}/${imgUrl.replace(/^\/+/, "")}`,
+      alt: banner.meta_title || "Banner",
+      link: banner.link_url || "#",
+    })),
+  );
+
+  const finalSlides = dynamicSlides.length > 0 ? dynamicSlides : fallbackSlides;
+
+  // slider logic
+  const startInterval = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % finalSlides.length);
+    }, 4500);
+  };
+
+  useEffect(() => {
+    if (showSlider && finalSlides.length > 1) {
+      startInterval();
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [finalSlides.length, showSlider]);
+
+  const goTo = (index: number) => {
+    setCurrent(index);
+    startInterval();
+  };
+  // ───────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (headerRef.current) {
+      setHeaderHeight(headerRef.current.offsetHeight);
+    }
+  }, [scrolled, menuOpen]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  // Settings, Cart, Wishlist
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
   });
 
-  const backendBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/v1", "") ||
-    "http://localhost:8082";
   const info = settings?.data || settings;
-  const rowImage = info?.header_logo || "";
-  const usableImageUrl = rowImage.startsWith("http")
-    ? rowImage
-    : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
+  const rawLogo = info?.header_logo || "";
+  const logoUrl = rawLogo
+    ? rawLogo.startsWith("http")
+      ? rawLogo
+      : `${backendBaseUrl}/${rawLogo.replace(/^\/+/, "")}`
+    : "/images/logo.svg";
 
-  const user = useAuthStore((state) => state.user);
-
-  const isStoreReady = useAuthStore((state) => state._hasHydrated);
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showPredictions, setShowPredictions] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
-  const [openMobileDropdown, setOpenMobileDropdown] = useState<number | null>(
-    null,
-  );
-  const searchRef = useRef<HTMLFormElement>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const debouncedSearch = useDebounce(searchQuery, 400);
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["categories-tree"],
     queryFn: getCategoryTree,
     staleTime: 1000 * 60 * 30,
   });
 
-  const {
-    data: searchResults,
-    isLoading,
-    isFetching,
-  } = useQuery<Product[]>({
-    queryKey: ["product-search", debouncedSearch],
-    queryFn: async () => {
-      if (!debouncedSearch.trim()) return [];
-      const res = await apiFetch(
-        `/products/search?page=1&limit=10&search=${debouncedSearch}`,
-      );
-      if (!res.ok) throw new Error("Failed to fetch");
-      const result: SearchResponse = await res.json();
-      return result.data?.data || [];
-    },
-    enabled: debouncedSearch.length >= 2,
-  });
-
-  const { data: wishlistData = [] } = useQuery({
-    queryKey: ["wishlist", user?.id],
-    queryFn: getWishlist,
-    enabled: isStoreReady, // Fetch once the store is hydrated
-  });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollPos = window.scrollY;
-      const visible = prevScrollPos > currentScrollPos || currentScrollPos < 10;
-      setIsVisible(visible);
-      setPrevScrollPos(currentScrollPos);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [prevScrollPos]);
-
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowPredictions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-  const handleProfileNav = (e: React.MouseEvent) => {
-    e.preventDefault();
-
-    if (!isStoreReady || !user) {
-      router.push("/signin");
-      return;
-    }
-
-    if (user.role === "ADMIN") {
-      router.push("/settings/profile");
-    } else {
-      router.push("/profile");
-    }
-  };
-
-  const handleWishlistClick = () => {
-    if (!isStoreReady || !user) {
-      router.push("/signin");
-      return;
-    }
-
-    router.push("/profile/wishlist");
-  };
-
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setShowPredictions(false);
-    }
-  };
-
-  const avatarUrl =
-    isStoreReady && user?.avatar
-      ? user.avatar.startsWith("http")
-        ? user.avatar
-        : `${backendBaseUrl}/${user.avatar.replace(/^\/+/, "")}`
-      : null;
+  const user = useAuthStore((state) => state.user);
+  const isStoreReady = useAuthStore((state) => state._hasHydrated);
 
   const [guestId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
-
     let id = localStorage.getItem("guestId");
     if (!id) {
       id = crypto.randomUUID();
@@ -273,7 +166,12 @@ const Navbar = () => {
     return id;
   });
 
-  // cart data
+  const { data: wishlistData = [] } = useQuery({
+    queryKey: ["wishlist", user?.id],
+    queryFn: getWishlist,
+    enabled: isStoreReady,
+  });
+
   const { data: cartData } = useQuery({
     queryKey: ["cart", user?.id, guestId],
     queryFn: () => fetchCart(user ? null : guestId),
@@ -296,6 +194,7 @@ const Navbar = () => {
     product?: Product;
     productId?: string;
   })[];
+
   const cartItems = rawCartItems.map((item) => {
     const prod = item.product || (item as unknown as Product);
     const pId =
@@ -309,7 +208,7 @@ const Navbar = () => {
       item.price ||
       0;
 
-    const info = getProductCampaignInfo(
+    const campaignInfo = getProductCampaignInfo(
       {
         id: pId,
         slug: prod?.slug,
@@ -323,28 +222,24 @@ const Navbar = () => {
     );
 
     const effectivePrice =
-      info.finalPrice > 0 ? info.finalPrice : Number(item.price || 0);
+      campaignInfo.finalPrice > 0
+        ? campaignInfo.finalPrice
+        : Number(item.price || 0);
 
-    return {
-      ...item,
-      price: effectivePrice || item.price,
-    };
+    return { ...item, price: effectivePrice || item.price };
   });
 
   const subTotal = cartItems.reduce((acc, item) => {
     const p = Number(item.price || 0);
     return acc + p * (item.quantity || 1);
   }, 0);
-  const queryClient = useQueryClient();
 
-  // update quantity
   const { mutate: updateQty } = useMutation({
     mutationFn: ({ id, qty }: { id: string; qty: number }) =>
       updateCartItem(id, qty),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 
-  // delete cart
   const { mutate: removeItem } = useMutation({
     mutationFn: (id: string) => deleteCartItem(id),
     onSuccess: () => {
@@ -353,138 +248,133 @@ const Navbar = () => {
     },
   });
 
-  return (
-    <>
-      <header
-        className={`w-full bg-white font-inter z-50 sticky top-0 transition-transform duration-500 px-4 md:px-6 ${isVisible ? "translate-y-0" : "-translate-y-full"} ${prevScrollPos > 50 ? "shadow-md" : ""}`}
-      >
-        <div className="max-w-[1720px] mx-auto flex items-center justify-between py-4">
-          <button
-            onClick={() => setIsDrawerOpen(true)}
-            className="lg:hidden p-2 text-3xl shrink-0"
-          >
-            <FiMenu />
-          </button>
+  const avatarUrl =
+    isStoreReady && user?.avatar
+      ? user.avatar.startsWith("http")
+        ? user.avatar
+        : `${backendBaseUrl}/${user.avatar.replace(/^\/+/, "")}`
+      : null;
 
-          <Link href="/" className="shrink-0 flex items-center">
-            <div className="relative w-[120px] h-[35px] sm:w-[150px] sm:h-[45px] md:w-[180px] md:h-[50px] lg:w-[200px] lg:h-[55px] xl:w-[230px] xl:h-[64px]">
+  const handleProfileNav = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isStoreReady || !user) {
+      router.push("/signin");
+      return;
+    }
+    router.push(user.role === "ADMIN" ? "/settings/profile" : "/profile");
+  };
+
+  const handleWishlistClick = () => {
+    if (!isStoreReady || !user) {
+      router.push("/signin");
+      return;
+    }
+    router.push("/profile/wishlist");
+  };
+
+  const mobileLinks = [
+    { id: "home", name: "Home", slug: "" },
+    ...categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
+  ];
+  const isHomePage = pathname === "/";
+
+  // fixed calcualate for homme only home page
+  const isFixed = isHomePage || scrolled;
+  return (
+    <div className="relative bg-[#0a0a0a] font-inter overflow-x-hidden">
+      {/* STICKY HEADER */}
+      <header
+        ref={headerRef}
+        className={`${isFixed ? "fixed top-0 left-0 right-0" : "relative"} z-[205] transition-all duration-500 ${
+          scrolled || !isHomePage
+            ? "bg-[#0a0a0a]/90 backdrop-blur-md shadow-[0_2px_32px_rgba(0,0,0,0.6)] py-3"
+            : "bg-gradient-to-b from-black/70 to-transparent py-5"
+        }`}
+      >
+        <div className="container mx-auto px-4 md:px-10 flex items-center justify-between gap-4">
+          <Link href="/" className="shrink-0">
+            <div
+              className="rounded-[40px] px-3 py-1.5 md:px-4 md:py-2 border border-white/30
+              bg-[linear-gradient(0deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.11)_100%),linear-gradient(180deg,rgba(255,255,255,0.38)_-30.21%,rgba(171,164,164,0.38)_50%,rgba(255,255,255,0.38)_130.21%)] 
+              shadow-[0_1px_14.9px_0_rgba(109,109,109,0.26)]"
+            >
               <Image
-                src={usableImageUrl}
-                alt="Overseas Shop"
-                fill
-                priority
+                src={logoUrl}
+                alt="Logo"
+                width={0}
+                height={0}
+                sizes="100vw"
                 unoptimized
-                className="object-contain"
+                className="w-[100px] md:w-[130px] h-auto object-contain"
+                priority
               />
             </div>
           </Link>
 
-          <form
-            onSubmit={handleSearch}
-            ref={searchRef}
-            className="hidden lg:flex relative flex-1 max-w-[846px] bg-[#F2F2F2] rounded-[8px] items-center p-2 px-4 gap-3"
+          <div className="hidden lg:block flex-1 max-w-md">
+            <SearchBar />
+          </div>
+
+          <div
+            className="flex items-center gap-2 md:gap-4 px-3 py-2 md:px-6 md:py-2.5 rounded-[233px] border border-white/30
+            bg-[linear-gradient(0deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.11)_100%),linear-gradient(180deg,rgba(255,255,255,0.38)_-30.21%,rgba(171,164,164,0.38)_50%,rgba(255,255,255,0.38)_130.21%)] 
+            shadow-[0_1px_14.9px_0_rgba(109,109,109,0.26)]"
           >
-            <CategoryDropdown
-              categories={categories}
-              onSelect={(cat: Category) => router.push(`/category/${cat.slug}`)}
-            />
-            <div className="h-6 w-px bg-[#E2E2E2]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowPredictions(true);
-              }}
-              onFocus={() => setShowPredictions(true)}
-              placeholder={t.search.searchPlaceholder}
-              className="bg-transparent flex-1 outline-none text-[#727272]"
-            />
+            {/* Language toggle */}
+            <div ref={langRef} className="relative">
+              <button
+                className="flex items-center gap-1 text-white/70 scale-90 md:scale-100 cursor-pointer"
+                onClick={() => setLangOpen((p) => !p)}
+              >
+                <LanguageIcon />
+                <span className="text-[11px] font-semibold uppercase tracking-wide">
+                  {language === "BAN" ? "বাং" : "EN"}
+                </span>
+              </button>
+              {langOpen && (
+                <div className="absolute top-full right-0 mt-2 w-28 bg-[#0a0a0a] border border-white/10 rounded-md shadow-xl z-[9999] overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setLanguage("BAN");
+                      setLangOpen(false);
+                    }}
+                    className={`w-full cursor-pointer text-left px-3 py-2 text-xs text-white/80 hover:bg-white/10 ${language === "BAN" ? "bg-white/10 font-semibold" : ""}`}
+                  >
+                    বাংলা
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLanguage("ENG");
+                      setLangOpen(false);
+                    }}
+                    className={`w-full cursor-pointer text-left px-3 py-2 text-xs text-white/80 hover:bg-white/10 ${language === "ENG" ? "bg-white/10 font-semibold" : ""}`}
+                  >
+                    English
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Wishlist */}
             <button
-              type="submit"
-              className="bg-white p-2.5 rounded-[8px] cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={handleWishlistClick}
+              className="relative text-white/70 scale-90 md:scale-100 hidden sm:block cursor-pointer"
             >
-              <FiSearch size={22} className="text-[#7CB640]" />
+              <HeartIcon size={20} />
+              {wishlistData.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-black text-[9px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                  {wishlistData.length > 9 ? "9+" : wishlistData.length}
+                </span>
+              )}
             </button>
 
-            {showPredictions && searchQuery.length >= 2 && (
-              <div className="absolute top-[110%] left-0 w-full bg-white shadow-2xl rounded-lg border border-gray-100 z-120 overflow-hidden max-h-[450px] overflow-y-auto">
-                {isLoading || isFetching ? (
-                  <div className="p-4 text-center text-sm text-gray-500 animate-pulse">
-                    {t.search.searching}
-                  </div>
-                ) : (
-                  (searchResults || []).map((product) => {
-                    const firstImg = product.images?.[0];
-                    const rowImage =
-                      typeof firstImg === "string"
-                        ? firstImg
-                        : firstImg?.url || "";
-                    const iconUrl =
-                      rowImage && rowImage.startsWith("http")
-                        ? rowImage
-                        : `${backendBaseUrl}/${rowImage.replace(/^\/+/, "")}`;
-                    return (
-                      <div
-                        key={product.id}
-                        onClick={() => {
-                          router.push(`/product/${product.slug}`);
-                          setShowPredictions(false);
-                          setSearchQuery("");
-                        }}
-                        className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0"
-                      >
-                        <div className="relative w-12 h-12 bg-gray-100 rounded overflow-hidden shrink-0">
-                          <Image
-                            src={iconUrl}
-                            alt={product.name}
-                            fill
-                            unoptimized
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium text-gray-800 line-clamp-1">
-                            {product.name}
-                          </h4>
-                          <p className="text-[#7CB640] font-bold text-xs">
-                            BDT {product.sell_price}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            )}
-          </form>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              {/* <button onClick={handleWishlistClick} className="cursor-pointer">
-                <WishIcon className="w-8 md:w-10" />
-              </button> */}
-
-              <button
-                onClick={handleWishlistClick}
-                className="relative cursor-pointer group active:scale-95 transition-transform"
-              >
-                <WishIcon className="w-7 md:w-9" color="#7CB640" />
-
-                {/* 🚀 WISHLIST COUNT BADGE */}
-                {wishlistData.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#7CB640] text-white text-[10px] md:text-[11px] font-bold h-4 w-4 md:h-5 md:w-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
-                    {wishlistData.length > 9 ? "9+" : wishlistData.length}
-                  </span>
-                )}
-              </button>
-
-              {/* Fixed profile container to prevent layout breaking */}
-              <div
-                onClick={handleProfileNav}
-                className="relative w-8 h-8 md:w-10 md:h-10 cursor-pointer flex items-center justify-center rounded-full overflow-hidden shrink-0 bg-white"
-              >
-                {avatarUrl ? (
+            {/* User */}
+            <button
+              onClick={handleProfileNav}
+              className="relative text-white/70 scale-90 md:scale-100 cursor-pointer"
+            >
+              {avatarUrl ? (
+                <div className="relative w-5 h-5 rounded-full overflow-hidden">
                   <Image
                     src={avatarUrl}
                     alt="User"
@@ -492,180 +382,129 @@ const Navbar = () => {
                     unoptimized
                     className="object-cover"
                   />
-                ) : (
-                  <UserIcon
-                    className="w-full h-full text-black p-1"
-                    strokeWidth={1.5}
-                  />
-                )}
-              </div>
-            </div>
-            {isStoreReady && !user && (
-              <div className="hidden lg:flex items-center gap-4 uppercase font-semibold">
-                <button
-                  onClick={() => router.push("/signin")}
-                  className="bg-[#F0F0F0] rounded-[8px] px-8 py-4 cursor-pointer"
-                >
-                  {t.navbar.signIn}
-                </button>
-                <button
-                  onClick={() => router.push("/signup")}
-                  className="bg-[#7CB640] text-white rounded-[8px] px-8 py-4 cursor-pointer"
-                >
-                  {t.navbar.signUp}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+                </div>
+              ) : (
+                <UserIcon />
+              )}
+            </button>
 
-        <nav className="hidden lg:block py-4 border-t border-gray-50">
-          <ul className="max-w-[1720px] mx-auto flex items-center justify-between md:px-8">
-            {(categories || []).slice(0, 8).map((item, idx) => (
-              <li
-                key={item.id}
-                className="relative flex items-center gap-1 group/main"
-                onMouseEnter={() => {
-                  if (closeTimer.current) clearTimeout(closeTimer.current);
-                  setActiveDropdown(idx);
-                }}
-                onMouseLeave={() => {
-                  closeTimer.current = setTimeout(
-                    () => setActiveDropdown(null),
-                    120,
-                  );
-                }}
-              >
-                <span
-                  onClick={() => router.push(`/category/${item.slug}`)}
-                  className={`text-[18px] xl:text-[20px] cursor-pointer transition-colors font-medium ${activeDropdown === idx ? "text-[#7CB640]" : "text-[#5E5E5E]"}`}
-                >
-                  {item.name}
-                </span>
-                {item.children && item.children.length > 0 && (
-                  <FiChevronDown
-                    className={
-                      activeDropdown === idx
-                        ? "text-[#7CB640]"
-                        : "text-[#5E5E5E]"
-                    }
-                  />
-                )}
-                {item.children &&
-                  item.children.length > 0 &&
-                  activeDropdown === idx && (
-                    <NavDropdown items={item.children} isRoot={true} />
-                  )}
-              </li>
-            ))}
-            {/* <li className="flex items-center gap-2 cursor-pointer font-bold text-[#7CB640]">
-              <FireIcon />
-              <span>{t.search.hotDeals}</span>
-            </li> */}
-          </ul>
-        </nav>
-      </header>
-
-      {/* Mobile Drawer */}
-      <div
-        className={`fixed top-0 left-0 h-full w-[300px] bg-white z-[210] transform transition-transform duration-500 lg:hidden shadow-2xl ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="p-6 h-full flex flex-col font-poppins">
-          <div className="flex justify-between items-center mb-8">
-            <Image
-              src={usableImageUrl}
-              alt="overases product"
-              width={140}
-              height={40}
-              unoptimized
-            />
+            {/* Cart */}
             <button
-              onClick={() => setIsDrawerOpen(false)}
-              className="text-2xl cursor-pointer"
+              onClick={() => setIsCartOpen(true)}
+              className="relative text-white/70 scale-90 md:scale-100 cursor-pointer"
             >
-              <FiX />
+              <CartIcon />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-black text-[9px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                  {cartItems.length > 9 ? "9+" : cartItems.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              className="lg:hidden text-white/80 ml-1 cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            {(categories || []).map((link, idx) => (
-              <div key={link.id} className="border-b border-gray-50">
-                {/* Parent Category Row */}
-                <div
-                  onClick={() =>
-                    setOpenMobileDropdown(
-                      openMobileDropdown === idx ? null : idx,
-                    )
-                  }
-                  className="flex justify-between py-4 text-gray-700 font-semibold cursor-pointer"
-                >
-                  <Link
-                    href={`/category/${link.slug}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsDrawerOpen(false);
-                    }}
-                    className="flex-1 hover:text-[#7CB640] transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                  {link.children && link.children.length > 0 && (
-                    <FiChevronDown
-                      className={`transition-transform duration-200 shrink-0 ml-2 ${openMobileDropdown === idx ? "rotate-180 text-[#7CB640]" : ""}`}
-                    />
-                  )}
-                </div>
+        </div>
 
-                {/* Sub-categories (Level 2) with their own children (Level 3) */}
-                {openMobileDropdown === idx &&
-                  link.children &&
-                  link.children.length > 0 && (
-                    <MobileSubCategoryList
-                      items={link.children}
-                      onClose={() => setIsDrawerOpen(false)}
-                    />
-                  )}
-              </div>
+        {/* Mobile Menu */}
+        <div
+          className={`lg:hidden overflow-hidden transition-all duration-500 bg-[#0a0a0a]/95 backdrop-blur-lg ${menuOpen ? "max-h-[500px]" : "max-h-0"}`}
+        >
+          <div className="p-4 flex flex-col gap-2">
+            <div className="mb-4">
+              <SearchBar />
+            </div>
+            {mobileLinks.map((item) => (
+              <Link
+                key={item.id}
+                href={item.slug ? `/category/${item.slug}` : "/"}
+                className="text-white/70 hover:text-amber-400 py-3 px-2 text-sm tracking-widest uppercase border-b border-white/5 cursor-pointer"
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
             ))}
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Floating Cart */}
-      <div
-        onClick={() => setIsCartOpen(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-90 flex flex-col items-center justify-center cursor-pointer bg-[#7CB640] rounded-l-xl w-[75px] md:w-[97px] h-[75px] md:h-[97px] shadow-2xl"
-      >
-        <CartIcon className="w-8 md:w-10 text-white" />
-        <span className="text-white text-xs md:text-base font-semibold mt-1">
-          {cartItems.length} {cartItems.length === 1 ? "Item" : t.navbar.items}
-        </span>
-      </div>
+      {/* DYNAMIC BANNER SLIDER */}
+      {!isHomePage && isFixed && <div style={{ height: headerHeight }} />}
+      {showSlider && pathname === "/" && (
+        <section className="relative w-full h-[60vh] md:h-screen overflow-hidden">
+          {finalSlides.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === current ? "opacity-100" : "opacity-0"}`}
+            >
+              <Link
+                href={slide.link || "#"}
+                className={
+                  slide.link !== "#" ? "cursor-pointer" : "cursor-default"
+                }
+              >
+                <Image
+                  fill
+                  src={slide.image}
+                  alt={slide.alt}
+                  priority={index === 0}
+                  unoptimized
+                  className="object-cover object-center"
+                />
+              </Link>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+            </div>
+          ))}
+
+          {/* Indicators / Dots */}
+          {finalSlides.length > 1 && (
+            <>
+              <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+                {finalSlides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    className={`transition-all duration-500 rounded-full cursor-pointer ${i === current ? "w-4 h-4 md:w-5 md:h-5 bg-white shadow-lg" : "w-3 h-3 md:w-4 md:h-4 bg-white/30"}`}
+                  />
+                ))}
+              </div>
+
+              <div className="absolute bottom-6 md:bottom-10 right-6 md:right-8 z-20 text-white/40 text-[10px] md:text-xs tracking-[0.25em] font-light">
+                {String(current + 1).padStart(2, "0")} /{" "}
+                {String(finalSlides.length).padStart(2, "0")}
+              </div>
+            </>
+          )}
+        </section>
+      )}
 
       {/* Cart Drawer */}
-
       <div
-        className={`fixed top-0 right-0 h-full w-[320px] md:w-[400px] bg-white z-[210] transform transition-transform duration-500 shadow-2xl font-poppins ${
+        className={`fixed top-0 right-0 h-full w-[320px] md:w-[400px] bg-white z-[210] transform transition-transform duration-500 shadow-2xl font-inter ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="p-6 h-full flex flex-col">
-          {/* Header */}
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
             <h2 className="text-xl font-bold text-gray-800">
-              {t.navbar.yourCart} ({cartItems.length})
+              Your Cart ({cartItems.length})
             </h2>
             <button
               onClick={() => setIsCartOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
             >
-              <FiX size={24} className="text-gray-500" />
+              <X size={24} className="text-gray-500" />
             </button>
           </div>
-          {/* Body - Cart Items List */}
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+
+          <div className="flex-1 overflow-y-auto pr-2">
             {cartItems.length > 0 ? (
               <div className="flex flex-col gap-5">
-                {cartItems.map((item: CartItem) => {
+                {cartItems.map((item) => {
                   const rawImg = item.image;
                   const imageValue =
                     typeof rawImg === "string" ? rawImg : rawImg?.url || "";
@@ -688,21 +527,17 @@ const Navbar = () => {
                           className="object-contain p-1"
                         />
                       </div>
-
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <h4 className="text-sm font-medium text-gray-800 line-clamp-1">
                             {item.name}
                           </h4>
-
-                          {/* variant section  */}
                           {Array.isArray(item.variantInfo) &&
                             item.variantInfo.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {item.variantInfo.map((variant, idx) => {
                                   const v = variant as {
                                     label?: string;
-                                    type?: string;
                                     value?: string;
                                   };
                                   return (
@@ -716,14 +551,11 @@ const Navbar = () => {
                                 })}
                               </div>
                             )}
-
-                          <p className="text-[#7CB640] font-bold text-sm mt-1">
+                          <p className="text-[#000000] font-bold text-sm mt-1">
                             TK {item.price}
                           </p>
                         </div>
-
                         <div className="flex items-center justify-between mt-2">
-                          {/* Quantity Control */}
                           <div className="flex items-center border border-gray-200 rounded-md">
                             <button
                               onClick={() =>
@@ -733,9 +565,9 @@ const Navbar = () => {
                                   qty: item.quantity - 1,
                                 })
                               }
-                              className="p-1 px-2 hover:bg-gray-100 transition-colors cursor-pointer"
+                              className="p-1 px-2 hover:bg-gray-100 cursor-pointer"
                             >
-                              <FiMinus size={14} />
+                              <Minus size={14} />
                             </button>
                             <span className="px-2 text-sm font-semibold">
                               {item.quantity}
@@ -747,18 +579,16 @@ const Navbar = () => {
                                   qty: item.quantity + 1,
                                 })
                               }
-                              className="p-1 px-2 hover:bg-gray-100 transition-colors cursor-pointer"
+                              className="p-1 px-2 hover:bg-gray-100 cursor-pointer"
                             >
-                              <FiPlus size={14} />
+                              <Plus size={14} />
                             </button>
                           </div>
-
-                          {/* Delete Button */}
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                            className="text-gray-400 hover:text-red-500 cursor-pointer"
                           >
-                            <FiTrash2 size={18} />
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </div>
@@ -767,21 +597,19 @@ const Navbar = () => {
                 })}
               </div>
             ) : (
-              /* Empty State */
               <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4">
-                <CartIcon className="w-20 h-20 opacity-50" />
-                <p className="text-lg">{t.navbar.yourCartEmpty}</p>
+                <CartIcon />
+                <p className="text-lg">Your cart is empty</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-4 bg-[#7CB640] text-white px-8 py-3 rounded-[8px] font-medium hover:bg-[#7CB640]"
+                  className="mt-4 bg-[#000000] text-white px-8 py-3 rounded-[8px] font-medium hover:bg-[#6ba536] cursor-pointer"
                 >
-                  {t.navbar.continueShopping}
+                  Continue Shopping
                 </button>
               </div>
             )}
           </div>
 
-          {/* Footer - Checkout Section */}
           {cartItems.length > 0 && (
             <div className="mt-auto pt-6 border-t border-gray-100">
               <div className="flex justify-between items-center mb-4 px-2">
@@ -795,7 +623,7 @@ const Navbar = () => {
                   setIsCartOpen(false);
                   router.push("/order");
                 }}
-                className="w-full bg-[#7CB640] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+                className="w-full bg-[#000000] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               >
                 Checkout Now
               </button>
@@ -804,117 +632,16 @@ const Navbar = () => {
         </div>
       </div>
 
-      {(isDrawerOpen || isCartOpen) && (
+      {/* Backdrop */}
+      {(isCartOpen || menuOpen) && (
         <div
-          className="fixed inset-0 bg-black/60 z-200"
+          className="fixed inset-0 bg-black/60 z-[200]"
           onClick={() => {
-            setIsDrawerOpen(false);
             setIsCartOpen(false);
+            setMenuOpen(false);
           }}
         />
       )}
-
-      {/* --- RESTORED ORIGINAL MOBILE BOTTOM NAV --- */}
-      {isStoreReady && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 h-[70px] z-[190] grid grid-cols-5 items-center px-2 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] text-[#7CB640] font-poppins">
-          {/* Home Button */}
-          <Link
-            href="/"
-            className={`flex flex-col items-center justify-center text-center active:scale-95 transition-all duration-200 ${
-              pathname === "/" ? "font-bold scale-110" : "font-normal"
-            }`}
-          >
-            <House size={20} />
-            <span className="text-[10px] sm:text-[12px] mt-1 font-inter">
-              {t.navbar.home}
-            </span>
-          </Link>
-
-          {/* Category Button */}
-          <button
-            onClick={() => setIsDrawerOpen(true)}
-            className="flex flex-col items-center justify-center active:scale-95"
-          >
-            <FiMenu size={22} />
-            <span className="text-[10px] mt-1">{t.navbar.categories}</span>
-          </button>
-
-          {/* Central Custom Floating Logo - Perfect Center */}
-          <div className="relative flex justify-center items-center">
-            <div className="absolute -top-10">
-              {" "}
-              {/* -top-5 এর বদলে -top-10 ট্রাই করতে পারেন সুন্দর দেখানোর জন্য */}
-              <button className="bg-white rounded-full p-2.5 shadow-[0_4px_15px_rgba(0,0,0,0.15)] w-[65px] h-[65px] flex items-center justify-center active:scale-95 transition-transform cursor-pointer border border-gray-100">
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <Image
-                    src={usableImageUrl}
-                    alt="Brand"
-                    fill
-                    className="object-contain p-1"
-                    unoptimized
-                  />
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Chat Button */}
-          <button
-            onClick={() => useAuthStore.getState().setIsChatOpen?.(true)}
-            className="flex flex-col items-center justify-center active:scale-95"
-          >
-            <ChatIcon className="w-6" />
-            <span className="text-[10px] mt-1">Chat</span>
-          </button>
-
-          {/* Login / Profile Button */}
-          <a
-            href="#"
-            onClick={handleProfileNav}
-            className={`flex flex-col items-center justify-center text-center active:scale-95 transition-all duration-200 cursor-pointer ${
-              pathname === "/profile" ||
-              pathname === "/signin" ||
-              pathname === "/signup"
-                ? "font-bold scale-110"
-                : "font-normal"
-            }`}
-          >
-            <UserIcon size={22} />
-            <span className="text-[10px] mt-1">
-              {user ? t.navbar.profile : t.navbar.login}
-            </span>
-          </a>
-        </div>
-      )}
-    </>
-  );
-};
-
-const NavDropdown = ({ items, isRoot }: NavDropdownProps) => {
-  return (
-    <div
-      className={`absolute ${isRoot ? "top-full left-0 mt-4" : "top-0 left-full ml-1"} w-56 bg-white shadow-xl rounded-lg border border-gray-100 z-[9999] opacity-0 invisible group-hover/main:opacity-100 group-hover/main:visible transition-all duration-300 transform origin-top`}
-    >
-      <ul className="py-2">
-        {items.map((subItem) => (
-          <li key={subItem.id} className="relative group/sub">
-            <Link
-              href={`/category/${subItem.slug}`}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-[#7CB640] hover:bg-gray-50 flex items-center justify-between transition-colors"
-            >
-              {subItem.name}
-              {subItem.children && subItem.children.length > 0 && (
-                <FiChevronDown className="-rotate-90 text-gray-400" />
-              )}
-            </Link>
-            {subItem.children && subItem.children.length > 0 && (
-              <NavDropdown items={subItem.children} />
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
-};
-
-export default Navbar;
+}

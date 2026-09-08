@@ -6,7 +6,7 @@ import { useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getBrands, Brand, BrandResponse } from "@/services-api/brandService";
 import { filterProducts } from "@/services-api/productService";
-import ProductCard from "@/components/store-front/common/ProductCard";
+import { ProductCard } from "@/components/store-front/common/ProductCard";
 import { Product } from "@/@types/product.type";
 import React from "react";
 import { FaChevronRight } from "react-icons/fa";

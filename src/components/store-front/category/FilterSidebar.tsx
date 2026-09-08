@@ -75,7 +75,12 @@ export default function FilterSidebar({
             0,
           );
           return {
-            ...item,
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            parent_id: item.parent_id,
+            image_url: item.image_url,
+            label: item.name,
             product_count: ownCount + childrenCount,
             children,
           };

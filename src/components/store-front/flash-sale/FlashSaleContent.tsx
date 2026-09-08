@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { FaChevronRight, FaBolt } from "react-icons/fa";
-import ProductCard from "@/components/store-front/common/ProductCard";
+import { ProductCard } from "@/components/store-front/common/ProductCard";
 import { Product } from "@/@types/product.type";
 import { getHomeTags, HomeTagSection } from "@/services-api/tagService";
 import { useLanguage } from "@/providers/LanguageProvider";

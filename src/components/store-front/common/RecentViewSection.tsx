@@ -126,7 +126,7 @@ const RecentlyViewed = () => {
                         {product?.name}
                       </h3>
 
-                      <p className="text-[#7CB640] font-poppins text-[12px] font-bold mb-1">
+                      <p className="text-[#000000] font-poppins text-[12px] font-bold mb-1">
                         {t.product.bdt}{" "}
                         {product?.sell_price > 0
                           ? product?.sell_price
