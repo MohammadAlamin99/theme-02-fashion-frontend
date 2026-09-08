@@ -58,6 +58,19 @@ interface UploadResponse {
   };
 }
 
+function extractImageUrl(val: unknown): string {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const inner = (val as Record<string, unknown>).url;
+    if (typeof inner === "string") return inner;
+    if (inner && typeof inner === "object") {
+      const deepUrl = (inner as Record<string, unknown>).url;
+      if (typeof deepUrl === "string") return deepUrl;
+    }
+  }
+  return "";
+}
+
 export default function BlogForm({
   editingId,
   formData,
@@ -222,12 +235,14 @@ export default function BlogForm({
     const imgPath =
       product?.featured_image ||
       product?.thumbnail ||
-      (product?.images && product.images.length > 0 ? product.images[0] : null);
-    const imgSrc = imgPath
-      ? imgPath.startsWith("http")
-        ? imgPath
-        : `${backendBaseUrl}/${imgPath.replace(/^\/+/, "")}`
-      : null;
+      extractImageUrl(product?.images?.[0]);
+
+    const rowimage = (imgPath || "").trim();
+    const imgSrc = rowimage
+      ? rowimage.startsWith("http")
+        ? rowimage
+        : `${backendBaseUrl}/${rowimage.replace(/^\/+/, "")}`
+      : "/images/placeholder.svg";
 
     return (
       <div className="flex items-center gap-3">
